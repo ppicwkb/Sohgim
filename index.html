@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring Stok Gudang</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f4f8;
+    }
+    
+    .status-low {
+      background-color: #FECACA;
+      color: #991B1B;
+    }
+    
+    .status-medium {
+      background-color: #FEF3C7;
+
+      color: #92400E;
+    }
+    
+    .status-good {
+      background-color: #D1FAE5;
+      color: #065F46;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .hover-row:hover {
+      background-color: #EFF6FF;
+      transition: background-color 0.2s;
+    }
+    
+    .loading-spinner {
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-top: 3px solid #3498db;
+
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="p-4 md:p-6">
+  <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex items-center mb-4 md:mb-0">
+          <div class="bg-white p-2 rounded-lg shadow-md mr-4">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+
+class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold text-white">Monitoring Stok Gudang</h1>
+            <p class="text-blue-100">Terhubung dengan Google Sheets</p>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <button id="refreshBtn" class="bg-white text-blue-700 px-4 py-2 rounded-lg shadow flex items-center hover:bg-blue-50 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 
+
+0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Refresh Data
+          </button>
+          <div id="lastUpdate" class="text-blue-100 ml-4 text-sm hidden md:block">
+            Terakhir diperbarui: <span id="updateTime">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Dashboard Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-gray-50 border-b">
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Total Produk</p>
+            <h3 id="totalProducts" class="text-2xl font-bold">-</h3>
+
+          </div>
+          <div class="bg-blue-100 p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Total Stok</p>
+            <h3 id="totalStock" class="text-2xl font-bold">-</h3>
+          </div>
+          <div class="bg-green-100 p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" 
+
+viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+        <div class="flex justify-between items-center">
+          <div>
+            <p class="text-gray-500 text-sm">Lokasi Gudang</p>
+            <h3 id="totalLocations" class="text-2xl font-bold">-</h3>
+          </div>
+          <div class="bg-purple-100 p-3 rounded-full">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-
+
+linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Search and Filter -->
+    <div class="p-6">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
+        <div class="relative flex-grow md:max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 
+
+21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" id="search" placeholder="Cari produk, ID, atau lokasi..." 
+                 class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
+        </div>
+        
+        <div class="flex space-x-2">
+          <select id="locationFilter" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
+            <option value="">Semua Lokasi</option>
+          </select>
+          
+          <select id="stockFilter" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
+            <option value="">Semua Stok</option>
+            <option value="low">Stok Rendah</option>
+            <option value="medium">Stok Sedang</option>
+
+            <option value="good">Stok Baik</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Table -->
+      <div class="overflow-x-auto rounded-lg border border-gray-200">
+        <table id="stockTable" class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="id">
+                ID
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left 
+
+text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="nama">
+                Nama Produk
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="palet">
+                No Palet
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase 
+
+tracking-wider cursor-pointer" data-sort="lokasi">
+                Lokasi
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="stok">
+                Jumlah Stok
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                </svg>
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+
+                Status
+              </th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
+            <tr>
+              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                <div class="flex flex-col items-center">
+                  <div class="loading-spinner mb-4"></div>
+                  <p>Memuat data dari Google Sheets...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="flex items-center justify-between mt-4">
+        <div class="text-sm text-gray-500">
+          Menampilkan <span id="showing">0</span> dari <span id="totalItems">0</span> item
+
+        </div>
+        <div class="flex space-x-2">
+          <button id="prevPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            &laquo; Sebelumnya
+          </button>
+          <div id="pageNumbers" class="flex space-x-1">
+            <!-- Page numbers will be inserted here -->
+          </div>
+          <button id="nextPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            Selanjutnya &raquo;
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // ID spreadsheet yang sudah diupdate
+    const SHEET_ID = "1kWuc2yMEAeeHQkC5sVvGdNEwH8YLpif2aIQL8qzF3ds";
+
+    const SHEET_NAME = "Sheet1"; // nama sheet
+    const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+    
+    // Variabel untuk data dan pagination
+    let allData = [];
+    let filteredData = [];
+    let currentPage = 1;
+    let itemsPerPage = 10;
+    let currentSort = { column: 'id', direction: 'asc' };
+    let uniqueLocations = new Set();
+    
+    // Fungsi load data dari Google Sheets
+    function loadSheetData() {
+      document.getElementById('tableBody').innerHTML = `
+        <tr>
+          <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+            <div class="flex flex-col items-center">
+              <div class="loading-spinner mb-4"></div>
+              <p>Memuat data dari Google Sheets...</p>
+            </div>
+
+          </td>
+        </tr>
+      `;
+      
+      fetch(API_URL)
+        .then(res => res.text())
+        .then(data => {
+          try {
+            // Parse data dari Google Sheets
+            const jsonData = JSON.parse(data.substr(47).slice(0, -2));
+            const rows = jsonData.table.rows;
+            
+            // Reset data
+            allData = [];
+            uniqueLocations = new Set();
+            
+            // Process data
+            rows.forEach(row => {
+              if (row.c) {
+                let id = row.c[0]?.v || "";
+                let nama = row.c[1]?.v || "";
+                let palet = row.c[2]?.v || "";
+                let lokasi = row.c[3]?.v || "";
+                let stok = row.c[4]?.v || 0;
+
+                
+                // Add to data array
+                allData.push({
+                  id: id,
+                  nama: nama,
+                  palet: palet,
+                  lokasi: lokasi,
+                  stok: parseInt(stok) || 0,
+                  status: getStockStatus(parseInt(stok) || 0)
+                });
+                
+                // Add to unique locations
+                if (lokasi) uniqueLocations.add(lokasi);
+              }
+            });
+            
+            // Update location filter
+            updateLocationFilter();
+            
+            // Update dashboard summary
+            updateDashboardSummary();
+            
+            // Update last refresh time
+            document.getElementById('updateTime').textConten
+
+t = new Date().toLocaleTimeString();
+            
+            // Apply filters and sort
+            applyFiltersAndSort();
+            
+          } catch (error) {
+            console.error("Error parsing data:", error);
+            document.getElementById('tableBody').innerHTML = `
+              <tr>
+                <td colspan="6" class="px-6 py-4 text-center text-red-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Gagal memuat data. Silakan coba lagi.
+                </td>
+              </tr>
+            `;
+          }
+
+        })
+        .catch(err => {
+          console.error("Gagal load data", err);
+          document.getElementById('tableBody').innerHTML = `
+            <tr>
+              <td colspan="6" class="px-6 py-4 text-center text-red-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Gagal terhubung ke Google Sheets. Periksa koneksi Anda dan pastikan spreadsheet telah dibagikan untuk publik.
+              </td>
+            </tr>
+          `;
+        });
+    }
+    
+
+    // Fungsi untuk menentukan status stok
+    function getStockStatus(stok) {
+      if (stok <= 10) return 'low';
+      if (stok <= 30) return 'medium';
+      return 'good';
+    }
+    
+    // Fungsi untuk mendapatkan label status stok
+    function getStatusLabel(status) {
+      switch (status) {
+        case 'low':
+          return `<span class="px-2 py-1 text-xs rounded-full status-low font-medium">Rendah</span>`;
+        case 'medium':
+          return `<span class="px-2 py-1 text-xs rounded-full status-medium font-medium">Sedang</span>`;
+        case 'good':
+          return `<span class="px-2 py-1 text-xs rounded-full status-good font-medium">Baik</span>`;
+        default:
+          return '';
+      }
+    }
+    
+    // Update location filter
+
+    function updateLocationFilter() {
+      const locationFilter = document.getElementById('locationFilter');
+      locationFilter.innerHTML = '<option value="">Semua Lokasi</option>';
+      
+      Array.from(uniqueLocations).sort().forEach(location => {
+        locationFilter.innerHTML += `<option value="${location}">${location}</option>`;
+      });
+    }
+    
+    // Update dashboard summary
+    function updateDashboardSummary() {
+      document.getElementById('totalProducts').textContent = allData.length;
+      
+      const totalStock = allData.reduce((sum, item) => sum + item.stok, 0);
+      document.getElementById('totalStock').textContent = totalStock.toLocaleString();
+
+      
+      document.getElementById('totalLocations').textContent = uniqueLocations.size;
+    }
+    
+    // Apply filters and sort
+    function applyFiltersAndSort() {
+      const searchTerm = document.getElementById('search').value.toLowerCase();
+      const locationFilter = document.getElementById('locationFilter').value;
+      const stockFilter = document.getElementById('stockFilter').value;
+      
+      // Filter data
+      filteredData = allData.filter(item => {
+        // Search filter
+        const matchesSearch = 
+          item.id.toString().toLowerCase().includes(searchTerm) ||
+          item.nama.toLowerCase().includes(searchTerm) ||
+
+          item.palet.toString().toLowerCase().includes(searchTerm) ||
+          item.lokasi.toLowerCase().includes(searchTerm);
+        
+        // Location filter
+        const matchesLocation = locationFilter === '' || item.lokasi === locationFilter;
+        
+        // Stock status filter
+        const matchesStockStatus = stockFilter === '' || item.status === stockFilter;
+        
+        return matchesSearch && matchesLocation && matchesStockStatus;
+      });
+      
+      // Sort data
+      filteredData.sort((a, b) => {
+        const aValue = a[currentSort.column];
+        const bValue = b[currentSort.column];
+        
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+
+          if (currentSort.direction === 'asc') {
+            return aValue.localeCompare(bValue);
+          } else {
+            return bValue.localeCompare(aValue);
+          }
+        } else {
+          if (currentSort.direction === 'asc') {
+            return aValue - bValue;
+          } else {
+            return bValue - aValue;
+          }
+        }
+      });
+      
+      // Reset to first page
+      currentPage = 1;
+      
+      // Render table and pagination
+      renderTable();
+      renderPagination();
+    }
+    
+    // Render table with current page data
+    function renderTable() {
+      const tableBody = 
+
+document.getElementById('tableBody');
+      const startIndex = (currentPage - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
+      const pageData = filteredData.slice(startIndex, endIndex);
+      
+      if (pageData.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <p>Tidak ada data yang ditemukan</p>
+              <p class="text-sm mt-1">Coba ubah filter atau kata kunci pencarian</p>
+
+            </td>
+          </tr>
+        `;
+        return;
+      }
+      
+      tableBody.innerHTML = '';
+      
+      pageData.forEach((item, index) => {
+        const row = document.createElement('tr');
+        row.className = 'hover-row fade-in';
+        row.style.animationDelay = `${index * 50}ms`;
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.nama}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.palet}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" fill="none" 
+
+viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              ${item.lokasi}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${item.status === 'low' ? 'text-red-600' : item.status === 'medium' ? 'text-yellow-600' : 'text-green-600'}">
+            ${item.stok.toLocaleString()}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            ${getStatusLabel(item.status)}
+          </td>
+        `;
+        
+        tableBody.appendChild(row);
+
+      });
+      
+      // Update showing count
+      document.getElementById('showing').textContent = pageData.length;
+      document.getElementById('totalItems').textContent = filteredData.length;
+    }
+    
+    // Render pagination
+    function renderPagination() {
+      const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+      const pageNumbers = document.getElementById('pageNumbers');
+      pageNumbers.innerHTML = '';
+      
+      // Previous button
+      document.getElementById('prevPage').disabled = currentPage === 1;
+      
+      // Next button
+      document.getElementById('nextPage').disabled = 
+
+currentPage === totalPages || totalPages === 0;
+      
+      // Page numbers
+      if (totalPages <= 5) {
+        // Show all pages
+        for (let i = 1; i <= totalPages; i++) {
+          addPageButton(i);
+        }
+      } else {
+        // Show limited pages with ellipsis
+        if (currentPage <= 3) {
+          // Near start
+          for (let i = 1; i <= 4; i++) {
+            addPageButton(i);
+          }
+          addEllipsis();
+          addPageButton(totalPages);
+        } else if (currentPage >= totalPages - 2) {
+          // Near end
+          addPageButton(1);
+          addEllipsis();
+          for (let i = totalPages - 3; i <= totalPages; i++) {
+            addPageButton(i);
+          }
+        } else {
+
+          // Middle
+          addPageButton(1);
+          addEllipsis();
+          for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+            addPageButton(i);
+          }
+          addEllipsis();
+          addPageButton(totalPages);
+        }
+      }
+    }
+    
+    // Add page button
+    function addPageButton(pageNum) {
+      const pageNumbers = document.getElementById('pageNumbers');
+      const button = document.createElement('button');
+      button.textContent = pageNum;
+      button.className = pageNum === currentPage 
+        ? 'px-3 py-1 bg-blue-600 text-white rounded-md text-sm' 
+        : 'px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50';
+      button.addEventListener('click', () => {
+
+        currentPage = pageNum;
+        renderTable();
+        renderPagination();
+      });
+      pageNumbers.appendChild(button);
+    }
+    
+    // Add ellipsis
+    function addEllipsis() {
+      const pageNumbers = document.getElementById('pageNumbers');
+      const ellipsis = document.createElement('span');
+      ellipsis.textContent = '...';
+      ellipsis.className = 'px-2 py-1 text-gray-500';
+      pageNumbers.appendChild(ellipsis);
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load data
+      loadSheetData();
+      
+      // Search input
+
+      document.getElementById('search').addEventListener('input', applyFiltersAndSort);
+      
+      // Filters
+      document.getElementById('locationFilter').addEventListener('change', applyFiltersAndSort);
+      document.getElementById('stockFilter').addEventListener('change', applyFiltersAndSort);
+      
+      // Refresh button
+      document.getElementById('refreshBtn').addEventListener('click', loadSheetData);
+      
+      // Pagination buttons
+      document.getElementById('prevPage').addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable();
+          renderPagination();
+
+        }
+      });
+      
+      document.getElementById('nextPage').addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderTable();
+          renderPagination();
+        }
+      });
+      
+      // Sort headers
+      document.querySelectorAll('th[data-sort]').forEach(header => {
+        header.addEventListener('click', () => {
+          const column = header.getAttribute('data-sort');
+          
+          if (currentSort.column === column) {
+            // Toggle direction
+            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+
+          } else {
+            // New column, default to ascending
+            currentSort.column = column;
+            currentSort.direction = 'asc';
+          }
+          
+          applyFiltersAndSort();
+        });
+      });
+    });
+  </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9644f695e0d56cf1',t:'MTc1MzM3NjMxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidde
+
+n';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
