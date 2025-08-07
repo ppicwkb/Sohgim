@@ -1,664 +1,1235 @@
-
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lokasi Stok GIM</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-    
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #f0f4f8;
-    }
-    
-    .status-low {
-      background-color: #FECACA;
-      color: #991B1B;
-    }
-    
-    .status-medium {
-      background-color: #FEF3C7;
-
-      color: #92400E;
-    }
-    
-    .status-good {
-      background-color: #D1FAE5;
-      color: #065F46;
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    .hover-row:hover {
-      background-color: #EFF6FF;
-      transition: background-color 0.2s;
-    }
-    
-    .loading-spinner {
-      border: 3px solid rgba(0, 0, 0, 0.1);
-      border-top: 3px solid #3498db;
-
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitung Visual - Kalkulator Layout Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-soft': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-soft': 'bounce 1s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .dark .glass-effect {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gradient-border {
+            background: linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899);
+            padding: 2px;
+            border-radius: 12px;
+        }
+        .gradient-border > div {
+            background: white;
+            border-radius: 10px;
+        }
+        .dark .gradient-border > div {
+            background: #1F2937;
+        }
+    </style>
 </head>
-<body class="p-4 md:p-6">
-  <div class="max-w-6xl mx-auto bg-white rounded-xl shadow-md overflow-hidden">
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen transition-colors duration-300">
     <!-- Header -->
-    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <div class="flex items-center mb-4 md:mb-0">
-          <div class="bg-white p-2 rounded-lg shadow-md mr-4">
-            <svg xmlns="http://www.w3.org/2000/svg" 
-
-class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-2xl font-bold text-white">Lokasi Stok GIM</h1>
-            <p class="text-blue-100">PPIC</p>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <button id="refreshBtn" class="bg-white text-blue-700 px-4 py-2 rounded-lg shadow flex items-center hover:bg-blue-50 transition-colors">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 
-
-0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh Data
-          </button>
-          <div id="lastUpdate" class="text-blue-100 ml-4 text-sm hidden md:block">
-            Terakhir diperbarui: <span id="updateTime">-</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Dashboard Summary -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-gray-50 border-b">
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-gray-500 text-sm">Total Produk</p>
-            <h3 id="totalProducts" class="text-2xl font-bold">-</h3>
-
-          </div>
-          <div class="bg-blue-100 p-3 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-            </svg>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-gray-500 text-sm">Total Stok</p>
-            <h3 id="totalStock" class="text-2xl font-bold">-</h3>
-          </div>
-          <div class="bg-green-100 p-3 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" 
-
-viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-        </div>
-      </div>
-      
-      <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-        <div class="flex justify-between items-center">
-          <div>
-            <p class="text-gray-500 text-sm">Lokasi Gudang</p>
-            <h3 id="totalLocations" class="text-2xl font-bold">-</h3>
-          </div>
-          <div class="bg-purple-100 p-3 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-
-
-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Search and Filter -->
-    <div class="p-6">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6 space-y-4 md:space-y-0">
-        <div class="relative flex-grow md:max-w-md">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 
-
-21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          <input type="text" id="search" placeholder="Cari produk, ID, atau lokasi..." 
-                 class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
-        </div>
-        
-        <div class="flex space-x-2">
-          <select id="locationFilter" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
-            <option value="">Semua Lokasi</option>
-          </select>
-          
-          <select id="stockFilter" class="bg-white border border-gray-300 text-gray-700 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none">
-            <option value="">Semua Stok</option>
-            <option value="low">Stok Rendah</option>
-            <option value="medium">Stok Sedang</option>
-
-            <option value="good">Stok Baik</option>
-          </select>
-        </div>
-      </div>
-      
-      <!-- Table -->
-      <div class="overflow-x-auto rounded-lg border border-gray-200">
-        <table id="stockTable" class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="id">
-                ID
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </th>
-              <th scope="col" class="px-6 py-3 text-left 
-
-text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="nama">
-                Nama Produk
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="palet">
-                No Palet
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase 
-
-tracking-wider cursor-pointer" data-sort="lokasi">
-                Lokasi
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" data-sort="stok">
-                Jumlah Stok
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                </svg>
-              </th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200" id="tableBody">
-            <tr>
-              <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                <div class="flex flex-col items-center">
-                  <div class="loading-spinner mb-4"></div>
-                  <p>Memuat data dari Google Sheets...</p>
+    <header class="sticky top-0 z-50 glass-effect">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            Hitung Visual
+                        </h1>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Kalkulator Layout Profesional</p>
+                    </div>
                 </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- Pagination -->
-      <div class="flex items-center justify-between mt-4">
-        <div class="text-sm text-gray-500">
-          Menampilkan <span id="showing">0</span> dari <span id="totalItems">0</span> item
-
+                
+                <div class="flex items-center space-x-3">
+                    <!-- Dark Mode Toggle -->
+                    <button id="darkModeToggle" class="p-2 rounded-lg bg-white/20 dark:bg-gray-800/50 hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-200">
+                        <svg id="sunIcon" class="w-5 h-5 text-gray-700 dark:text-gray-300 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <svg id="moonIcon" class="w-5 h-5 text-gray-700 dark:text-gray-300 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </div>
-        <div class="flex space-x-2">
-          <button id="prevPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-            &laquo; Sebelumnya
-          </button>
-          <div id="pageNumbers" class="flex space-x-1">
-            <!-- Page numbers will be inserted here -->
-          </div>
-          <button id="nextPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed">
-            Selanjutnya &raquo;
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <script>
-    // ID spreadsheet yang sudah diupdate
-    const SHEET_ID = "1kWuc2yMEAeeHQkC5sVvGdNEwH8YLpif2aIQL8qzF3ds";
+    </header>
 
-    const SHEET_NAME = "Sheet1"; // nama sheet
-    const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
-    
-    // Variabel untuk data dan pagination
-    let allData = [];
-    let filteredData = [];
-    let currentPage = 1;
-    let itemsPerPage = 10;
-    let currentSort = { column: 'id', direction: 'asc' };
-    let uniqueLocations = new Set();
-    
-    // Fungsi load data dari Google Sheets
-    function loadSheetData() {
-      document.getElementById('tableBody').innerHTML = `
-        <tr>
-          <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-            <div class="flex flex-col items-center">
-              <div class="loading-spinner mb-4"></div>
-              <p>Memuat data dari Google Sheets...</p>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+                Kalkulator Layout Visual
+            </h2>
+            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
+                Hitung dan visualisasikan penyusunan kotak dengan ukuran real (cm) ke dalam wadah tetap. 
+                Sesuaikan ukuran dan jumlah kotak per baris dengan berbagai mode penataan.
+            </p>
+            
+            <!-- Container Info -->
+            <div class="gradient-border inline-block">
+                <div class="px-6 py-3">
+                    <div class="flex items-center space-x-4 text-sm">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                            <span id="headerContainerSize" class="font-semibold text-gray-900 dark:text-white">Wadah: 229 × 253 cm</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <span id="headerContainerArea" class="font-semibold text-gray-900 dark:text-white">Luas: 57,937 cm²</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+                            </svg>
+                            <span class="font-semibold text-gray-900 dark:text-white">Layout: Bottom-Up</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Input Panel -->
+            <div class="space-y-6">
+                <!-- Container Settings -->
+                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
+                    <button id="containerToggle" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50/50 dark:hover:bg-gray-700/30 rounded-2xl transition-colors duration-200">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Ukuran Wadah</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    <span id="containerSummary">229 × 253 cm (57,937 cm²)</span>
+                                </p>
+                            </div>
+                        </div>
+                        <svg id="containerChevron" class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <div id="containerContent" class="hidden px-4 pb-4">
+                        <div class="grid sm:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lebar Wadah (cm)</label>
+                                <input type="number" id="containerWidth" value="229" min="10" step="0.1"
+                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tinggi Wadah (cm)</label>
+                                <input type="number" id="containerHeight" value="253" min="10" step="0.1"
+                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                        </div>
+                        <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-indigo-700 dark:text-indigo-300 font-medium">Luas Total:</span>
+                                <span id="containerAreaDisplay" class="text-indigo-900 dark:text-indigo-100 font-bold">57,937 cm²</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode Penataan -->
+                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
+                    <button id="arrangementToggle" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50/50 dark:hover:bg-gray-700/30 rounded-2xl transition-colors duration-200">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mode Penataan</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    <span id="arrangementSummary">Baris (kiri ke kanan, bawah ke atas)</span>
+                                </p>
+                            </div>
+                        </div>
+                        <svg id="arrangementChevron" class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <div id="arrangementContent" class="hidden px-4 pb-4">
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
+                                <input type="radio" name="arrangementMode" value="rows" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                <div class="ml-3">
+                                    <div class="font-medium text-gray-900 dark:text-white">Baris</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun mendatar (kiri ke kanan), baris demi baris dari bawah</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
+                                <input type="radio" name="arrangementMode" value="baris2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                <div class="ml-3">
+                                    <div class="font-medium text-gray-900 dark:text-white">Baris2</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun mendatar (kiri ke kanan) dalam satu kolom</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
+                                <input type="radio" name="arrangementMode" value="columns" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                <div class="ml-3">
+                                    <div class="font-medium text-gray-900 dark:text-white">Kolom</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun dari bawah ke atas, kolom demi kolom dari kiri ke kanan</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
+                                <input type="radio" name="arrangementMode" value="kolom2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                <div class="ml-3">
+                                    <div class="font-medium text-gray-900 dark:text-white">Kolom2</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun dari bawah ke atas dalam satu baris</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
+                                <input type="radio" name="arrangementMode" value="zigzag" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                                <div class="ml-3">
+                                    <div class="font-medium text-gray-900 dark:text-white">Zig-Zag Horizontal</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">Setiap baris arah susunannya bolak-balik (↔), mirip ular tangga</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris Input -->
+                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Daftar Baris Kotak
+                        </h3>
+                        <button id="addRow" class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            Tambah Baris
+                        </button>
+                    </div>
+                    
+                    <div id="rowsList" class="space-y-4">
+                        <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            <p class="font-medium mb-1">Belum ada baris kotak</p>
+                            <p class="text-sm">Klik "Tambah Baris" untuk memulai</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <button id="renderLayout" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Render Visual
+                    </button>
+                    <button id="exportPDF" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Export PDF
+                    </button>
+                </div>
             </div>
 
-          </td>
-        </tr>
-      `;
-      
-      fetch(API_URL)
-        .then(res => res.text())
-        .then(data => {
-          try {
-            // Parse data dari Google Sheets
-            const jsonData = JSON.parse(data.substr(47).slice(0, -2));
-            const rows = jsonData.table.rows;
-            
-            // Reset data
-            allData = [];
-            uniqueLocations = new Set();
-            
-            // Process data
-            rows.forEach(row => {
-              if (row.c) {
-                let id = row.c[0]?.v || "";
-                let nama = row.c[1]?.v || "";
-                let palet = row.c[2]?.v || "";
-                let lokasi = row.c[3]?.v || "";
-                let stok = row.c[4]?.v || 0;
+            <!-- Visualization Panel -->
+            <div class="space-y-6">
+                <!-- Results -->
+                <div id="resultsPanel" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up hidden">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        Hasil Perhitungan
+                    </h3>
+                    <div id="resultsContent" class="space-y-3"></div>
+                </div>
 
-                
-                // Add to data array
-                allData.push({
-                  id: id,
-                  nama: nama,
-                  palet: palet,
-                  lokasi: lokasi,
-                  stok: parseInt(stok) || 0,
-                  status: getStockStatus(parseInt(stok) || 0)
-                });
-                
-                // Add to unique locations
-                if (lokasi) uniqueLocations.add(lokasi);
-              }
+                <!-- Visualization -->
+                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                        </svg>
+                        Visualisasi Layout
+                    </h3>
+                    <div id="visualizationContainer" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 min-h-[500px] flex items-center justify-center">
+                        <div class="text-center text-gray-500 dark:text-gray-400">
+                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">Siap untuk Visualisasi</p>
+                            <p class="text-sm">Tambahkan baris kotak dan klik "Render Visual" untuk melihat hasilnya</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4 max-w-sm">
+            <div class="flex items-center">
+                <div id="toastIcon" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"></div>
+                <div>
+                    <p id="toastMessage" class="text-sm font-medium text-gray-900 dark:text-white"></p>
+                </div>
+                <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default container dimensions
+        let CONTAINER_WIDTH = 229; // cm
+        let CONTAINER_HEIGHT = 253; // cm
+        let CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
+
+        // Global state
+        let rows = [];
+        let layoutResult = null;
+        let rowIdCounter = 1;
+
+        // Toggle collapsible sections
+        function initCollapsibleSections() {
+            // Container toggle
+            const containerToggle = document.getElementById('containerToggle');
+            const containerContent = document.getElementById('containerContent');
+            const containerChevron = document.getElementById('containerChevron');
+            
+            containerToggle.addEventListener('click', () => {
+                const isHidden = containerContent.classList.contains('hidden');
+                if (isHidden) {
+                    containerContent.classList.remove('hidden');
+                    containerChevron.classList.add('rotate-180');
+                } else {
+                    containerContent.classList.add('hidden');
+                    containerChevron.classList.remove('rotate-180');
+                }
             });
             
-            // Update location filter
-            updateLocationFilter();
+            // Arrangement toggle
+            const arrangementToggle = document.getElementById('arrangementToggle');
+            const arrangementContent = document.getElementById('arrangementContent');
+            const arrangementChevron = document.getElementById('arrangementChevron');
             
-            // Update dashboard summary
-            updateDashboardSummary();
+            arrangementToggle.addEventListener('click', () => {
+                const isHidden = arrangementContent.classList.contains('hidden');
+                if (isHidden) {
+                    arrangementContent.classList.remove('hidden');
+                    arrangementChevron.classList.add('rotate-180');
+                } else {
+                    arrangementContent.classList.add('hidden');
+                    arrangementChevron.classList.remove('rotate-180');
+                }
+            });
             
-            // Update last refresh time
-            document.getElementById('updateTime').textConten
+            // Update arrangement summary when radio changes
+            const arrangementRadios = document.querySelectorAll('input[name="arrangementMode"]');
+            arrangementRadios.forEach(radio => {
+                radio.addEventListener('change', updateArrangementSummary);
+            });
+        }
 
-t = new Date().toLocaleTimeString();
+        // Update arrangement summary
+        function updateArrangementSummary() {
+            const selected = document.querySelector('input[name="arrangementMode"]:checked');
+            const summary = document.getElementById('arrangementSummary');
             
-            // Apply filters and sort
-            applyFiltersAndSort();
+            const summaries = {
+                rows: 'Baris (kiri ke kanan, bawah ke atas)',
+                baris2: 'Baris2 (mendatar dalam satu kolom)',
+                columns: 'Kolom (bawah ke atas, kiri ke kanan)',
+                kolom2: 'Kolom2 (bawah ke atas dalam satu baris)',
+                zigzag: 'Zig-Zag (bolak-balik horizontal)'
+            };
             
-          } catch (error) {
-            console.error("Error parsing data:", error);
-            document.getElementById('tableBody').innerHTML = `
-              <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-red-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Gagal memuat data. Silakan coba lagi.
-                </td>
-              </tr>
+            if (selected && summaries[selected.value]) {
+                summary.textContent = summaries[selected.value];
+            }
+        }
+
+        // Update container dimensions
+        function updateContainerDimensions() {
+            const widthInput = document.getElementById('containerWidth');
+            const heightInput = document.getElementById('containerHeight');
+            
+            CONTAINER_WIDTH = parseFloat(widthInput.value) || 229;
+            CONTAINER_HEIGHT = parseFloat(heightInput.value) || 253;
+            CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
+            
+            // Update displays
+            document.getElementById('containerAreaDisplay').textContent = CONTAINER_AREA.toLocaleString() + ' cm²';
+            document.getElementById('headerContainerSize').textContent = `Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`;
+            document.getElementById('headerContainerArea').textContent = `Luas: ${CONTAINER_AREA.toLocaleString()} cm²`;
+            document.getElementById('containerSummary').textContent = `${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm (${CONTAINER_AREA.toLocaleString()} cm²)`;
+            
+            // Update rows list to reflect new container width
+            updateRowsList();
+            
+            // Save container settings
+            saveContainerSettings();
+        }
+
+        // Save container settings
+        function saveContainerSettings() {
+            const settings = {
+                width: CONTAINER_WIDTH,
+                height: CONTAINER_HEIGHT
+            };
+            localStorage.setItem('hitungVisualContainer', JSON.stringify(settings));
+        }
+
+        // Load container settings
+        function loadContainerSettings() {
+            const saved = localStorage.getItem('hitungVisualContainer');
+            if (saved) {
+                const settings = JSON.parse(saved);
+                CONTAINER_WIDTH = settings.width || 229;
+                CONTAINER_HEIGHT = settings.height || 253;
+                CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
+                
+                document.getElementById('containerWidth').value = CONTAINER_WIDTH;
+                document.getElementById('containerHeight').value = CONTAINER_HEIGHT;
+                updateContainerDimensions();
+            }
+        }
+
+        // Load saved data
+        function loadSavedData() {
+            const saved = localStorage.getItem('hitungVisualRows');
+            if (saved) {
+                const data = JSON.parse(saved);
+                rows = data.rows || [];
+                rowIdCounter = data.rowIdCounter || 1;
+                updateRowsList();
+                updateRenderButton();
+            }
+        }
+
+        // Save data
+        function saveData() {
+            const data = {
+                rows,
+                rowIdCounter
+            };
+            localStorage.setItem('hitungVisualRows', JSON.stringify(data));
+        }
+
+        // Dark mode functionality
+        function initDarkMode() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const isDark = localStorage.getItem('darkMode') === 'true';
+            
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+            }
+
+            darkModeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                localStorage.setItem('darkMode', isDarkMode);
+            });
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            const icons = {
+                success: { icon: '✓', bg: 'bg-green-100 text-green-600' },
+                error: { icon: '✕', bg: 'bg-red-100 text-red-600' },
+                warning: { icon: '⚠', bg: 'bg-yellow-100 text-yellow-600' },
+                info: { icon: 'ℹ', bg: 'bg-blue-100 text-blue-600' }
+            };
+            
+            const config = icons[type] || icons.info;
+            toastIcon.className = `flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 ${config.bg}`;
+            toastIcon.textContent = config.icon;
+            toastMessage.textContent = message;
+            
+            toast.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Close toast
+        document.getElementById('toastClose').addEventListener('click', () => {
+            document.getElementById('toast').classList.add('translate-x-full');
+        });
+
+        // Add new row
+        document.getElementById('addRow').addEventListener('click', () => {
+            const newRow = {
+                id: rowIdCounter++,
+                count: 1,
+                width: 50,
+                height: 30
+            };
+            
+            rows.push(newRow);
+            updateRowsList();
+            updateRenderButton();
+            saveData();
+            showToast('Baris baru berhasil ditambahkan', 'success');
+        });
+
+        // Update rows list
+        function updateRowsList() {
+            const rowsList = document.getElementById('rowsList');
+            
+            if (rows.length === 0) {
+                rowsList.innerHTML = `
+                    <div class="text-center text-gray-500 dark:text-gray-400 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        <p class="font-medium mb-1">Belum ada baris kotak</p>
+                        <p class="text-sm">Klik "Tambah Baris" untuk memulai</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            rowsList.innerHTML = rows.map((row, index) => {
+                const totalWidth = row.count * row.width;
+                const isOverflow = totalWidth > CONTAINER_WIDTH;
+                const area = row.count * row.width * row.height;
+                
+                return `
+                    <div class="border border-gray-200 dark:border-gray-600 rounded-xl p-4 ${isOverflow ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/10' : 'bg-white/50 dark:bg-gray-700/50'}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
+                                    ${index + 1}
+                                </div>
+                                <h4 class="font-semibold text-gray-900 dark:text-white">Baris ${index + 1}</h4>
+                                ${isOverflow ? '<span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-full font-medium">Melebihi Lebar</span>' : ''}
+                            </div>
+                            <button onclick="removeRow(${row.id})" class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="grid sm:grid-cols-3 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Jumlah Kotak</label>
+                                <input type="number" value="${row.count}" min="1" max="20" 
+                                       onchange="updateRow(${row.id}, 'count', this.value)"
+                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Lebar (cm)</label>
+                                <input type="number" value="${row.width}" min="1" step="0.1"
+                                       onchange="updateRow(${row.id}, 'width', this.value)"
+                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tinggi (cm)</label>
+                                <input type="number" value="${row.height}" min="1" step="0.1"
+                                       onchange="updateRow(${row.id}, 'height', this.value)"
+                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                            <span>Total Lebar: <strong class="${isOverflow ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}">${totalWidth} cm</strong></span>
+                            <span>Luas: <strong class="text-gray-900 dark:text-white">${area.toFixed(1)} cm²</strong></span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update row data
+        function updateRow(id, field, value) {
+            const row = rows.find(r => r.id === id);
+            if (row) {
+                row[field] = parseFloat(value) || 1;
+                updateRowsList();
+                updateRenderButton();
+                saveData();
+            }
+        }
+
+        // Remove row
+        function removeRow(id) {
+            rows = rows.filter(row => row.id !== id);
+            updateRowsList();
+            updateRenderButton();
+            saveData();
+            showToast('Baris berhasil dihapus', 'success');
+        }
+
+        // Update render button state
+        function updateRenderButton() {
+            const renderButton = document.getElementById('renderLayout');
+            renderButton.disabled = rows.length === 0;
+        }
+
+        // Get selected arrangement mode
+        function getSelectedArrangementMode() {
+            const selected = document.querySelector('input[name="arrangementMode"]:checked');
+            return selected ? selected.value : 'rows';
+        }
+
+        // Get arrangement mode name
+        function getArrangementModeName(mode) {
+            const names = {
+                rows: 'Baris',
+                baris2: 'Baris2',
+                columns: 'Kolom',
+                kolom2: 'Kolom2',
+                zigzag: 'Zig-Zag Horizontal'
+            };
+            return names[mode] || mode;
+        }
+
+        // Convert rows to boxes
+        function convertRowsToBoxes() {
+            const boxes = [];
+            let boxId = 1;
+            
+            rows.forEach((row, rowIndex) => {
+                for (let i = 0; i < row.count; i++) {
+                    boxes.push({
+                        id: boxId++,
+                        width: row.width,
+                        height: row.height,
+                        area: row.width * row.height,
+                        rowIndex: rowIndex,
+                        boxInRow: i
+                    });
+                }
+            });
+            
+            return boxes;
+        }
+
+        // Calculate layout
+        function calculateLayout(arrangementMode = 'rows') {
+            const boxes = convertRowsToBoxes();
+            let placedBoxes = [];
+            let unplacedBoxes = [];
+            
+            // Apply arrangement mode
+            switch (arrangementMode) {
+                case 'baris2':
+                    ({ placedBoxes, unplacedBoxes } = arrangeInBaris2(boxes));
+                    break;
+                case 'columns':
+                    ({ placedBoxes, unplacedBoxes } = arrangeInColumns(boxes));
+                    break;
+                case 'kolom2':
+                    ({ placedBoxes, unplacedBoxes } = arrangeInKolom2(boxes));
+                    break;
+                case 'zigzag':
+                    ({ placedBoxes, unplacedBoxes } = arrangeInZigZag(boxes));
+                    break;
+                case 'rows':
+                default:
+                    ({ placedBoxes, unplacedBoxes } = arrangeInRows(boxes));
+                    break;
+            }
+            
+            const totalBoxes = boxes.length;
+            const totalArea = boxes.reduce((sum, box) => sum + box.area, 0);
+            const placedArea = placedBoxes.reduce((sum, box) => sum + box.area, 0);
+            const efficiency = (placedArea / CONTAINER_AREA) * 100;
+            
+            return {
+                arrangementMode,
+                placedBoxes,
+                unplacedBoxes,
+                totalBoxes,
+                placedCount: placedBoxes.length,
+                unplacedCount: unplacedBoxes.length,
+                totalArea,
+                placedArea,
+                efficiency,
+                rows: rows.length
+            };
+        }
+
+        // Arrange boxes in rows (left to right, bottom to top)
+        function arrangeInRows(boxes) {
+            const placedBoxes = [];
+            const unplacedBoxes = [];
+            let currentX = 0;
+            let currentY = CONTAINER_HEIGHT; // Start from bottom
+            let rowHeight = 0;
+            
+            for (const box of boxes) {
+                // Check if box fits in current row (from bottom)
+                if (currentX + box.width <= CONTAINER_WIDTH && currentY - box.height >= 0) {
+                    placedBoxes.push({
+                        ...box,
+                        x: currentX,
+                        y: currentY - box.height // Position from bottom
+                    });
+                    currentX += box.width;
+                    rowHeight = Math.max(rowHeight, box.height);
+                } else if (currentY - rowHeight - box.height >= 0) {
+                    // Move to next row (going up)
+                    currentY -= rowHeight;
+                    currentX = 0;
+                    rowHeight = 0;
+                    
+                    // Try to place in new row
+                    if (box.width <= CONTAINER_WIDTH) {
+                        placedBoxes.push({
+                            ...box,
+                            x: currentX,
+                            y: currentY - box.height
+                        });
+                        currentX += box.width;
+                        rowHeight = box.height;
+                    } else {
+                        unplacedBoxes.push(box);
+                    }
+                } else {
+                    unplacedBoxes.push(box);
+                }
+            }
+            
+            return { placedBoxes, unplacedBoxes };
+        }
+
+        // Arrange boxes in columns (bottom to top, left to right)
+        function arrangeInColumns(boxes) {
+            const placedBoxes = [];
+            const unplacedBoxes = [];
+            let currentX = 0;
+            let currentY = CONTAINER_HEIGHT; // Start from bottom
+            let columnWidth = 0;
+            
+            for (const box of boxes) {
+                // Check if box fits in current column (from bottom going up)
+                if (currentY - box.height >= 0 && currentX + box.width <= CONTAINER_WIDTH) {
+                    placedBoxes.push({
+                        ...box,
+                        x: currentX,
+                        y: currentY - box.height // Position from bottom
+                    });
+                    currentY -= box.height; // Move up for next box
+                    columnWidth = Math.max(columnWidth, box.width);
+                } else if (currentX + columnWidth + box.width <= CONTAINER_WIDTH) {
+                    // Move to next column (to the right)
+                    currentX += columnWidth;
+                    currentY = CONTAINER_HEIGHT; // Reset to bottom of new column
+                    columnWidth = 0;
+                    
+                    // Try to place in new column
+                    if (box.height <= CONTAINER_HEIGHT) {
+                        placedBoxes.push({
+                            ...box,
+                            x: currentX,
+                            y: currentY - box.height
+                        });
+                        currentY -= box.height;
+                        columnWidth = box.width;
+                    } else {
+                        unplacedBoxes.push(box);
+                    }
+                } else {
+                    // Box doesn't fit anywhere
+                    unplacedBoxes.push(box);
+                }
+            }
+            
+            return { placedBoxes, unplacedBoxes };
+        }
+
+        // Arrange boxes in baris2 pattern (left to right in single column, following row arrangement)
+        function arrangeInBaris2(boxes) {
+            const placedBoxes = [];
+            const unplacedBoxes = [];
+            let currentY = CONTAINER_HEIGHT; // Start from bottom
+            const currentX = 0; // Single column at left
+            
+            // Group boxes by their original rows
+            const boxesByRow = {};
+            boxes.forEach(box => {
+                if (!boxesByRow[box.rowIndex]) {
+                    boxesByRow[box.rowIndex] = [];
+                }
+                boxesByRow[box.rowIndex].push(box);
+            });
+            
+            // Process each row's boxes in sequence
+            Object.keys(boxesByRow).sort((a, b) => parseInt(a) - parseInt(b)).forEach(rowIndex => {
+                const rowBoxes = boxesByRow[rowIndex];
+                let rowX = currentX; // Start each row from left edge
+                
+                for (const box of rowBoxes) {
+                    // Check if box fits horizontally in current row position
+                    if (rowX + box.width <= CONTAINER_WIDTH && currentY - box.height >= 0) {
+                        placedBoxes.push({
+                            ...box,
+                            x: rowX,
+                            y: currentY - box.height // Position from bottom
+                        });
+                        rowX += box.width; // Move right for next box in same row
+                    } else {
+                        // Box doesn't fit in current row
+                        unplacedBoxes.push(box);
+                    }
+                }
+                
+                // Move down for next row (if there are boxes placed in current row)
+                if (rowX > currentX) {
+                    const rowHeight = Math.max(...rowBoxes.filter(box => 
+                        placedBoxes.some(placed => placed.id === box.id)
+                    ).map(box => box.height));
+                    currentY -= rowHeight;
+                }
+            });
+            
+            return { placedBoxes, unplacedBoxes };
+        }
+
+        // Arrange boxes in kolom2 pattern (bottom to top in single row, following row arrangement)
+        function arrangeInKolom2(boxes) {
+            const placedBoxes = [];
+            const unplacedBoxes = [];
+            let currentX = 0; // Start from left
+            const currentY = CONTAINER_HEIGHT; // Single row at bottom
+            
+            // Group boxes by their original rows
+            const boxesByRow = {};
+            boxes.forEach(box => {
+                if (!boxesByRow[box.rowIndex]) {
+                    boxesByRow[box.rowIndex] = [];
+                }
+                boxesByRow[box.rowIndex].push(box);
+            });
+            
+            // Process each row's boxes in sequence
+            Object.keys(boxesByRow).sort((a, b) => parseInt(a) - parseInt(b)).forEach(rowIndex => {
+                const rowBoxes = boxesByRow[rowIndex];
+                let columnY = currentY; // Start each column from bottom
+                
+                for (const box of rowBoxes) {
+                    // Check if box fits vertically in current column position
+                    if (columnY - box.height >= 0 && currentX + box.width <= CONTAINER_WIDTH) {
+                        placedBoxes.push({
+                            ...box,
+                            x: currentX,
+                            y: columnY - box.height // Position from bottom going up
+                        });
+                        columnY -= box.height; // Move up for next box in same column
+                    } else {
+                        // Box doesn't fit in current column
+                        unplacedBoxes.push(box);
+                    }
+                }
+                
+                // Move right for next column (if there are boxes placed in current column)
+                if (columnY < currentY) {
+                    const columnWidth = Math.max(...rowBoxes.filter(box => 
+                        placedBoxes.some(placed => placed.id === box.id)
+                    ).map(box => box.width));
+                    currentX += columnWidth;
+                }
+            });
+            
+            return { placedBoxes, unplacedBoxes };
+        }
+
+        // Arrange boxes in zig-zag pattern (alternating row directions, bottom-up)
+        function arrangeInZigZag(boxes) {
+            const placedBoxes = [];
+            const unplacedBoxes = [];
+            let currentX = 0;
+            let currentY = CONTAINER_HEIGHT; // Start from bottom
+            let rowHeight = 0;
+            let rowNumber = 0;
+            let leftToRight = true;
+            
+            for (const box of boxes) {
+                // Check if box fits in current row (from bottom)
+                if ((leftToRight && currentX + box.width <= CONTAINER_WIDTH) || 
+                    (!leftToRight && currentX - box.width >= 0)) {
+                    
+                    if (currentY - box.height >= 0) {
+                        const xPos = leftToRight ? currentX : currentX - box.width;
+                        
+                        placedBoxes.push({
+                            ...box,
+                            x: xPos,
+                            y: currentY - box.height // Position from bottom
+                        });
+                        
+                        if (leftToRight) {
+                            currentX += box.width;
+                        } else {
+                            currentX -= box.width;
+                        }
+                        
+                        rowHeight = Math.max(rowHeight, box.height);
+                    } else {
+                        unplacedBoxes.push(box);
+                    }
+                } else {
+                    // Move to next row (going up)
+                    currentY -= rowHeight;
+                    rowNumber++;
+                    leftToRight = (rowNumber % 2 === 0); // Alternate direction
+                    currentX = leftToRight ? 0 : CONTAINER_WIDTH;
+                    rowHeight = 0;
+                    
+                    // Try to place in new row
+                    if (currentY - box.height >= 0 && box.width <= CONTAINER_WIDTH) {
+                        const xPos = leftToRight ? currentX : currentX - box.width;
+                        
+                        placedBoxes.push({
+                            ...box,
+                            x: xPos,
+                            y: currentY - box.height
+                        });
+                        
+                        if (leftToRight) {
+                            currentX += box.width;
+                        } else {
+                            currentX -= box.width;
+                        }
+                        
+                        rowHeight = box.height;
+                    } else {
+                        unplacedBoxes.push(box);
+                    }
+                }
+            }
+            
+            return { placedBoxes, unplacedBoxes };
+        }
+
+        // Render layout
+        document.getElementById('renderLayout').addEventListener('click', () => {
+            if (rows.length === 0) {
+                showToast('Tambahkan baris kotak terlebih dahulu', 'warning');
+                return;
+            }
+            
+            const arrangementMode = getSelectedArrangementMode();
+            layoutResult = calculateLayout(arrangementMode);
+            displayResults(layoutResult);
+            visualizeLayout(layoutResult);
+            document.getElementById('exportPDF').disabled = false;
+            showToast(`Layout berhasil dirender dengan mode ${getArrangementModeName(arrangementMode)}`, 'success');
+        });
+
+        // Display results
+        function displayResults(result) {
+            const resultsPanel = document.getElementById('resultsPanel');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            let modeInfo = `
+                <div class="mb-4 p-3 bg-gradient-to-r from-orange-50 to-cyan-50 dark:from-orange-900/20 dark:to-cyan-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
+                    <div class="flex items-center justify-center">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-cyan-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                            <span class="font-semibold text-cyan-800 dark:text-cyan-200">Mode Penataan: ${getArrangementModeName(result.arrangementMode)}</span>
+                        </div>
+                    </div>
+                </div>
             `;
-          }
+            
+            // Add individual row arrangement details for combined mode
+            if (result.arrangementMode === 'combined') {
+                modeInfo += `
+                    <div class="mb-4 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
+                        <h4 class="font-semibold text-purple-800 dark:text-purple-200 mb-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2z"></path>
+                            </svg>
+                            Detail Mode Per Baris:
+                        </h4>
+                        <div class="space-y-1 text-sm">
+                            ${rows.map((row, index) => `
+                                <div class="flex items-center justify-between">
+                                    <span class="text-purple-700 dark:text-purple-300">Baris ${index + 1}:</span>
+                                    <span class="font-medium text-purple-900 dark:text-purple-100">${getRowArrangementModeName(row.arrangementMode || 'horizontal')}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            resultsContent.innerHTML = `
+                ${modeInfo}
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <h4 class="font-semibold text-green-800 dark:text-green-200">Kotak Tertata</h4>
+                        </div>
+                        <p class="text-2xl font-bold text-green-600">${result.placedCount}</p>
+                        <p class="text-sm text-green-600 dark:text-green-400">dari ${result.totalBoxes} kotak</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                            <h4 class="font-semibold text-blue-800 dark:text-blue-200">Efisiensi</h4>
+                        </div>
+                        <p class="text-2xl font-bold text-blue-600">${result.efficiency.toFixed(1)}%</p>
+                        <p class="text-sm text-blue-600 dark:text-blue-400">ruang terpakai</p>
+                    </div>
+                </div>
+                
+                <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Detail Perhitungan</h4>
+                    <div class="grid sm:grid-cols-4 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-600 dark:text-gray-400">Jumlah Baris</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">${result.rows}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 dark:text-gray-400">Luas Kotak</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">${result.placedArea.toFixed(0)} cm²</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 dark:text-gray-400">Luas Wadah</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">${CONTAINER_AREA.toLocaleString()} cm²</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 dark:text-gray-400">Sisa Ruang</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">${(CONTAINER_AREA - result.placedArea).toFixed(0)} cm²</p>
+                        </div>
+                    </div>
+                </div>
+                
+                ${result.unplacedCount > 0 ? `
+                    <div class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <h4 class="font-semibold text-red-800 dark:text-red-200">Kotak Tidak Muat</h4>
+                        </div>
+                        <p class="text-red-600 dark:text-red-400">${result.unplacedCount} kotak tidak dapat ditata dalam wadah</p>
+                    </div>
+                ` : ''}
+            `;
+            
+            resultsPanel.classList.remove('hidden');
+        }
 
-        })
-        .catch(err => {
-          console.error("Gagal load data", err);
-          document.getElementById('tableBody').innerHTML = `
-            <tr>
-              <td colspan="6" class="px-6 py-4 text-center text-red-500">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Gagal terhubung ke Google Sheets. Periksa koneksi Anda dan pastikan spreadsheet telah dibagikan untuk publik.
-              </td>
-            </tr>
-          `;
+        // Visualize layout
+        function visualizeLayout(result) {
+            const container = document.getElementById('visualizationContainer');
+            const scale = Math.min(500 / CONTAINER_WIDTH, 400 / CONTAINER_HEIGHT);
+            const scaledWidth = CONTAINER_WIDTH * scale;
+            const scaledHeight = CONTAINER_HEIGHT * scale;
+            
+            const colors = [
+                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1',
+                '#14B8A6', '#F472B6', '#A855F7', '#EAB308', '#EF4444'
+            ];
+            
+            let svg = `
+                <div class="flex flex-col items-center space-y-4">
+                    <div class="text-center">
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            Mode: ${getArrangementModeName(result.arrangementMode)} • Skala: 1 cm = ${scale.toFixed(1)} px
+                        </p>
+                    </div>
+                    <div class="relative border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg" 
+                         style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
+            `;
+            
+            // Group boxes by row for color consistency
+            const boxesByRow = {};
+            result.placedBoxes.forEach(box => {
+                if (!boxesByRow[box.rowIndex]) {
+                    boxesByRow[box.rowIndex] = [];
+                }
+                boxesByRow[box.rowIndex].push(box);
+            });
+            
+            result.placedBoxes.forEach((box, index) => {
+                const color = colors[box.rowIndex % colors.length];
+                const x = box.x * scale;
+                const y = box.y * scale;
+                const width = box.width * scale;
+                const height = box.height * scale;
+                
+                svg += `
+                    <div class="absolute border border-white/50 flex items-center justify-center text-white text-xs font-bold shadow-sm hover:shadow-md transition-shadow duration-200"
+                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; background-color: ${color};"
+                         title="Baris ${box.rowIndex + 1}, Kotak ${box.boxInRow + 1}: ${box.width} × ${box.height} cm">
+                        ${box.rowIndex + 1}-${box.boxInRow + 1}
+                    </div>
+                `;
+            });
+            
+            svg += `
+                    </div>
+                    <div class="text-center">
+                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                            ${result.placedCount} kotak berhasil ditata • ${result.efficiency.toFixed(1)}% efisiensi
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = svg;
+        }
+
+        // Export to PDF
+        document.getElementById('exportPDF').addEventListener('click', async () => {
+            if (!layoutResult) {
+                showToast('Render layout terlebih dahulu', 'warning');
+                return;
+            }
+            
+            showToast('Sedang membuat PDF...', 'info');
+            
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('landscape');
+                
+                // Add title
+                pdf.setFontSize(20);
+                pdf.text('Laporan Hitung Visual', 20, 20);
+                
+                // Add container info
+                pdf.setFontSize(12);
+                pdf.text(`Ukuran Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`, 20, 35);
+                pdf.text(`Luas Wadah: ${CONTAINER_AREA.toLocaleString()} cm²`, 20, 45);
+                pdf.text(`Mode Penataan: ${getArrangementModeName(layoutResult.arrangementMode)}`, 20, 55);
+                
+                // Add results
+                pdf.text('Hasil Perhitungan:', 20, 75);
+                pdf.text(`• Jumlah Baris: ${layoutResult.rows}`, 25, 85);
+                pdf.text(`• Total Kotak: ${layoutResult.totalBoxes}`, 25, 95);
+                pdf.text(`• Kotak Tertata: ${layoutResult.placedCount}`, 25, 105);
+                pdf.text(`• Kotak Tidak Muat: ${layoutResult.unplacedCount}`, 25, 115);
+                pdf.text(`• Efisiensi: ${layoutResult.efficiency.toFixed(1)}%`, 25, 125);
+                pdf.text(`• Luas Terpakai: ${layoutResult.placedArea.toFixed(0)} cm²`, 25, 135);
+                
+                // Add rows details
+                if (rows.length > 0) {
+                    pdf.text('Detail Baris:', 20, 155);
+                    let yPos = 165;
+                    
+                    rows.forEach((row, index) => {
+                        if (yPos > 180) {
+                            pdf.addPage('landscape');
+                            yPos = 20;
+                        }
+                        const totalWidth = row.count * row.width;
+                        const area = row.count * row.width * row.height;
+                        pdf.text(`Baris ${index + 1}: ${row.count} kotak (${row.width} × ${row.height} cm) - Total: ${totalWidth} cm × ${row.height} cm = ${area.toFixed(1)} cm²`, 25, yPos);
+                        yPos += 10;
+                    });
+                }
+                
+                // Capture visualization
+                const visualElement = document.getElementById('visualizationContainer');
+                const canvas = await html2canvas(visualElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                pdf.addPage('landscape');
+                pdf.text('Visualisasi Layout:', 20, 20);
+                pdf.addImage(imgData, 'PNG', 20, 30, 250, 150);
+                
+                // Save PDF
+                pdf.save(`hitung-visual-${new Date().toISOString().split('T')[0]}.pdf`);
+                showToast('PDF berhasil diekspor', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting PDF:', error);
+                showToast('Gagal mengekspor PDF', 'error');
+            }
         });
-    }
-    
 
-    // Fungsi untuk menentukan status stok
-    function getStockStatus(stok) {
-      if (stok <= 10) return 'low';
-      if (stok <= 30) return 'medium';
-      return 'good';
-    }
-    
-    // Fungsi untuk mendapatkan label status stok
-    function getStatusLabel(status) {
-      switch (status) {
-        case 'low':
-          return `<span class="px-2 py-1 text-xs rounded-full status-low font-medium">Rendah</span>`;
-        case 'medium':
-          return `<span class="px-2 py-1 text-xs rounded-full status-medium font-medium">Sedang</span>`;
-        case 'good':
-          return `<span class="px-2 py-1 text-xs rounded-full status-good font-medium">Baik</span>`;
-        default:
-          return '';
-      }
-    }
-    
-    // Update location filter
-
-    function updateLocationFilter() {
-      const locationFilter = document.getElementById('locationFilter');
-      locationFilter.innerHTML = '<option value="">Semua Lokasi</option>';
-      
-      Array.from(uniqueLocations).sort().forEach(location => {
-        locationFilter.innerHTML += `<option value="${location}">${location}</option>`;
-      });
-    }
-    
-    // Update dashboard summary
-    function updateDashboardSummary() {
-      document.getElementById('totalProducts').textContent = allData.length;
-      
-      const totalStock = allData.reduce((sum, item) => sum + item.stok, 0);
-      document.getElementById('totalStock').textContent = totalStock.toLocaleString();
-
-      
-      document.getElementById('totalLocations').textContent = uniqueLocations.size;
-    }
-    
-    // Apply filters and sort
-    function applyFiltersAndSort() {
-      const searchTerm = document.getElementById('search').value.toLowerCase();
-      const locationFilter = document.getElementById('locationFilter').value;
-      const stockFilter = document.getElementById('stockFilter').value;
-      
-      // Filter data
-      filteredData = allData.filter(item => {
-        // Search filter
-        const matchesSearch = 
-          item.id.toString().toLowerCase().includes(searchTerm) ||
-          item.nama.toLowerCase().includes(searchTerm) ||
-
-          item.palet.toString().toLowerCase().includes(searchTerm) ||
-          item.lokasi.toLowerCase().includes(searchTerm);
-        
-        // Location filter
-        const matchesLocation = locationFilter === '' || item.lokasi === locationFilter;
-        
-        // Stock status filter
-        const matchesStockStatus = stockFilter === '' || item.status === stockFilter;
-        
-        return matchesSearch && matchesLocation && matchesStockStatus;
-      });
-      
-      // Sort data
-      filteredData.sort((a, b) => {
-        const aValue = a[currentSort.column];
-        const bValue = b[currentSort.column];
-        
-        if (typeof aValue === 'string' && typeof bValue === 'string') {
-
-          if (currentSort.direction === 'asc') {
-            return aValue.localeCompare(bValue);
-          } else {
-            return bValue.localeCompare(aValue);
-          }
-        } else {
-          if (currentSort.direction === 'asc') {
-            return aValue - bValue;
-          } else {
-            return bValue - aValue;
-          }
-        }
-      });
-      
-      // Reset to first page
-      currentPage = 1;
-      
-      // Render table and pagination
-      renderTable();
-      renderPagination();
-    }
-    
-    // Render table with current page data
-    function renderTable() {
-      const tableBody = 
-
-document.getElementById('tableBody');
-      const startIndex = (currentPage - 1) * itemsPerPage;
-      const endIndex = Math.min(startIndex + itemsPerPage, filteredData.length);
-      const pageData = filteredData.slice(startIndex, endIndex);
-      
-      if (pageData.length === 0) {
-        tableBody.innerHTML = `
-          <tr>
-            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto mb-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <p>Tidak ada data yang ditemukan</p>
-              <p class="text-sm mt-1">Coba ubah filter atau kata kunci pencarian</p>
-
-            </td>
-          </tr>
-        `;
-        return;
-      }
-      
-      tableBody.innerHTML = '';
-      
-      pageData.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.className = 'hover-row fade-in';
-        row.style.animationDelay = `${index * 50}ms`;
-        
-        row.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.nama}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${item.palet}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-            <div class="flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 mr-1" fill="none" 
-
-viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              ${item.lokasi}
-            </div>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${item.status === 'low' ? 'text-red-600' : item.status === 'medium' ? 'text-yellow-600' : 'text-green-600'}">
-            ${item.stok.toLocaleString()}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-            ${getStatusLabel(item.status)}
-          </td>
-        `;
-        
-        tableBody.appendChild(row);
-
-      });
-      
-      // Update showing count
-      document.getElementById('showing').textContent = pageData.length;
-      document.getElementById('totalItems').textContent = filteredData.length;
-    }
-    
-    // Render pagination
-    function renderPagination() {
-      const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-      const pageNumbers = document.getElementById('pageNumbers');
-      pageNumbers.innerHTML = '';
-      
-      // Previous button
-      document.getElementById('prevPage').disabled = currentPage === 1;
-      
-      // Next button
-      document.getElementById('nextPage').disabled = 
-
-currentPage === totalPages || totalPages === 0;
-      
-      // Page numbers
-      if (totalPages <= 5) {
-        // Show all pages
-        for (let i = 1; i <= totalPages; i++) {
-          addPageButton(i);
-        }
-      } else {
-        // Show limited pages with ellipsis
-        if (currentPage <= 3) {
-          // Near start
-          for (let i = 1; i <= 4; i++) {
-            addPageButton(i);
-          }
-          addEllipsis();
-          addPageButton(totalPages);
-        } else if (currentPage >= totalPages - 2) {
-          // Near end
-          addPageButton(1);
-          addEllipsis();
-          for (let i = totalPages - 3; i <= totalPages; i++) {
-            addPageButton(i);
-          }
-        } else {
-
-          // Middle
-          addPageButton(1);
-          addEllipsis();
-          for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-            addPageButton(i);
-          }
-          addEllipsis();
-          addPageButton(totalPages);
-        }
-      }
-    }
-    
-    // Add page button
-    function addPageButton(pageNum) {
-      const pageNumbers = document.getElementById('pageNumbers');
-      const button = document.createElement('button');
-      button.textContent = pageNum;
-      button.className = pageNum === currentPage 
-        ? 'px-3 py-1 bg-blue-600 text-white rounded-md text-sm' 
-        : 'px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50';
-      button.addEventListener('click', () => {
-
-        currentPage = pageNum;
-        renderTable();
-        renderPagination();
-      });
-      pageNumbers.appendChild(button);
-    }
-    
-    // Add ellipsis
-    function addEllipsis() {
-      const pageNumbers = document.getElementById('pageNumbers');
-      const ellipsis = document.createElement('span');
-      ellipsis.textContent = '...';
-      ellipsis.className = 'px-2 py-1 text-gray-500';
-      pageNumbers.appendChild(ellipsis);
-    }
-    
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', () => {
-      // Load data
-      loadSheetData();
-      
-      // Search input
-
-      document.getElementById('search').addEventListener('input', applyFiltersAndSort);
-      
-      // Filters
-      document.getElementById('locationFilter').addEventListener('change', applyFiltersAndSort);
-      document.getElementById('stockFilter').addEventListener('change', applyFiltersAndSort);
-      
-      // Refresh button
-      document.getElementById('refreshBtn').addEventListener('click', loadSheetData);
-      
-      // Pagination buttons
-      document.getElementById('prevPage').addEventListener('click', () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderTable();
-          renderPagination();
-
-        }
-      });
-      
-      document.getElementById('nextPage').addEventListener('click', () => {
-        const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderTable();
-          renderPagination();
-        }
-      });
-      
-      // Sort headers
-      document.querySelectorAll('th[data-sort]').forEach(header => {
-        header.addEventListener('click', () => {
-          const column = header.getAttribute('data-sort');
-          
-          if (currentSort.column === column) {
-            // Toggle direction
-            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-
-          } else {
-            // New column, default to ascending
-            currentSort.column = column;
-            currentSort.direction = 'asc';
-          }
-          
-          applyFiltersAndSort();
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
+            initCollapsibleSections();
+            loadContainerSettings();
+            loadSavedData();
+            updateArrangementSummary();
+            
+            // Add event listeners for container inputs
+            document.getElementById('containerWidth').addEventListener('input', updateContainerDimensions);
+            document.getElementById('containerHeight').addEventListener('input', updateContainerDimensions);
         });
-      });
-    });
-  </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9644f695e0d56cf1',t:'MTc1MzM3NjMxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidde
 
-n';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+        // Make functions global for onclick handlers
+        window.updateRow = updateRow;
+        window.removeRow = removeRow;
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b8b90653eeea77',t:'MTc1NDU5MDE0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
