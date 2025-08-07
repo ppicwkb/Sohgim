@@ -75,12 +75,19 @@
                 
                 <div class="flex items-center space-x-3">
                     <!-- Dark Mode Toggle -->
-                    <button id="darkModeToggle" class="p-2 rounded-lg bg-white/20 dark:bg-gray-800/50 hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-200">
+                    <button id="darkModeToggle" class="p-2 rounded-lg bg-white/20 dark:bg-gray-800/50 hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-200" title="Toggle Dark Mode (Ctrl+D)">
                         <svg id="sunIcon" class="w-5 h-5 text-gray-700 dark:text-gray-300 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                         <svg id="moonIcon" class="w-5 h-5 text-gray-700 dark:text-gray-300 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Help/Info Button -->
+                    <button id="helpToggle" class="p-2 rounded-lg bg-white/20 dark:bg-gray-800/50 hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-200" title="Keyboard Shortcuts">
+                        <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                     </button>
                 </div>
@@ -240,7 +247,7 @@
                             </svg>
                             Daftar Baris Kotak
                         </h3>
-                        <button id="addRow" class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <button id="addRow" class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105" title="Tambah Baris Baru (Ctrl+N)">
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                             </svg>
@@ -261,13 +268,13 @@
 
                 <!-- Action Buttons -->
                 <div class="grid sm:grid-cols-2 gap-4">
-                    <button id="renderLayout" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <button id="renderLayout" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Render Layout Visual (Ctrl+Enter)">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                         </svg>
                         Render Visual
                     </button>
-                    <button id="exportPDF" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <button id="exportPDF" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Export ke PDF (Ctrl+S)">
                         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -403,8 +410,23 @@
             const widthInput = document.getElementById('containerWidth');
             const heightInput = document.getElementById('containerHeight');
             
-            CONTAINER_WIDTH = parseFloat(widthInput.value) || 229;
-            CONTAINER_HEIGHT = parseFloat(heightInput.value) || 253;
+            // Validate and constrain container dimensions
+            let width = parseFloat(widthInput.value);
+            let height = parseFloat(heightInput.value);
+            
+            width = Math.max(10, Math.min(10000, width || 229));
+            height = Math.max(10, Math.min(10000, height || 253));
+            
+            // Update input values if they were corrected
+            if (widthInput.value !== width.toString()) {
+                widthInput.value = width;
+            }
+            if (heightInput.value !== height.toString()) {
+                heightInput.value = height;
+            }
+            
+            CONTAINER_WIDTH = width;
+            CONTAINER_HEIGHT = height;
             CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
             
             // Update displays
@@ -515,6 +537,7 @@
         document.getElementById('addRow').addEventListener('click', () => {
             const newRow = {
                 id: rowIdCounter++,
+                name: `Baris ${rowIdCounter}`,
                 count: 1,
                 width: 50,
                 height: 30
@@ -556,7 +579,10 @@
                                 <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
                                     ${index + 1}
                                 </div>
-                                <h4 class="font-semibold text-gray-900 dark:text-white">Baris ${index + 1}</h4>
+                                <div>
+                                    <h4 class="font-semibold text-gray-900 dark:text-white">${row.name || `Baris ${index + 1}`}</h4>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">ID: ${row.id}</p>
+                                </div>
                                 ${isOverflow ? '<span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-full font-medium">Melebihi Lebar</span>' : ''}
                             </div>
                             <button onclick="removeRow(${row.id})" class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200">
@@ -564,6 +590,13 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                 </svg>
                             </button>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Baris</label>
+                            <input type="text" value="${row.name || `Baris ${index + 1}`}" placeholder="Masukkan nama baris..."
+                                   onchange="updateRow(${row.id}, 'name', this.value)"
+                                   class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
                         </div>
                         
                         <div class="grid sm:grid-cols-3 gap-3 mb-3">
@@ -600,7 +633,23 @@
         function updateRow(id, field, value) {
             const row = rows.find(r => r.id === id);
             if (row) {
-                row[field] = parseFloat(value) || 1;
+                if (field === 'name') {
+                    // Handle string field
+                    row[field] = value.trim() || `Baris ${rows.findIndex(r => r.id === id) + 1}`;
+                } else {
+                    // Handle numeric fields
+                    let parsedValue = parseFloat(value);
+                    
+                    // Validate input values
+                    if (field === 'count') {
+                        parsedValue = Math.max(1, Math.min(50, Math.floor(parsedValue) || 1));
+                    } else if (field === 'width' || field === 'height') {
+                        parsedValue = Math.max(0.1, parsedValue || 1);
+                    }
+                    
+                    row[field] = parsedValue;
+                }
+                
                 updateRowsList();
                 updateRenderButton();
                 saveData();
@@ -800,7 +849,6 @@
             const placedBoxes = [];
             const unplacedBoxes = [];
             let currentY = CONTAINER_HEIGHT; // Start from bottom
-            const currentX = 0; // Single column at left
             
             // Group boxes by their original rows
             const boxesByRow = {};
@@ -811,32 +859,45 @@
                 boxesByRow[box.rowIndex].push(box);
             });
             
-            // Process each row's boxes in sequence
+            // Process each row's boxes in sequence (from bottom to top)
             Object.keys(boxesByRow).sort((a, b) => parseInt(a) - parseInt(b)).forEach(rowIndex => {
                 const rowBoxes = boxesByRow[rowIndex];
-                let rowX = currentX; // Start each row from left edge
+                let rowX = 0; // Start each row from left edge
+                let maxRowHeight = 0;
+                let rowPlaced = false;
                 
-                for (const box of rowBoxes) {
-                    // Check if box fits horizontally in current row position
-                    if (rowX + box.width <= CONTAINER_WIDTH && currentY - box.height >= 0) {
-                        placedBoxes.push({
-                            ...box,
-                            x: rowX,
-                            y: currentY - box.height // Position from bottom
-                        });
-                        rowX += box.width; // Move right for next box in same row
+                // Calculate total width needed for this row
+                const totalRowWidth = rowBoxes.reduce((sum, box) => sum + box.width, 0);
+                
+                // Check if entire row fits horizontally
+                if (totalRowWidth <= CONTAINER_WIDTH) {
+                    // Find the maximum height in this row
+                    maxRowHeight = Math.max(...rowBoxes.map(box => box.height));
+                    
+                    // Check if row fits vertically
+                    if (currentY - maxRowHeight >= 0) {
+                        // Place all boxes in this row
+                        for (const box of rowBoxes) {
+                            placedBoxes.push({
+                                ...box,
+                                x: rowX,
+                                y: currentY - maxRowHeight // Align all boxes in row to same bottom level
+                            });
+                            rowX += box.width;
+                            rowPlaced = true;
+                        }
+                        
+                        // Move down for next row
+                        if (rowPlaced) {
+                            currentY -= maxRowHeight;
+                        }
                     } else {
-                        // Box doesn't fit in current row
-                        unplacedBoxes.push(box);
+                        // Row doesn't fit vertically
+                        rowBoxes.forEach(box => unplacedBoxes.push(box));
                     }
-                }
-                
-                // Move down for next row (if there are boxes placed in current row)
-                if (rowX > currentX) {
-                    const rowHeight = Math.max(...rowBoxes.filter(box => 
-                        placedBoxes.some(placed => placed.id === box.id)
-                    ).map(box => box.height));
-                    currentY -= rowHeight;
+                } else {
+                    // Row doesn't fit horizontally
+                    rowBoxes.forEach(box => unplacedBoxes.push(box));
                 }
             });
             
@@ -848,7 +909,6 @@
             const placedBoxes = [];
             const unplacedBoxes = [];
             let currentX = 0; // Start from left
-            const currentY = CONTAINER_HEIGHT; // Single row at bottom
             
             // Group boxes by their original rows
             const boxesByRow = {};
@@ -859,32 +919,45 @@
                 boxesByRow[box.rowIndex].push(box);
             });
             
-            // Process each row's boxes in sequence
+            // Process each row's boxes in sequence (left to right columns)
             Object.keys(boxesByRow).sort((a, b) => parseInt(a) - parseInt(b)).forEach(rowIndex => {
                 const rowBoxes = boxesByRow[rowIndex];
-                let columnY = currentY; // Start each column from bottom
+                let columnY = CONTAINER_HEIGHT; // Start each column from bottom
+                let maxColumnWidth = 0;
+                let columnPlaced = false;
                 
-                for (const box of rowBoxes) {
-                    // Check if box fits vertically in current column position
-                    if (columnY - box.height >= 0 && currentX + box.width <= CONTAINER_WIDTH) {
-                        placedBoxes.push({
-                            ...box,
-                            x: currentX,
-                            y: columnY - box.height // Position from bottom going up
-                        });
-                        columnY -= box.height; // Move up for next box in same column
+                // Calculate total height needed for this column
+                const totalColumnHeight = rowBoxes.reduce((sum, box) => sum + box.height, 0);
+                
+                // Check if entire column fits vertically
+                if (totalColumnHeight <= CONTAINER_HEIGHT) {
+                    // Find the maximum width in this column
+                    maxColumnWidth = Math.max(...rowBoxes.map(box => box.width));
+                    
+                    // Check if column fits horizontally
+                    if (currentX + maxColumnWidth <= CONTAINER_WIDTH) {
+                        // Place all boxes in this column (from bottom to top)
+                        for (const box of rowBoxes) {
+                            placedBoxes.push({
+                                ...box,
+                                x: currentX, // Align all boxes in column to same left edge
+                                y: columnY - box.height
+                            });
+                            columnY -= box.height; // Move up for next box
+                            columnPlaced = true;
+                        }
+                        
+                        // Move right for next column
+                        if (columnPlaced) {
+                            currentX += maxColumnWidth;
+                        }
                     } else {
-                        // Box doesn't fit in current column
-                        unplacedBoxes.push(box);
+                        // Column doesn't fit horizontally
+                        rowBoxes.forEach(box => unplacedBoxes.push(box));
                     }
-                }
-                
-                // Move right for next column (if there are boxes placed in current column)
-                if (columnY < currentY) {
-                    const columnWidth = Math.max(...rowBoxes.filter(box => 
-                        placedBoxes.some(placed => placed.id === box.id)
-                    ).map(box => box.width));
-                    currentX += columnWidth;
+                } else {
+                    // Column doesn't fit vertically
+                    rowBoxes.forEach(box => unplacedBoxes.push(box));
                 }
             });
             
@@ -1121,11 +1194,27 @@
                 const width = box.width * scale;
                 const height = box.height * scale;
                 
+                const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
+                let displayText;
+                if (width > 80) {
+                    // For large boxes, show truncated row name
+                    const maxChars = Math.floor(width/8);
+                    displayText = rowName.length > maxChars ? 
+                        `${rowName.substring(0, maxChars)}...` : 
+                        rowName;
+                } else if (width > 40) {
+                    // For medium boxes, show row-box format
+                    displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
+                } else {
+                    // For small boxes, show only row number
+                    displayText = `${box.rowIndex + 1}`;
+                }
+                
                 svg += `
-                    <div class="absolute border border-white/50 flex items-center justify-center text-white text-xs font-bold shadow-sm hover:shadow-md transition-shadow duration-200"
-                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; background-color: ${color};"
-                         title="Baris ${box.rowIndex + 1}, Kotak ${box.boxInRow + 1}: ${box.width} × ${box.height} cm">
-                        ${box.rowIndex + 1}-${box.boxInRow + 1}
+                    <div class="absolute border border-white/50 flex items-center justify-center text-white font-bold shadow-sm hover:shadow-md transition-shadow duration-200"
+                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; background-color: ${color}; font-size: ${Math.max(8, Math.min(12, width/8))}px;"
+                         title="${rowName}, Kotak ${box.boxInRow + 1}: ${box.width} × ${box.height} cm">
+                        ${displayText}
                     </div>
                 `;
             });
@@ -1150,63 +1239,213 @@
                 return;
             }
             
-            showToast('Sedang membuat PDF...', 'info');
+            // Check if required libraries are loaded
+            if (typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') {
+                showToast('Library PDF tidak tersedia', 'error');
+                return;
+            }
+            
+            showToast('Sedang membuat PDF berkualitas tinggi...', 'info');
             
             try {
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('landscape');
+                const pdf = new jsPDF('landscape', 'mm', 'a4');
                 
-                // Add title
-                pdf.setFontSize(20);
-                pdf.text('Laporan Hitung Visual', 20, 20);
+                // Page 1: Title and Summary
+                pdf.setFontSize(24);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Laporan Hitung Visual', 20, 25);
                 
-                // Add container info
-                pdf.setFontSize(12);
-                pdf.text(`Ukuran Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`, 20, 35);
-                pdf.text(`Luas Wadah: ${CONTAINER_AREA.toLocaleString()} cm²`, 20, 45);
-                pdf.text(`Mode Penataan: ${getArrangementModeName(layoutResult.arrangementMode)}`, 20, 55);
+                // Add date and time
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'normal');
+                const now = new Date();
+                pdf.text(`Dibuat: ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`, 20, 35);
                 
-                // Add results
-                pdf.text('Hasil Perhitungan:', 20, 75);
-                pdf.text(`• Jumlah Baris: ${layoutResult.rows}`, 25, 85);
-                pdf.text(`• Total Kotak: ${layoutResult.totalBoxes}`, 25, 95);
-                pdf.text(`• Kotak Tertata: ${layoutResult.placedCount}`, 25, 105);
-                pdf.text(`• Kotak Tidak Muat: ${layoutResult.unplacedCount}`, 25, 115);
-                pdf.text(`• Efisiensi: ${layoutResult.efficiency.toFixed(1)}%`, 25, 125);
-                pdf.text(`• Luas Terpakai: ${layoutResult.placedArea.toFixed(0)} cm²`, 25, 135);
+                // Container info box
+                pdf.setDrawColor(59, 130, 246);
+                pdf.setFillColor(239, 246, 255);
+                pdf.roundedRect(20, 45, 120, 35, 3, 3, 'FD');
                 
-                // Add rows details
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(59, 130, 246);
+                pdf.text('Informasi Wadah', 25, 55);
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(0, 0, 0);
+                pdf.text(`Ukuran: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`, 25, 65);
+                pdf.text(`Luas Total: ${CONTAINER_AREA.toLocaleString()} cm²`, 25, 72);
+                
+                // Results box
+                pdf.setDrawColor(16, 185, 129);
+                pdf.setFillColor(236, 253, 245);
+                pdf.roundedRect(150, 45, 120, 35, 3, 3, 'FD');
+                
+                pdf.setFontSize(14);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setTextColor(16, 185, 129);
+                pdf.text('Hasil Perhitungan', 155, 55);
+                
+                pdf.setFontSize(11);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setTextColor(0, 0, 0);
+                pdf.text(`Mode: ${getArrangementModeName(layoutResult.arrangementMode)}`, 155, 65);
+                pdf.text(`Efisiensi: ${layoutResult.efficiency.toFixed(1)}%`, 155, 72);
+                
+                // Detailed results
+                pdf.setFontSize(16);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Ringkasan Hasil', 20, 100);
+                
+                const results = [
+                    ['Jumlah Baris', `${layoutResult.rows} baris`],
+                    ['Total Kotak', `${layoutResult.totalBoxes} kotak`],
+                    ['Kotak Tertata', `${layoutResult.placedCount} kotak`],
+                    ['Kotak Tidak Muat', `${layoutResult.unplacedCount} kotak`],
+                    ['Luas Terpakai', `${layoutResult.placedArea.toFixed(0)} cm²`],
+                    ['Sisa Ruang', `${(CONTAINER_AREA - layoutResult.placedArea).toFixed(0)} cm²`]
+                ];
+                
+                let yPos = 110;
+                results.forEach(([label, value]) => {
+                    pdf.setFontSize(11);
+                    pdf.setFont('helvetica', 'normal');
+                    pdf.text(`• ${label}:`, 25, yPos);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text(value, 80, yPos);
+                    yPos += 8;
+                });
+                
+                // Detail baris
                 if (rows.length > 0) {
-                    pdf.text('Detail Baris:', 20, 155);
-                    let yPos = 165;
+                    pdf.setFontSize(16);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('Detail Baris Kotak', 20, yPos + 15);
+                    yPos += 25;
                     
                     rows.forEach((row, index) => {
                         if (yPos > 180) {
                             pdf.addPage('landscape');
                             yPos = 20;
                         }
+                        
                         const totalWidth = row.count * row.width;
                         const area = row.count * row.width * row.height;
-                        pdf.text(`Baris ${index + 1}: ${row.count} kotak (${row.width} × ${row.height} cm) - Total: ${totalWidth} cm × ${row.height} cm = ${area.toFixed(1)} cm²`, 25, yPos);
-                        yPos += 10;
+                        const rowName = row.name || `Baris ${index + 1}`;
+                        const isOverflow = totalWidth > CONTAINER_WIDTH;
+                        
+                        // Color coding for overflow
+                        if (isOverflow) {
+                            pdf.setTextColor(239, 68, 68);
+                        } else {
+                            pdf.setTextColor(0, 0, 0);
+                        }
+                        
+                        pdf.setFontSize(10);
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.text(`${index + 1}. ${rowName}`, 25, yPos);
+                        
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.text(`${row.count} kotak @ ${row.width} × ${row.height} cm`, 25, yPos + 6);
+                        pdf.text(`Total: ${totalWidth} × ${row.height} cm = ${area.toFixed(1)} cm²`, 25, yPos + 12);
+                        
+                        if (isOverflow) {
+                            pdf.setTextColor(239, 68, 68);
+                            pdf.text('⚠ Melebihi lebar wadah', 25, yPos + 18);
+                            yPos += 24;
+                        } else {
+                            yPos += 18;
+                        }
+                        
+                        pdf.setTextColor(0, 0, 0);
                     });
                 }
                 
-                // Capture visualization
-                const visualElement = document.getElementById('visualizationContainer');
-                const canvas = await html2canvas(visualElement, {
-                    backgroundColor: '#ffffff',
-                    scale: 2
-                });
-                
-                const imgData = canvas.toDataURL('image/png');
+                // Page 2: High-quality visualization
                 pdf.addPage('landscape');
-                pdf.text('Visualisasi Layout:', 20, 20);
-                pdf.addImage(imgData, 'PNG', 20, 30, 250, 150);
                 
-                // Save PDF
-                pdf.save(`hitung-visual-${new Date().toISOString().split('T')[0]}.pdf`);
-                showToast('PDF berhasil diekspor', 'success');
+                // Create a high-quality visualization specifically for PDF
+                const pdfVisualization = await createHighQualityVisualization(layoutResult);
+                
+                pdf.setFontSize(20);
+                pdf.setFont('helvetica', 'bold');
+                pdf.text('Visualisasi Layout', 20, 25);
+                
+                // Add scale and dimension info
+                pdf.setFontSize(10);
+                pdf.setFont('helvetica', 'normal');
+                pdf.text(`Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm | Mode: ${getArrangementModeName(layoutResult.arrangementMode)}`, 20, 35);
+                pdf.text(`${layoutResult.placedCount} kotak tertata dengan efisiensi ${layoutResult.efficiency.toFixed(1)}%`, 20, 42);
+                
+                // Add the high-quality image
+                if (pdfVisualization) {
+                    // Calculate optimal size while maintaining aspect ratio
+                    const maxWidth = 250;
+                    const maxHeight = 140;
+                    const aspectRatio = CONTAINER_WIDTH / CONTAINER_HEIGHT;
+                    
+                    let imgWidth, imgHeight;
+                    if (aspectRatio > maxWidth / maxHeight) {
+                        imgWidth = maxWidth;
+                        imgHeight = maxWidth / aspectRatio;
+                    } else {
+                        imgHeight = maxHeight;
+                        imgWidth = maxHeight * aspectRatio;
+                    }
+                    
+                    // Center the image
+                    const xOffset = (297 - imgWidth) / 2; // A4 landscape width is 297mm
+                    
+                    pdf.addImage(pdfVisualization, 'PNG', xOffset, 50, imgWidth, imgHeight, undefined, 'FAST');
+                    
+                    // Add legend
+                    const legendY = 50 + imgHeight + 15;
+                    pdf.setFontSize(12);
+                    pdf.setFont('helvetica', 'bold');
+                    pdf.text('Keterangan Warna:', 20, legendY);
+                    
+                    const colors = [
+                        '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                        '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
+                    ];
+                    
+                    let legendX = 20;
+                    let legendYPos = legendY + 8;
+                    
+                    rows.forEach((row, index) => {
+                        if (legendX > 250) {
+                            legendX = 20;
+                            legendYPos += 8;
+                        }
+                        
+                        const color = colors[index % colors.length];
+                        const [r, g, b] = [
+                            parseInt(color.slice(1, 3), 16),
+                            parseInt(color.slice(3, 5), 16),
+                            parseInt(color.slice(5, 7), 16)
+                        ];
+                        
+                        // Draw color box
+                        pdf.setFillColor(r, g, b);
+                        pdf.rect(legendX, legendYPos - 3, 4, 4, 'F');
+                        
+                        // Add text
+                        pdf.setFontSize(9);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.setTextColor(0, 0, 0);
+                        const rowName = row.name || `Baris ${index + 1}`;
+                        pdf.text(rowName, legendX + 6, legendYPos);
+                        
+                        legendX += pdf.getTextWidth(rowName) + 15;
+                    });
+                }
+                
+                // Save PDF with timestamp
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                pdf.save(`hitung-visual-${timestamp}.pdf`);
+                showToast('PDF berkualitas tinggi berhasil diekspor!', 'success');
                 
             } catch (error) {
                 console.error('Error exporting PDF:', error);
@@ -1214,10 +1453,157 @@
             }
         });
 
+        // Create high-quality visualization for PDF
+        async function createHighQualityVisualization(result) {
+            try {
+                // Create a temporary high-resolution canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set high DPI for crisp rendering
+                const dpr = 3; // 3x resolution for high quality
+                const baseWidth = 800;
+                const baseHeight = 600;
+                
+                canvas.width = baseWidth * dpr;
+                canvas.height = baseHeight * dpr;
+                canvas.style.width = baseWidth + 'px';
+                canvas.style.height = baseHeight + 'px';
+                
+                ctx.scale(dpr, dpr);
+                
+                // Calculate scale to fit container in canvas
+                const padding = 40;
+                const availableWidth = baseWidth - (padding * 2);
+                const availableHeight = baseHeight - (padding * 2);
+                const scale = Math.min(availableWidth / CONTAINER_WIDTH, availableHeight / CONTAINER_HEIGHT);
+                
+                const scaledWidth = CONTAINER_WIDTH * scale;
+                const scaledHeight = CONTAINER_HEIGHT * scale;
+                const offsetX = (baseWidth - scaledWidth) / 2;
+                const offsetY = (baseHeight - scaledHeight) / 2;
+                
+                // Clear canvas with white background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, baseWidth, baseHeight);
+                
+                // Draw container border
+                ctx.strokeStyle = '#374151';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(offsetX, offsetY, scaledWidth, scaledHeight);
+                
+                // Draw container background
+                ctx.fillStyle = '#f9fafb';
+                ctx.fillRect(offsetX, offsetY, scaledWidth, scaledHeight);
+                
+                // Colors for different rows
+                const colors = [
+                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
+                    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1',
+                    '#14B8A6', '#F472B6', '#A855F7', '#EAB308', '#EF4444'
+                ];
+                
+                // Draw boxes
+                result.placedBoxes.forEach((box) => {
+                    const x = offsetX + (box.x * scale);
+                    const y = offsetY + (box.y * scale);
+                    const width = box.width * scale;
+                    const height = box.height * scale;
+                    
+                    const color = colors[box.rowIndex % colors.length];
+                    
+                    // Draw box fill
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, width, height);
+                    
+                    // Draw box border
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(x, y, width, height);
+                    
+                    // Draw text if box is large enough
+                    if (width > 30 && height > 20) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = `bold ${Math.max(8, Math.min(14, width/8))}px Arial`;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        
+                        const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
+                        let displayText;
+                        
+                        if (width > 80) {
+                            const maxChars = Math.floor(width/8);
+                            displayText = rowName.length > maxChars ? 
+                                `${rowName.substring(0, maxChars)}...` : 
+                                rowName;
+                        } else if (width > 40) {
+                            displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
+                        } else {
+                            displayText = `${box.rowIndex + 1}`;
+                        }
+                        
+                        ctx.fillText(displayText, x + width/2, y + height/2);
+                    }
+                });
+                
+                // Add title and info
+                ctx.fillStyle = '#111827';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Layout Wadah ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`, baseWidth/2, 25);
+                
+                ctx.font = '12px Arial';
+                ctx.fillText(`${result.placedCount} kotak tertata • Efisiensi ${result.efficiency.toFixed(1)}%`, baseWidth/2, baseHeight - 15);
+                
+                // Convert to data URL
+                return canvas.toDataURL('image/png', 1.0);
+                
+            } catch (error) {
+                console.error('Error creating high-quality visualization:', error);
+                return null;
+            }
+        }
+
+        // Keyboard shortcuts
+        function initKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd + Enter: Render layout
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    const renderButton = document.getElementById('renderLayout');
+                    if (!renderButton.disabled) {
+                        renderButton.click();
+                    }
+                }
+                
+                // Ctrl/Cmd + N: Add new row
+                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                    e.preventDefault();
+                    document.getElementById('addRow').click();
+                }
+                
+                // Ctrl/Cmd + S: Export PDF
+                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    const exportButton = document.getElementById('exportPDF');
+                    if (!exportButton.disabled) {
+                        exportButton.click();
+                    }
+                }
+                
+                // Ctrl/Cmd + D: Toggle dark mode
+                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                    e.preventDefault();
+                    document.getElementById('darkModeToggle').click();
+                }
+            });
+        }
+
         // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             initDarkMode();
             initCollapsibleSections();
+            initKeyboardShortcuts();
             loadContainerSettings();
             loadSavedData();
             updateArrangementSummary();
@@ -1231,5 +1617,5 @@
         window.updateRow = updateRow;
         window.removeRow = removeRow;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b8b90653eeea77',t:'MTc1NDU5MDE0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b8d71e80e0ea7f',t:'MTc1NDU5MTM3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
