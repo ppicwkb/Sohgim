@@ -1196,23 +1196,32 @@
                 
                 const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
                 let displayText;
-                if (width > 80) {
-                    // For large boxes, show truncated row name
-                    const maxChars = Math.floor(width/8);
+                let fontSize;
+                
+                if (width > 80 && height > 25) {
+                    // Large boxes: show full or truncated row name
+                    const maxChars = Math.floor(width/6);
                     displayText = rowName.length > maxChars ? 
-                        `${rowName.substring(0, maxChars)}...` : 
+                        `${rowName.substring(0, maxChars-3)}...` : 
                         rowName;
-                } else if (width > 40) {
-                    // For medium boxes, show row-box format
+                    fontSize = Math.max(8, Math.min(16, Math.min(width/8, height/3)));
+                } else if (width > 40 && height > 15) {
+                    // Medium boxes: show row-box format
                     displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
-                } else {
-                    // For small boxes, show only row number
+                    fontSize = Math.max(7, Math.min(12, Math.min(width/6, height/2.5)));
+                } else if (width > 20 && height > 10) {
+                    // Small boxes: show row number
                     displayText = `${box.rowIndex + 1}`;
+                    fontSize = Math.max(6, Math.min(10, Math.min(width/4, height/2)));
+                } else {
+                    // Very small boxes: show just row number with minimum font
+                    displayText = `${box.rowIndex + 1}`;
+                    fontSize = Math.max(4, Math.min(8, Math.min(width/3, height/1.5)));
                 }
                 
                 svg += `
                     <div class="absolute border border-white/50 flex items-center justify-center text-white font-bold shadow-sm hover:shadow-md transition-shadow duration-200"
-                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; background-color: ${color}; font-size: ${Math.max(8, Math.min(12, width/8))}px;"
+                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; background-color: ${color}; font-size: ${fontSize}px; line-height: 1;"
                          title="${rowName}, Kotak ${box.boxInRow + 1}: ${box.width} × ${box.height} cm">
                         ${displayText}
                     </div>
@@ -1521,29 +1530,38 @@
                     ctx.lineWidth = 1;
                     ctx.strokeRect(x, y, width, height);
                     
-                    // Draw text if box is large enough
-                    if (width > 30 && height > 20) {
-                        ctx.fillStyle = '#ffffff';
-                        ctx.font = `bold ${Math.max(8, Math.min(14, width/8))}px Arial`;
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        
-                        const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
-                        let displayText;
-                        
-                        if (width > 80) {
-                            const maxChars = Math.floor(width/8);
-                            displayText = rowName.length > maxChars ? 
-                                `${rowName.substring(0, maxChars)}...` : 
-                                rowName;
-                        } else if (width > 40) {
-                            displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
-                        } else {
-                            displayText = `${box.rowIndex + 1}`;
-                        }
-                        
-                        ctx.fillText(displayText, x + width/2, y + height/2);
+                    // Always draw text, adjust font size based on box size
+                    ctx.fillStyle = '#ffffff';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
+                    let displayText;
+                    let fontSize;
+                    
+                    if (width > 80 && height > 25) {
+                        // Large boxes: show full or truncated row name
+                        const maxChars = Math.floor(width/6);
+                        displayText = rowName.length > maxChars ? 
+                            `${rowName.substring(0, maxChars-3)}...` : 
+                            rowName;
+                        fontSize = Math.max(8, Math.min(16, Math.min(width/8, height/3)));
+                    } else if (width > 40 && height > 15) {
+                        // Medium boxes: show row-box format
+                        displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
+                        fontSize = Math.max(7, Math.min(12, Math.min(width/6, height/2.5)));
+                    } else if (width > 20 && height > 10) {
+                        // Small boxes: show row number
+                        displayText = `${box.rowIndex + 1}`;
+                        fontSize = Math.max(6, Math.min(10, Math.min(width/4, height/2)));
+                    } else {
+                        // Very small boxes: show just row number with minimum font
+                        displayText = `${box.rowIndex + 1}`;
+                        fontSize = Math.max(4, Math.min(8, Math.min(width/3, height/1.5)));
                     }
+                    
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.fillText(displayText, x + width/2, y + height/2);
                 });
                 
                 // Add title and info
@@ -1617,5 +1635,5 @@
         window.updateRow = updateRow;
         window.removeRow = removeRow;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b8d71e80e0ea7f',t:'MTc1NDU5MTM3NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bc318510dd81da',t:'MTc1NDYyNjUzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
