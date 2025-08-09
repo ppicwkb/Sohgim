@@ -1,1639 +1,1677 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hitung Visual - Kalkulator Layout Profesional</title>
+    <title>Hitung Muat Kotak Kontainer - Professional 3D</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    animation: {
-                        'fade-in': 'fadeIn 0.5s ease-in-out',
-                        'slide-up': 'slideUp 0.3s ease-out',
-                        'pulse-soft': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'bounce-soft': 'bounce 1s ease-in-out infinite',
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        * {
+            font-family: 'Inter', sans-serif;
         }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
         }
-        .glass-effect {
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.05"><circle cx="30" cy="30" r="2"/></g></svg>');
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .gradient-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gradient-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .gradient-button:hover::before {
+            left: 100%;
+        }
+
+        .gradient-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Jiffy.js Enhanced Animations */
+        .jiffy-bounce {
+            animation: jiffyBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes jiffyBounce {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.05) rotate(5deg); }
+            70% { transform: scale(0.9) rotate(-2deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .jiffy-slide-up {
+            animation: jiffySlideUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes jiffySlideUp {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        .jiffy-fade-in {
+            animation: jiffyFadeIn 1s ease-out;
+        }
+
+        @keyframes jiffyFadeIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .jiffy-pulse {
+            animation: jiffyPulse 2s infinite;
+        }
+
+        @keyframes jiffyPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .jiffy-hover-lift {
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .jiffy-hover-lift:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
+        }
+
+        .jiffy-button-press {
+            transition: all 0.1s ease;
+        }
+
+        .jiffy-button-press:active {
+            transform: scale(0.95);
+        }
+
+        .jiffy-zoom-in {
+            animation: jiffyZoomIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes jiffyZoomIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .jiffy-elastic {
+            animation: jiffyElastic 1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes jiffyElastic {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .jiffy-stagger-1 { animation-delay: 0.1s; }
+        .jiffy-stagger-2 { animation-delay: 0.2s; }
+        .jiffy-stagger-3 { animation-delay: 0.3s; }
+        .jiffy-stagger-4 { animation-delay: 0.4s; }
+        .jiffy-stagger-5 { animation-delay: 0.5s; }
+
+        /* 3D Visualization Styles */
+        #threejs-container {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .layer-tab {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .layer-tab.active {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .layer-tab:hover:not(.active) {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .visualization-mode-toggle {
+            background: linear-gradient(135deg, #10b981, #059669);
+            transition: all 0.3s ease;
+        }
+
+        .visualization-mode-toggle:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .input-field {
+            transition: all 0.3s ease;
+            border: 2px solid #e2e8f0;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .radio-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .radio-card:hover {
+            border-color: #3b82f6;
+            transform: scale(1.02);
+        }
+
+        .radio-card input:checked + .radio-content {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-color: #3b82f6;
+        }
+
+        .metric-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid rgba(59, 130, 246, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(59, 130, 246, 0.2);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .jiffy-loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+
+        .jiffy-loading-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #3b82f6;
+            animation: jiffyLoadingDots 1.4s infinite ease-in-out;
+        }
+
+        .jiffy-loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .jiffy-loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes jiffyLoadingDots {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .jiffy-progress-bar {
+            height: 6px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 3px;
+            animation: jiffyProgressBar 2s ease-in-out;
+            transform-origin: left;
+        }
+
+        @keyframes jiffyProgressBar {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+        }
+
+        .jiffy-success {
+            animation: jiffySuccess 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        @keyframes jiffySuccess {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(-90deg); }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .section-header {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 2px;
+        }
+
+        .header-decoration {
+            position: relative;
+        }
+
+        .header-decoration::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 2px;
+        }
+
+        /* Enhanced 3D Controls */
+        .control-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
+            outline: none;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .control-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Professional Alert Styles */
+        .jiffy-alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 16px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .dark .glass-effect {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+
+        .jiffy-alert.success {
+            background: linear-gradient(135deg, #10b981, #059669);
         }
-        .gradient-border {
-            background: linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899);
-            padding: 2px;
-            border-radius: 12px;
+
+        .jiffy-alert.error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
         }
-        .gradient-border > div {
-            background: white;
-            border-radius: 10px;
+
+        .jiffy-alert.warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
         }
-        .dark .gradient-border > div {
-            background: #1F2937;
+
+        .jiffy-alert.info {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 min-h-screen transition-colors duration-300">
-    <!-- Header -->
-    <header class="sticky top-0 z-50 glass-effect">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Hitung Visual
-                        </h1>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Kalkulator Layout Profesional</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-3">
-                    <!-- Dark Mode Toggle -->
-                    <button id="darkModeToggle" class="p-2 rounded-lg bg-white/20 dark:bg-gray-800/50 hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-200" title="Toggle Dark Mode (Ctrl+D)">
-                        <svg id="sunIcon" class="w-5 h-5 text-gray-700 dark:text-gray-300 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                        </svg>
-                        <svg id="moonIcon" class="w-5 h-5 text-gray-700 dark:text-gray-300 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                        </svg>
-                    </button>
-                    
-                    <!-- Help/Info Button -->
-                    <button id="helpToggle" class="p-2 rounded-lg bg-white/20 dark:bg-gray-800/50 hover:bg-white/30 dark:hover:bg-gray-700/50 transition-all duration-200" title="Keyboard Shortcuts">
-                        <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </button>
-                </div>
+<body>
+    <div class="main-container container mx-auto px-4 py-8">
+        <!-- Enhanced Header -->
+        <div class="text-center mb-12 jiffy-bounce">
+            <div class="header-decoration inline-block">
+                <h1 class="text-5xl font-bold gradient-text mb-4">📦 Hitung Muat Kotak Kontainer 3D</h1>
             </div>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Hero Section -->
-        <div class="text-center mb-12 animate-fade-in">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Kalkulator Layout Visual
-            </h2>
-            <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-6">
-                Hitung dan visualisasikan penyusunan kotak dengan ukuran real (cm) ke dalam wadah tetap. 
-                Sesuaikan ukuran dan jumlah kotak per baris dengan berbagai mode penataan.
-            </p>
-            
-            <!-- Container Info -->
-            <div class="gradient-border inline-block">
-                <div class="px-6 py-3">
-                    <div class="flex items-center space-x-4 text-sm">
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                            <span id="headerContainerSize" class="font-semibold text-gray-900 dark:text-white">Wadah: 229 × 253 cm</span>
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            <span id="headerContainerArea" class="font-semibold text-gray-900 dark:text-white">Luas: 57,937 cm²</span>
-                        </div>
-                        <div class="flex items-center">
-                            <svg class="w-4 h-4 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
-                            </svg>
-                            <span class="font-semibold text-gray-900 dark:text-white">Layout: Bottom-Up</span>
-                        </div>
-                    </div>
+            <p class="text-xl text-white/80 font-medium jiffy-slide-up">Kalkulator otomatis dengan visualisasi 3D interaktif untuk optimasi penataan kotak</p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <div class="glass-card px-4 py-2 rounded-full jiffy-fade-in jiffy-stagger-1">
+                    <span class="text-sm font-medium text-gray-700">🎮 3D Interactive</span>
+                </div>
+                <div class="glass-card px-4 py-2 rounded-full jiffy-fade-in jiffy-stagger-2">
+                    <span class="text-sm font-medium text-gray-700">📋 Multi-Layer</span>
+                </div>
+                <div class="glass-card px-4 py-2 rounded-full jiffy-fade-in jiffy-stagger-3">
+                    <span class="text-sm font-medium text-gray-700">🎯 AI-Powered</span>
                 </div>
             </div>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-8">
             <!-- Input Panel -->
-            <div class="space-y-6">
-                <!-- Container Settings -->
-                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
-                    <button id="containerToggle" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50/50 dark:hover:bg-gray-700/30 rounded-2xl transition-colors duration-200">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Ukuran Wadah</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    <span id="containerSummary">229 × 253 cm (57,937 cm²)</span>
-                                </p>
-                            </div>
+            <div class="glass-card rounded-2xl shadow-2xl p-8 jiffy-fade-in jiffy-stagger-1">
+                <h2 class="section-header text-3xl font-bold text-gray-800 mb-8">⚙️ Pengaturan</h2>
+
+                <!-- Container Size -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📏</span>
+                        Ukuran Kontainer (cm)
+                    </h3>
+                    <div class="glass-card p-4 rounded-xl mb-4 jiffy-hover-lift">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold gradient-text">66.54 m³</div>
+                            <div class="text-sm text-gray-600 font-medium">Volume Kontainer Total</div>
                         </div>
-                        <svg id="containerChevron" class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    
-                    <div id="containerContent" class="hidden px-4 pb-4">
-                        <div class="grid sm:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Lebar Wadah (cm)</label>
-                                <input type="number" id="containerWidth" value="229" min="10" step="0.1"
-                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tinggi Wadah (cm)</label>
-                                <input type="number" id="containerHeight" value="253" min="10" step="0.1"
-                                       class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
-                            </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Panjang</label>
+                            <input type="number" id="containerLength" value="1158" readonly
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
                         </div>
-                        <div class="bg-indigo-50 dark:bg-indigo-900/20 p-3 rounded-xl border border-indigo-200 dark:border-indigo-800">
-                            <div class="flex items-center justify-between text-sm">
-                                <span class="text-indigo-700 dark:text-indigo-300 font-medium">Luas Total:</span>
-                                <span id="containerAreaDisplay" class="text-indigo-900 dark:text-indigo-100 font-bold">57,937 cm²</span>
-                            </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Lebar</label>
+                            <input type="number" id="containerWidth" value="228" readonly
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Tinggi</label>
+                            <input type="number" id="containerHeight" value="252" readonly
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
                         </div>
                     </div>
                 </div>
 
-                <!-- Mode Penataan -->
-                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
-                    <button id="arrangementToggle" class="w-full p-4 flex items-center justify-between text-left hover:bg-gray-50/50 dark:hover:bg-gray-700/30 rounded-2xl transition-colors duration-200">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                            </svg>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Mode Penataan</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    <span id="arrangementSummary">Baris (kiri ke kanan, bawah ke atas)</span>
-                                </p>
-                            </div>
+                <!-- Box Size -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📦</span>
+                        Ukuran Kotak (cm)
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Panjang</label>
+                            <input type="number" id="boxLength" value="60" 
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
                         </div>
-                        <svg id="arrangementChevron" class="w-5 h-5 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    
-                    <div id="arrangementContent" class="hidden px-4 pb-4">
-                        <div class="space-y-3">
-                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
-                                <input type="radio" name="arrangementMode" value="rows" checked class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3">
-                                    <div class="font-medium text-gray-900 dark:text-white">Baris</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun mendatar (kiri ke kanan), baris demi baris dari bawah</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
-                                <input type="radio" name="arrangementMode" value="baris2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3">
-                                    <div class="font-medium text-gray-900 dark:text-white">Baris2</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun mendatar (kiri ke kanan) dalam satu kolom</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
-                                <input type="radio" name="arrangementMode" value="columns" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3">
-                                    <div class="font-medium text-gray-900 dark:text-white">Kolom</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun dari bawah ke atas, kolom demi kolom dari kiri ke kanan</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
-                                <input type="radio" name="arrangementMode" value="kolom2" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3">
-                                    <div class="font-medium text-gray-900 dark:text-white">Kolom2</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Kotak disusun dari bawah ke atas dalam satu baris</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-3 rounded-xl border border-gray-200 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-all duration-200">
-                                <input type="radio" name="arrangementMode" value="zigzag" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <div class="ml-3">
-                                    <div class="font-medium text-gray-900 dark:text-white">Zig-Zag Horizontal</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">Setiap baris arah susunannya bolak-balik (↔), mirip ular tangga</div>
-                                </div>
-                            </label>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Lebar</label>
+                            <input type="number" id="boxWidth" value="40" 
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Tinggi</label>
+                            <input type="number" id="boxHeight" value="30" 
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
                         </div>
                     </div>
                 </div>
 
-                <!-- Baris Input -->
-                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Daftar Baris Kotak
-                        </h3>
-                        <button id="addRow" class="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105" title="Tambah Baris Baru (Ctrl+N)">
-                            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Tambah Baris
-                        </button>
+                <!-- Layout Pattern -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">🎯</span>
+                        Pola Penataan
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="normal" checked class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-2xl mb-2">□</div>
+                                <div class="font-semibold text-gray-700">Normal</div>
+                                <div class="text-xs text-gray-500">Penataan standar</div>
+                            </div>
+                        </label>
+                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="zigzag" class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-2xl mb-2">⟲</div>
+                                <div class="font-semibold text-gray-700">Zig-Zag</div>
+                                <div class="text-xs text-gray-500">Pola bergantian</div>
+                            </div>
+                        </label>
+                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="offset" class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-2xl mb-2">⬢</div>
+                                <div class="font-semibold text-gray-700">Offset</div>
+                                <div class="text-xs text-gray-500">Pola bergeser</div>
+                            </div>
+                        </label>
+                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="optimal" class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-2xl mb-2">🎯</div>
+                                <div class="font-semibold text-gray-700">Optimal</div>
+                                <div class="text-xs text-gray-500">AI terbaik</div>
+                            </div>
+                        </label>
                     </div>
-                    
-                    <div id="rowsList" class="space-y-4">
-                        <div class="text-center text-gray-500 dark:text-gray-400 py-8">
-                            <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            <p class="font-medium mb-1">Belum ada baris kotak</p>
-                            <p class="text-sm">Klik "Tambah Baris" untuk memulai</p>
-                        </div>
+                </div>
+
+                <!-- Additional Options -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">🔧</span>
+                        Opsi Tambahan
+                    </h3>
+                    <div class="space-y-4">
+                        <label class="flex items-center p-4 glass-card rounded-xl cursor-pointer jiffy-hover-lift transition-all">
+                            <input type="checkbox" id="allowRotation" checked 
+                                   class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <div class="ml-4">
+                                <div class="font-semibold text-gray-700">Izinkan rotasi kotak (90°)</div>
+                                <div class="text-sm text-gray-500">Meningkatkan efisiensi penataan</div>
+                            </div>
+                        </label>
+                        <label class="flex items-center p-4 glass-card rounded-xl cursor-pointer jiffy-hover-lift transition-all">
+                            <input type="checkbox" id="enable3D" 
+                                   class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <div class="ml-4">
+                                <div class="font-semibold text-gray-700">Mode Visualisasi 3D</div>
+                                <div class="text-sm text-gray-500">Tampilan interaktif dengan kontrol kamera</div>
+                            </div>
+                        </label>
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <button id="renderLayout" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Render Layout Visual (Ctrl+Enter)">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                        Render Visual
-                    </button>
-                    <button id="exportPDF" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled title="Export ke PDF (Ctrl+S)">
-                        <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        Export PDF
+                <div class="space-y-4">
+                    <button onclick="calculateOptimalLayout()" 
+                            class="gradient-button w-full text-white font-bold py-4 px-8 rounded-xl shadow-lg text-lg jiffy-button-press jiffy-hover-lift">
+                        🧮 Hitung Layout Optimal
                     </button>
                 </div>
             </div>
 
-            <!-- Visualization Panel -->
-            <div class="space-y-6">
-                <!-- Results -->
-                <div id="resultsPanel" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up hidden">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                        </svg>
-                        Hasil Perhitungan
-                    </h3>
-                    <div id="resultsContent" class="space-y-3"></div>
-                </div>
+            <!-- Results Panel -->
+            <div class="glass-card rounded-2xl shadow-2xl p-8 jiffy-fade-in jiffy-stagger-2">
+                <h2 class="section-header text-3xl font-bold text-gray-800 mb-8">📊 Hasil Perhitungan</h2>
 
-                <!-- Visualization -->
-                <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-white/20 dark:border-gray-700/50 animate-slide-up">
-                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-                        </svg>
-                        Visualisasi Layout
-                    </h3>
-                    <div id="visualizationContainer" class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 min-h-[500px] flex items-center justify-center">
-                        <div class="text-center text-gray-500 dark:text-gray-400">
-                            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-                            </svg>
-                            <p class="text-lg font-medium mb-2">Siap untuk Visualisasi</p>
-                            <p class="text-sm">Tambahkan baris kotak dan klik "Render Visual" untuk melihat hasilnya</p>
-                        </div>
+                <div id="resultsContainer" class="space-y-6">
+                    <div class="text-center text-gray-500 py-12">
+                        <div class="text-8xl mb-6 jiffy-pulse">📦</div>
+                        <p class="text-lg font-medium jiffy-fade-in">Masukkan ukuran dan klik "Hitung Layout Optimal" untuk melihat hasil</p>
+                        <div class="mt-4 text-sm text-gray-400 jiffy-fade-in jiffy-stagger-1">Sistem AI siap menganalisis konfigurasi optimal Anda</div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-4 right-4 z-50 transform translate-x-full transition-transform duration-300">
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-4 max-w-sm">
-            <div class="flex items-center">
-                <div id="toastIcon" class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3"></div>
-                <div>
-                    <p id="toastMessage" class="text-sm font-medium text-gray-900 dark:text-white"></p>
+        <!-- Enhanced Visualization Panel -->
+        <div class="mt-12 glass-card rounded-2xl shadow-2xl p-8 jiffy-fade-in jiffy-stagger-3">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="section-header text-3xl font-bold text-gray-800">🎯 Visualisasi Layout 3D</h2>
+                <div class="flex gap-3">
+                    <button id="toggle3DMode" onclick="toggle3DVisualization()" 
+                            class="visualization-mode-toggle text-white px-6 py-3 rounded-xl font-semibold jiffy-button-press jiffy-hover-lift">
+                        🎮 Mode 3D
+                    </button>
+                    <button onclick="exportToPDF()" 
+                            class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-lg jiffy-button-press jiffy-hover-lift font-semibold">
+                        📄 Export PDF
+                    </button>
                 </div>
-                <button id="toastClose" class="ml-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
             </div>
+
+            <!-- Layer Controls -->
+            <div id="layerControls" class="hidden mb-6 control-panel p-6 rounded-xl jiffy-elastic">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-lg font-bold text-gray-700">🏗️ Kontrol Layer (Tinggi)</h4>
+                    <div class="flex items-center gap-4">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" id="showAllLayers" onchange="toggleLayerMode()" 
+                                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-sm font-medium text-gray-700">Tampilkan Semua Layer</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="text-xs text-gray-500 bg-blue-50 p-2 rounded-lg mb-4">
+                    💡 <strong>Layer:</strong> Lapisan kotak dari bawah ke atas (berdasarkan tinggi kontainer)
+                </div>
+                
+                <!-- Layer Tabs -->
+                <div id="layerTabs" class="flex gap-2 mb-4 overflow-x-auto"></div>
+                
+                <!-- Layer Slider -->
+                <div class="flex items-center gap-6">
+                    <label class="text-sm font-semibold text-gray-700 min-w-16">Layer:</label>
+                    <input type="range" id="layerSlider" min="1" max="1" value="1" 
+                           class="control-slider flex-1" onchange="showSpecificLayer(this.value)">
+                    <span id="layerDisplay" class="text-sm font-bold text-gray-700 min-w-16 text-center">1 / 1</span>
+                </div>
+            </div>
+
+            <!-- 3D Controls Panel -->
+            <div id="threeDControls" class="hidden mb-6 control-panel p-6 rounded-xl jiffy-zoom-in">
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold text-gray-700 flex items-center">
+                            <span class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs mr-2">🎮</span>
+                            Kontrol Kamera
+                        </h4>
+                        <div class="space-y-3">
+                            <button onclick="resetCamera()" 
+                                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all jiffy-button-press">
+                                🔄 Reset View
+                            </button>
+                            <div class="flex items-center gap-3">
+                                <label class="text-sm font-medium text-gray-700 min-w-20">Wireframe:</label>
+                                <input type="checkbox" id="wireframeMode" onchange="toggleWireframe()" 
+                                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold text-gray-700 flex items-center">
+                            <span class="w-6 h-6 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white text-xs mr-2">🎨</span>
+                            Visual Settings
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <label class="text-sm font-medium text-gray-700 min-w-20">Opacity:</label>
+                                <input type="range" id="opacitySlider" min="0.1" max="1" step="0.1" value="0.8" 
+                                       class="control-slider flex-1" onchange="updateOpacity(this.value)">
+                                <span id="opacityValue" class="text-sm font-bold text-gray-700 min-w-8">0.8</span>
+                            </div>
+                            <div class="text-xs text-gray-500 bg-gray-100 p-2 rounded-lg">
+                                💡 <strong>Tips:</strong> Drag untuk memutar, scroll untuk zoom, klik kanan untuk pan
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Container -->
+            <div id="visualizationContainer" class="border-4 border-gray-200 rounded-2xl p-8 min-h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white jiffy-hover-lift">
+                <div class="text-center text-gray-500">
+                    <div class="text-8xl mb-6 jiffy-pulse">🎨</div>
+                    <p class="text-xl font-medium jiffy-fade-in">Visualisasi akan muncul setelah perhitungan</p>
+                    <div class="mt-4 text-sm text-gray-400 jiffy-fade-in jiffy-stagger-1">Sistem akan menampilkan layout 2D/3D interaktif</div>
+                </div>
+            </div>
+
+            <!-- 3D Container -->
+            <div id="threejs-container" class="hidden rounded-2xl overflow-hidden"></div>
         </div>
     </div>
 
     <script>
-        // Default container dimensions
-        let CONTAINER_WIDTH = 229; // cm
-        let CONTAINER_HEIGHT = 253; // cm
-        let CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
+        let calculationResults = null;
+        let currentVisualizationMode = '2d';
+        let scene, camera, renderer, controls;
+        let boxMeshes = [];
+        let containerMesh = null;
+        let animationId = null;
 
-        // Global state
-        let rows = [];
-        let layoutResult = null;
-        let rowIdCounter = 1;
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeJiffyAnimations();
+            setupEventListeners();
+        });
 
-        // Toggle collapsible sections
-        function initCollapsibleSections() {
-            // Container toggle
-            const containerToggle = document.getElementById('containerToggle');
-            const containerContent = document.getElementById('containerContent');
-            const containerChevron = document.getElementById('containerChevron');
-            
-            containerToggle.addEventListener('click', () => {
-                const isHidden = containerContent.classList.contains('hidden');
-                if (isHidden) {
-                    containerContent.classList.remove('hidden');
-                    containerChevron.classList.add('rotate-180');
-                } else {
-                    containerContent.classList.add('hidden');
-                    containerChevron.classList.remove('rotate-180');
-                }
+        function initializeJiffyAnimations() {
+            // Add entrance animations to cards
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('jiffy-fade-in');
+                }, index * 100);
             });
-            
-            // Arrangement toggle
-            const arrangementToggle = document.getElementById('arrangementToggle');
-            const arrangementContent = document.getElementById('arrangementContent');
-            const arrangementChevron = document.getElementById('arrangementChevron');
-            
-            arrangementToggle.addEventListener('click', () => {
-                const isHidden = arrangementContent.classList.contains('hidden');
-                if (isHidden) {
-                    arrangementContent.classList.remove('hidden');
-                    arrangementChevron.classList.add('rotate-180');
-                } else {
-                    arrangementContent.classList.add('hidden');
-                    arrangementChevron.classList.remove('rotate-180');
-                }
-            });
-            
-            // Update arrangement summary when radio changes
-            const arrangementRadios = document.querySelectorAll('input[name="arrangementMode"]');
-            arrangementRadios.forEach(radio => {
-                radio.addEventListener('change', updateArrangementSummary);
-            });
-        }
 
-        // Update arrangement summary
-        function updateArrangementSummary() {
-            const selected = document.querySelector('input[name="arrangementMode"]:checked');
-            const summary = document.getElementById('arrangementSummary');
-            
-            const summaries = {
-                rows: 'Baris (kiri ke kanan, bawah ke atas)',
-                baris2: 'Baris2 (mendatar dalam satu kolom)',
-                columns: 'Kolom (bawah ke atas, kiri ke kanan)',
-                kolom2: 'Kolom2 (bawah ke atas dalam satu baris)',
-                zigzag: 'Zig-Zag (bolak-balik horizontal)'
-            };
-            
-            if (selected && summaries[selected.value]) {
-                summary.textContent = summaries[selected.value];
-            }
-        }
-
-        // Update container dimensions
-        function updateContainerDimensions() {
-            const widthInput = document.getElementById('containerWidth');
-            const heightInput = document.getElementById('containerHeight');
-            
-            // Validate and constrain container dimensions
-            let width = parseFloat(widthInput.value);
-            let height = parseFloat(heightInput.value);
-            
-            width = Math.max(10, Math.min(10000, width || 229));
-            height = Math.max(10, Math.min(10000, height || 253));
-            
-            // Update input values if they were corrected
-            if (widthInput.value !== width.toString()) {
-                widthInput.value = width;
-            }
-            if (heightInput.value !== height.toString()) {
-                heightInput.value = height;
-            }
-            
-            CONTAINER_WIDTH = width;
-            CONTAINER_HEIGHT = height;
-            CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
-            
-            // Update displays
-            document.getElementById('containerAreaDisplay').textContent = CONTAINER_AREA.toLocaleString() + ' cm²';
-            document.getElementById('headerContainerSize').textContent = `Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`;
-            document.getElementById('headerContainerArea').textContent = `Luas: ${CONTAINER_AREA.toLocaleString()} cm²`;
-            document.getElementById('containerSummary').textContent = `${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm (${CONTAINER_AREA.toLocaleString()} cm²)`;
-            
-            // Update rows list to reflect new container width
-            updateRowsList();
-            
-            // Save container settings
-            saveContainerSettings();
-        }
-
-        // Save container settings
-        function saveContainerSettings() {
-            const settings = {
-                width: CONTAINER_WIDTH,
-                height: CONTAINER_HEIGHT
-            };
-            localStorage.setItem('hitungVisualContainer', JSON.stringify(settings));
-        }
-
-        // Load container settings
-        function loadContainerSettings() {
-            const saved = localStorage.getItem('hitungVisualContainer');
-            if (saved) {
-                const settings = JSON.parse(saved);
-                CONTAINER_WIDTH = settings.width || 229;
-                CONTAINER_HEIGHT = settings.height || 253;
-                CONTAINER_AREA = CONTAINER_WIDTH * CONTAINER_HEIGHT;
+            // Add hover effects to interactive elements
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.classList.add('jiffy-hover-lift');
+                });
                 
-                document.getElementById('containerWidth').value = CONTAINER_WIDTH;
-                document.getElementById('containerHeight').value = CONTAINER_HEIGHT;
-                updateContainerDimensions();
-            }
-        }
+                button.addEventListener('mouseleave', function() {
+                    this.classList.remove('jiffy-hover-lift');
+                });
+            });
 
-        // Load saved data
-        function loadSavedData() {
-            const saved = localStorage.getItem('hitungVisualRows');
-            if (saved) {
-                const data = JSON.parse(saved);
-                rows = data.rows || [];
-                rowIdCounter = data.rowIdCounter || 1;
-                updateRowsList();
-                updateRenderButton();
-            }
-        }
-
-        // Save data
-        function saveData() {
-            const data = {
-                rows,
-                rowIdCounter
-            };
-            localStorage.setItem('hitungVisualRows', JSON.stringify(data));
-        }
-
-        // Dark mode functionality
-        function initDarkMode() {
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const isDark = localStorage.getItem('darkMode') === 'true';
-            
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-            }
-
-            darkModeToggle.addEventListener('click', () => {
-                document.documentElement.classList.toggle('dark');
-                const isDarkMode = document.documentElement.classList.contains('dark');
-                localStorage.setItem('darkMode', isDarkMode);
+            // Add input field animations
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.classList.add('jiffy-zoom-in');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.classList.remove('jiffy-zoom-in');
+                });
             });
         }
 
-        // Toast notification
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const toastIcon = document.getElementById('toastIcon');
-            const toastMessage = document.getElementById('toastMessage');
+        function setupEventListeners() {
+            // Radio button change listeners
+            const radioButtons = document.querySelectorAll('input[name="layoutPattern"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    this.closest('.radio-card').classList.add('jiffy-bounce');
+                    setTimeout(() => {
+                        this.closest('.radio-card').classList.remove('jiffy-bounce');
+                    }, 600);
+                });
+            });
+
+            // Checkbox listeners
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    this.closest('label').classList.add('jiffy-pulse');
+                    setTimeout(() => {
+                        this.closest('label').classList.remove('jiffy-pulse');
+                    }, 2000);
+                });
+            });
+        }
+
+        function showJiffyAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `jiffy-alert ${type} jiffy-bounce`;
             
             const icons = {
-                success: { icon: '✓', bg: 'bg-green-100 text-green-600' },
-                error: { icon: '✕', bg: 'bg-red-100 text-red-600' },
-                warning: { icon: '⚠', bg: 'bg-yellow-100 text-yellow-600' },
-                info: { icon: 'ℹ', bg: 'bg-blue-100 text-blue-600' }
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
             };
             
-            const config = icons[type] || icons.info;
-            toastIcon.className = `flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center mr-3 ${config.bg}`;
-            toastIcon.textContent = config.icon;
-            toastMessage.textContent = message;
+            alert.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">${icons[type]}</span>
+                    <span>${message}</span>
+                </div>
+            `;
             
-            toast.classList.remove('translate-x-full');
+            document.body.appendChild(alert);
             
             setTimeout(() => {
-                toast.classList.add('translate-x-full');
+                alert.classList.add('jiffy-fade-out');
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 300);
             }, 3000);
         }
 
-        // Close toast
-        document.getElementById('toastClose').addEventListener('click', () => {
-            document.getElementById('toast').classList.add('translate-x-full');
-        });
+        function calculateOptimalLayout() {
+            const button = event.target;
+            button.classList.add('jiffy-pulse');
+            setTimeout(() => button.classList.remove('jiffy-pulse'), 2000);
 
-        // Add new row
-        document.getElementById('addRow').addEventListener('click', () => {
-            const newRow = {
-                id: rowIdCounter++,
-                name: `Baris ${rowIdCounter}`,
-                count: 1,
-                width: 50,
-                height: 30
-            };
+            // Get input values
+            const containerL = parseFloat(document.getElementById('containerLength').value);
+            const containerW = parseFloat(document.getElementById('containerWidth').value);
+            const containerH = parseFloat(document.getElementById('containerHeight').value);
             
-            rows.push(newRow);
-            updateRowsList();
-            updateRenderButton();
-            saveData();
-            showToast('Baris baru berhasil ditambahkan', 'success');
-        });
+            const boxL = parseFloat(document.getElementById('boxLength').value);
+            const boxW = parseFloat(document.getElementById('boxWidth').value);
+            const boxH = parseFloat(document.getElementById('boxHeight').value);
+            
+            const allowRotation = document.getElementById('allowRotation').checked;
+            const selectedPattern = document.querySelector('input[name="layoutPattern"]:checked').value;
 
-        // Update rows list
-        function updateRowsList() {
-            const rowsList = document.getElementById('rowsList');
-            
-            if (rows.length === 0) {
-                rowsList.innerHTML = `
-                    <div class="text-center text-gray-500 dark:text-gray-400 py-8">
-                        <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        <p class="font-medium mb-1">Belum ada baris kotak</p>
-                        <p class="text-sm">Klik "Tambah Baris" untuk memulai</p>
-                    </div>
-                `;
+            // Validate inputs
+            if (!boxL || !boxW || !boxH || boxL <= 0 || boxW <= 0 || boxH <= 0) {
+                showJiffyAlert('Mohon isi semua ukuran kotak dengan benar!', 'error');
                 return;
             }
-            
-            rowsList.innerHTML = rows.map((row, index) => {
-                const totalWidth = row.count * row.width;
-                const isOverflow = totalWidth > CONTAINER_WIDTH;
-                const area = row.count * row.width * row.height;
-                
-                return `
-                    <div class="border border-gray-200 dark:border-gray-600 rounded-xl p-4 ${isOverflow ? 'border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/10' : 'bg-white/50 dark:bg-gray-700/50'}">
-                        <div class="flex items-center justify-between mb-3">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-lg flex items-center justify-center text-white text-sm font-bold">
-                                    ${index + 1}
-                                </div>
-                                <div>
-                                    <h4 class="font-semibold text-gray-900 dark:text-white">${row.name || `Baris ${index + 1}`}</h4>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">ID: ${row.id}</p>
-                                </div>
-                                ${isOverflow ? '<span class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-xs rounded-full font-medium">Melebihi Lebar</span>' : ''}
-                            </div>
-                            <button onclick="removeRow(${row.id})" class="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nama Baris</label>
-                            <input type="text" value="${row.name || `Baris ${index + 1}`}" placeholder="Masukkan nama baris..."
-                                   onchange="updateRow(${row.id}, 'name', this.value)"
-                                   class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                        </div>
-                        
-                        <div class="grid sm:grid-cols-3 gap-3 mb-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Jumlah Kotak</label>
-                                <input type="number" value="${row.count}" min="1" max="20" 
-                                       onchange="updateRow(${row.id}, 'count', this.value)"
-                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Lebar (cm)</label>
-                                <input type="number" value="${row.width}" min="1" step="0.1"
-                                       onchange="updateRow(${row.id}, 'width', this.value)"
-                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Tinggi (cm)</label>
-                                <input type="number" value="${row.height}" min="1" step="0.1"
-                                       onchange="updateRow(${row.id}, 'height', this.value)"
-                                       class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-700/70 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
-                            <span>Total Lebar: <strong class="${isOverflow ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}">${totalWidth} cm</strong></span>
-                            <span>Luas: <strong class="text-gray-900 dark:text-white">${area.toFixed(1)} cm²</strong></span>
-                        </div>
+
+            if (boxL > containerL || boxW > containerW || boxH > containerH) {
+                showJiffyAlert('Ukuran kotak tidak boleh lebih besar dari kontainer!', 'error');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="text-center py-12 jiffy-fade-in">
+                    <div class="loading-spinner mx-auto mb-6"></div>
+                    <p class="text-xl font-semibold text-gray-700 mb-2 jiffy-slide-up">Menghitung layout ${selectedPattern}...</p>
+                    <div class="w-64 mx-auto bg-gray-200 rounded-full h-2 mb-4">
+                        <div class="jiffy-progress-bar h-2 rounded-full"></div>
                     </div>
-                `;
-            }).join('');
-        }
+                    <p class="text-sm text-gray-500 jiffy-fade-in jiffy-stagger-1">AI sedang menganalisis konfigurasi optimal</p>
+                    <div class="jiffy-loading-dots mt-4">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            `;
 
-        // Update row data
-        function updateRow(id, field, value) {
-            const row = rows.find(r => r.id === id);
-            if (row) {
-                if (field === 'name') {
-                    // Handle string field
-                    row[field] = value.trim() || `Baris ${rows.findIndex(r => r.id === id) + 1}`;
-                } else {
-                    // Handle numeric fields
-                    let parsedValue = parseFloat(value);
-                    
-                    // Validate input values
-                    if (field === 'count') {
-                        parsedValue = Math.max(1, Math.min(50, Math.floor(parsedValue) || 1));
-                    } else if (field === 'width' || field === 'height') {
-                        parsedValue = Math.max(0.1, parsedValue || 1);
+            // Calculate scenarios
+            setTimeout(() => {
+                const scenarios = [];
+                let optimal;
+
+                if (selectedPattern === 'optimal') {
+                    const normal = calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, 'Normal', false);
+                    scenarios.push(normal);
+
+                    if (allowRotation) {
+                        const rotated = calculateScenario(containerL, containerW, containerH, boxW, boxL, boxH, 'Rotasi 90°', true);
+                        scenarios.push(rotated);
+                        
+                        const mixed = calculateMixedLayout(containerL, containerW, containerH, boxL, boxW, boxH);
+                        scenarios.push(mixed);
                     }
-                    
-                    row[field] = parsedValue;
+
+                    optimal = scenarios.reduce((best, current) => 
+                        current.totalBoxes > best.totalBoxes ? current : best
+                    );
+                } else {
+                    switch (selectedPattern) {
+                        case 'normal':
+                            optimal = calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, 'Normal', false);
+                            break;
+                        case 'zigzag':
+                            optimal = calculateZigZagLayout(containerL, containerW, containerH, boxL, boxW, boxH);
+                            break;
+                        case 'offset':
+                            optimal = calculateOffsetLayout(containerL, containerW, containerH, boxL, boxW, boxH);
+                            break;
+                    }
+                    scenarios.push(optimal);
                 }
-                
-                updateRowsList();
-                updateRenderButton();
-                saveData();
-            }
+
+                // Calculate metrics
+                const containerVolume = containerL * containerW * containerH;
+                const boxVolume = boxL * boxW * boxH;
+                const wastedSpace = containerVolume - (optimal.totalBoxes * boxVolume);
+
+                calculationResults = {
+                    scenarios: scenarios,
+                    optimal: optimal,
+                    containerDimensions: { length: containerL, width: containerW, height: containerH },
+                    boxDimensions: { length: boxL, width: boxW, height: boxH },
+                    metrics: {
+                        containerVolume: containerVolume,
+                        boxVolume: boxVolume,
+                        wastedSpace: wastedSpace,
+                        spaceSavings: ((optimal.totalBoxes * boxVolume) / containerVolume * 100).toFixed(1)
+                    }
+                };
+
+                displayResults();
+                createVisualization();
+                showJiffyAlert('Perhitungan selesai! 🎉', 'success');
+            }, 2000);
         }
 
-        // Remove row
-        function removeRow(id) {
-            rows = rows.filter(row => row.id !== id);
-            updateRowsList();
-            updateRenderButton();
-            saveData();
-            showToast('Baris berhasil dihapus', 'success');
-        }
+        function calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, name, isRotated = false) {
+            const boxesPerRow = Math.floor(containerL / boxL);
+            const boxesPerCol = Math.floor(containerW / boxW);
+            const boxesPerLayer = boxesPerRow * boxesPerCol;
+            const layers = Math.floor(containerH / boxH);
+            const totalBoxes = boxesPerLayer * layers;
+            
+            const usedVolume = totalBoxes * (boxL * boxW * boxH);
+            const containerVolume = containerL * containerW * containerH;
+            const efficiency = (usedVolume / containerVolume) * 100;
 
-        // Update render button state
-        function updateRenderButton() {
-            const renderButton = document.getElementById('renderLayout');
-            renderButton.disabled = rows.length === 0;
-        }
-
-        // Get selected arrangement mode
-        function getSelectedArrangementMode() {
-            const selected = document.querySelector('input[name="arrangementMode"]:checked');
-            return selected ? selected.value : 'rows';
-        }
-
-        // Get arrangement mode name
-        function getArrangementModeName(mode) {
-            const names = {
-                rows: 'Baris',
-                baris2: 'Baris2',
-                columns: 'Kolom',
-                kolom2: 'Kolom2',
-                zigzag: 'Zig-Zag Horizontal'
+            return {
+                name: name,
+                boxesPerRow: boxesPerRow,
+                boxesPerCol: boxesPerCol,
+                boxesPerLayer: boxesPerLayer,
+                layers: layers,
+                totalBoxes: totalBoxes,
+                efficiency: efficiency.toFixed(1),
+                layout: generateLayoutPattern(boxesPerRow, boxesPerCol, layers, isRotated)
             };
-            return names[mode] || mode;
         }
 
-        // Convert rows to boxes
-        function convertRowsToBoxes() {
-            const boxes = [];
-            let boxId = 1;
+        function calculateMixedLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
+            let bestResult = { totalBoxes: 0 };
             
-            rows.forEach((row, rowIndex) => {
-                for (let i = 0; i < row.count; i++) {
-                    boxes.push({
-                        id: boxId++,
-                        width: row.width,
-                        height: row.height,
-                        area: row.width * row.height,
-                        rowIndex: rowIndex,
-                        boxInRow: i
-                    });
+            const normalPerRow = Math.floor(containerL / boxL);
+            const normalPerCol = Math.floor(containerW / boxW);
+            const rotatedPerRow = Math.floor(containerL / boxW);
+            const rotatedPerCol = Math.floor(containerW / boxL);
+            
+            for (let normalRows = 0; normalRows <= normalPerCol; normalRows++) {
+                const remainingWidth = containerW - (normalRows * boxW);
+                const rotatedRows = Math.floor(remainingWidth / boxL);
+                
+                const totalBoxesPerLayer = (normalRows * normalPerRow) + (rotatedRows * rotatedPerRow);
+                const layers = Math.floor(containerH / boxH);
+                const totalBoxes = totalBoxesPerLayer * layers;
+                
+                if (totalBoxes > bestResult.totalBoxes) {
+                    const usedVolume = totalBoxes * (boxL * boxW * boxH);
+                    const containerVolume = containerL * containerW * containerH;
+                    const efficiency = (usedVolume / containerVolume) * 100;
+                    
+                    bestResult = {
+                        name: 'Kombinasi Optimal',
+                        boxesPerRow: Math.max(normalPerRow, rotatedPerRow),
+                        boxesPerCol: normalRows + rotatedRows,
+                        boxesPerLayer: totalBoxesPerLayer,
+                        layers: layers,
+                        totalBoxes: totalBoxes,
+                        efficiency: efficiency.toFixed(1),
+                        layout: generateMixedLayoutPattern(normalPerRow, rotatedPerRow, normalRows, rotatedRows, layers)
+                    };
                 }
-            });
-            
-            return boxes;
-        }
-
-        // Calculate layout
-        function calculateLayout(arrangementMode = 'rows') {
-            const boxes = convertRowsToBoxes();
-            let placedBoxes = [];
-            let unplacedBoxes = [];
-            
-            // Apply arrangement mode
-            switch (arrangementMode) {
-                case 'baris2':
-                    ({ placedBoxes, unplacedBoxes } = arrangeInBaris2(boxes));
-                    break;
-                case 'columns':
-                    ({ placedBoxes, unplacedBoxes } = arrangeInColumns(boxes));
-                    break;
-                case 'kolom2':
-                    ({ placedBoxes, unplacedBoxes } = arrangeInKolom2(boxes));
-                    break;
-                case 'zigzag':
-                    ({ placedBoxes, unplacedBoxes } = arrangeInZigZag(boxes));
-                    break;
-                case 'rows':
-                default:
-                    ({ placedBoxes, unplacedBoxes } = arrangeInRows(boxes));
-                    break;
             }
             
-            const totalBoxes = boxes.length;
-            const totalArea = boxes.reduce((sum, box) => sum + box.area, 0);
-            const placedArea = placedBoxes.reduce((sum, box) => sum + box.area, 0);
-            const efficiency = (placedArea / CONTAINER_AREA) * 100;
+            return bestResult;
+        }
+
+        function calculateZigZagLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
+            const normalPerRow = Math.floor(containerL / boxL);
+            const rotatedPerRow = Math.floor(containerL / boxW);
+            
+            let totalRows = 0;
+            let currentWidth = 0;
+            let alternateNormal = true;
+            
+            while (currentWidth < containerW) {
+                const nextRowWidth = alternateNormal ? boxW : boxL;
+                if (currentWidth + nextRowWidth <= containerW) {
+                    currentWidth += nextRowWidth;
+                    totalRows++;
+                    alternateNormal = !alternateNormal;
+                } else {
+                    break;
+                }
+            }
+            
+            const normalRowCount = Math.ceil(totalRows / 2);
+            const rotatedRowCount = Math.floor(totalRows / 2);
+            const boxesPerLayer = (normalRowCount * normalPerRow) + (rotatedRowCount * rotatedPerRow);
+            const layers = Math.floor(containerH / boxH);
+            const totalBoxes = boxesPerLayer * layers;
+            
+            const usedVolume = totalBoxes * (boxL * boxW * boxH);
+            const containerVolume = containerL * containerW * containerH;
+            const efficiency = (usedVolume / containerVolume) * 100;
             
             return {
-                arrangementMode,
-                placedBoxes,
-                unplacedBoxes,
-                totalBoxes,
-                placedCount: placedBoxes.length,
-                unplacedCount: unplacedBoxes.length,
-                totalArea,
-                placedArea,
-                efficiency,
-                rows: rows.length
+                name: 'Pola Zig-Zag',
+                boxesPerRow: Math.max(normalPerRow, rotatedPerRow),
+                boxesPerCol: totalRows,
+                boxesPerLayer: boxesPerLayer,
+                layers: layers,
+                totalBoxes: totalBoxes,
+                efficiency: efficiency.toFixed(1),
+                layout: generateZigZagLayoutPattern(normalPerRow, rotatedPerRow, normalRowCount, rotatedRowCount, layers)
             };
         }
 
-        // Arrange boxes in rows (left to right, bottom to top)
-        function arrangeInRows(boxes) {
-            const placedBoxes = [];
-            const unplacedBoxes = [];
-            let currentX = 0;
-            let currentY = CONTAINER_HEIGHT; // Start from bottom
-            let rowHeight = 0;
+        function calculateOffsetLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
+            const boxesPerRow = Math.floor(containerL / boxL);
+            const boxesPerCol = Math.floor(containerW / boxW);
             
-            for (const box of boxes) {
-                // Check if box fits in current row (from bottom)
-                if (currentX + box.width <= CONTAINER_WIDTH && currentY - box.height >= 0) {
-                    placedBoxes.push({
-                        ...box,
-                        x: currentX,
-                        y: currentY - box.height // Position from bottom
-                    });
-                    currentX += box.width;
-                    rowHeight = Math.max(rowHeight, box.height);
-                } else if (currentY - rowHeight - box.height >= 0) {
-                    // Move to next row (going up)
-                    currentY -= rowHeight;
-                    currentX = 0;
-                    rowHeight = 0;
-                    
-                    // Try to place in new row
-                    if (box.width <= CONTAINER_WIDTH) {
-                        placedBoxes.push({
-                            ...box,
-                            x: currentX,
-                            y: currentY - box.height
-                        });
-                        currentX += box.width;
-                        rowHeight = box.height;
-                    } else {
-                        unplacedBoxes.push(box);
+            const offsetShift = boxL / 2;
+            const offsetBoxesPerRow = Math.floor((containerL - offsetShift) / boxL);
+            
+            const fullRows = Math.ceil(boxesPerCol / 2);
+            const offsetRows = Math.floor(boxesPerCol / 2);
+            
+            const boxesPerLayer = (fullRows * boxesPerRow) + (offsetRows * offsetBoxesPerRow);
+            const layers = Math.floor(containerH / boxH);
+            const totalBoxes = boxesPerLayer * layers;
+            
+            const usedVolume = totalBoxes * (boxL * boxW * boxH);
+            const containerVolume = containerL * containerW * containerH;
+            const efficiency = (usedVolume / containerVolume) * 100;
+            
+            return {
+                name: 'Pola Offset',
+                boxesPerRow: boxesPerRow,
+                boxesPerCol: boxesPerCol,
+                boxesPerLayer: boxesPerLayer,
+                layers: layers,
+                totalBoxes: totalBoxes,
+                efficiency: efficiency.toFixed(1),
+                layout: generateOffsetLayoutPattern(boxesPerRow, offsetBoxesPerRow, fullRows, offsetRows, layers)
+            };
+        }
+
+        function generateLayoutPattern(boxesPerRow, boxesPerCol, layers, isRotated) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                for (let col = 0; col < boxesPerCol; col++) {
+                    const row = [];
+                    for (let r = 0; r < boxesPerRow; r++) {
+                        row.push({ rotated: isRotated, type: isRotated ? 'rotated' : 'normal' });
                     }
-                } else {
-                    unplacedBoxes.push(box);
+                    layerPattern.push(row);
                 }
+                pattern.push(layerPattern);
             }
-            
-            return { placedBoxes, unplacedBoxes };
+            return pattern;
         }
 
-        // Arrange boxes in columns (bottom to top, left to right)
-        function arrangeInColumns(boxes) {
-            const placedBoxes = [];
-            const unplacedBoxes = [];
-            let currentX = 0;
-            let currentY = CONTAINER_HEIGHT; // Start from bottom
-            let columnWidth = 0;
-            
-            for (const box of boxes) {
-                // Check if box fits in current column (from bottom going up)
-                if (currentY - box.height >= 0 && currentX + box.width <= CONTAINER_WIDTH) {
-                    placedBoxes.push({
-                        ...box,
-                        x: currentX,
-                        y: currentY - box.height // Position from bottom
-                    });
-                    currentY -= box.height; // Move up for next box
-                    columnWidth = Math.max(columnWidth, box.width);
-                } else if (currentX + columnWidth + box.width <= CONTAINER_WIDTH) {
-                    // Move to next column (to the right)
-                    currentX += columnWidth;
-                    currentY = CONTAINER_HEIGHT; // Reset to bottom of new column
-                    columnWidth = 0;
-                    
-                    // Try to place in new column
-                    if (box.height <= CONTAINER_HEIGHT) {
-                        placedBoxes.push({
-                            ...box,
-                            x: currentX,
-                            y: currentY - box.height
-                        });
-                        currentY -= box.height;
-                        columnWidth = box.width;
-                    } else {
-                        unplacedBoxes.push(box);
+        function generateMixedLayoutPattern(normalPerRow, rotatedPerRow, normalRows, rotatedRows, layers) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                
+                for (let col = 0; col < normalRows; col++) {
+                    const row = [];
+                    for (let r = 0; r < normalPerRow; r++) {
+                        row.push({ rotated: false, type: 'normal' });
                     }
-                } else {
-                    // Box doesn't fit anywhere
-                    unplacedBoxes.push(box);
+                    layerPattern.push(row);
                 }
+                
+                for (let col = 0; col < rotatedRows; col++) {
+                    const row = [];
+                    for (let r = 0; r < rotatedPerRow; r++) {
+                        row.push({ rotated: true, type: 'rotated' });
+                    }
+                    layerPattern.push(row);
+                }
+                
+                pattern.push(layerPattern);
             }
-            
-            return { placedBoxes, unplacedBoxes };
+            return pattern;
         }
 
-        // Arrange boxes in baris2 pattern (left to right in single column, following row arrangement)
-        function arrangeInBaris2(boxes) {
-            const placedBoxes = [];
-            const unplacedBoxes = [];
-            let currentY = CONTAINER_HEIGHT; // Start from bottom
-            
-            // Group boxes by their original rows
-            const boxesByRow = {};
-            boxes.forEach(box => {
-                if (!boxesByRow[box.rowIndex]) {
-                    boxesByRow[box.rowIndex] = [];
-                }
-                boxesByRow[box.rowIndex].push(box);
-            });
-            
-            // Process each row's boxes in sequence (from bottom to top)
-            Object.keys(boxesByRow).sort((a, b) => parseInt(a) - parseInt(b)).forEach(rowIndex => {
-                const rowBoxes = boxesByRow[rowIndex];
-                let rowX = 0; // Start each row from left edge
-                let maxRowHeight = 0;
-                let rowPlaced = false;
+        function generateZigZagLayoutPattern(normalPerRow, rotatedPerRow, normalRowCount, rotatedRowCount, layers) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                let isNormalRow = true;
                 
-                // Calculate total width needed for this row
-                const totalRowWidth = rowBoxes.reduce((sum, box) => sum + box.width, 0);
-                
-                // Check if entire row fits horizontally
-                if (totalRowWidth <= CONTAINER_WIDTH) {
-                    // Find the maximum height in this row
-                    maxRowHeight = Math.max(...rowBoxes.map(box => box.height));
+                for (let row = 0; row < (normalRowCount + rotatedRowCount); row++) {
+                    const rowPattern = [];
+                    const boxesInThisRow = isNormalRow ? normalPerRow : rotatedPerRow;
                     
-                    // Check if row fits vertically
-                    if (currentY - maxRowHeight >= 0) {
-                        // Place all boxes in this row
-                        for (const box of rowBoxes) {
-                            placedBoxes.push({
-                                ...box,
-                                x: rowX,
-                                y: currentY - maxRowHeight // Align all boxes in row to same bottom level
-                            });
-                            rowX += box.width;
-                            rowPlaced = true;
-                        }
-                        
-                        // Move down for next row
-                        if (rowPlaced) {
-                            currentY -= maxRowHeight;
-                        }
-                    } else {
-                        // Row doesn't fit vertically
-                        rowBoxes.forEach(box => unplacedBoxes.push(box));
-                    }
-                } else {
-                    // Row doesn't fit horizontally
-                    rowBoxes.forEach(box => unplacedBoxes.push(box));
-                }
-            });
-            
-            return { placedBoxes, unplacedBoxes };
-        }
-
-        // Arrange boxes in kolom2 pattern (bottom to top in single row, following row arrangement)
-        function arrangeInKolom2(boxes) {
-            const placedBoxes = [];
-            const unplacedBoxes = [];
-            let currentX = 0; // Start from left
-            
-            // Group boxes by their original rows
-            const boxesByRow = {};
-            boxes.forEach(box => {
-                if (!boxesByRow[box.rowIndex]) {
-                    boxesByRow[box.rowIndex] = [];
-                }
-                boxesByRow[box.rowIndex].push(box);
-            });
-            
-            // Process each row's boxes in sequence (left to right columns)
-            Object.keys(boxesByRow).sort((a, b) => parseInt(a) - parseInt(b)).forEach(rowIndex => {
-                const rowBoxes = boxesByRow[rowIndex];
-                let columnY = CONTAINER_HEIGHT; // Start each column from bottom
-                let maxColumnWidth = 0;
-                let columnPlaced = false;
-                
-                // Calculate total height needed for this column
-                const totalColumnHeight = rowBoxes.reduce((sum, box) => sum + box.height, 0);
-                
-                // Check if entire column fits vertically
-                if (totalColumnHeight <= CONTAINER_HEIGHT) {
-                    // Find the maximum width in this column
-                    maxColumnWidth = Math.max(...rowBoxes.map(box => box.width));
-                    
-                    // Check if column fits horizontally
-                    if (currentX + maxColumnWidth <= CONTAINER_WIDTH) {
-                        // Place all boxes in this column (from bottom to top)
-                        for (const box of rowBoxes) {
-                            placedBoxes.push({
-                                ...box,
-                                x: currentX, // Align all boxes in column to same left edge
-                                y: columnY - box.height
-                            });
-                            columnY -= box.height; // Move up for next box
-                            columnPlaced = true;
-                        }
-                        
-                        // Move right for next column
-                        if (columnPlaced) {
-                            currentX += maxColumnWidth;
-                        }
-                    } else {
-                        // Column doesn't fit horizontally
-                        rowBoxes.forEach(box => unplacedBoxes.push(box));
-                    }
-                } else {
-                    // Column doesn't fit vertically
-                    rowBoxes.forEach(box => unplacedBoxes.push(box));
-                }
-            });
-            
-            return { placedBoxes, unplacedBoxes };
-        }
-
-        // Arrange boxes in zig-zag pattern (alternating row directions, bottom-up)
-        function arrangeInZigZag(boxes) {
-            const placedBoxes = [];
-            const unplacedBoxes = [];
-            let currentX = 0;
-            let currentY = CONTAINER_HEIGHT; // Start from bottom
-            let rowHeight = 0;
-            let rowNumber = 0;
-            let leftToRight = true;
-            
-            for (const box of boxes) {
-                // Check if box fits in current row (from bottom)
-                if ((leftToRight && currentX + box.width <= CONTAINER_WIDTH) || 
-                    (!leftToRight && currentX - box.width >= 0)) {
-                    
-                    if (currentY - box.height >= 0) {
-                        const xPos = leftToRight ? currentX : currentX - box.width;
-                        
-                        placedBoxes.push({
-                            ...box,
-                            x: xPos,
-                            y: currentY - box.height // Position from bottom
+                    for (let col = 0; col < boxesInThisRow; col++) {
+                        rowPattern.push({ 
+                            rotated: !isNormalRow, 
+                            type: isNormalRow ? 'normal' : 'rotated',
+                            zigzag: true 
                         });
-                        
-                        if (leftToRight) {
-                            currentX += box.width;
-                        } else {
-                            currentX -= box.width;
-                        }
-                        
-                        rowHeight = Math.max(rowHeight, box.height);
-                    } else {
-                        unplacedBoxes.push(box);
                     }
-                } else {
-                    // Move to next row (going up)
-                    currentY -= rowHeight;
-                    rowNumber++;
-                    leftToRight = (rowNumber % 2 === 0); // Alternate direction
-                    currentX = leftToRight ? 0 : CONTAINER_WIDTH;
-                    rowHeight = 0;
                     
-                    // Try to place in new row
-                    if (currentY - box.height >= 0 && box.width <= CONTAINER_WIDTH) {
-                        const xPos = leftToRight ? currentX : currentX - box.width;
-                        
-                        placedBoxes.push({
-                            ...box,
-                            x: xPos,
-                            y: currentY - box.height
-                        });
-                        
-                        if (leftToRight) {
-                            currentX += box.width;
-                        } else {
-                            currentX -= box.width;
-                        }
-                        
-                        rowHeight = box.height;
-                    } else {
-                        unplacedBoxes.push(box);
-                    }
+                    layerPattern.push(rowPattern);
+                    isNormalRow = !isNormalRow;
                 }
+                
+                pattern.push(layerPattern);
             }
-            
-            return { placedBoxes, unplacedBoxes };
+            return pattern;
         }
 
-        // Render layout
-        document.getElementById('renderLayout').addEventListener('click', () => {
-            if (rows.length === 0) {
-                showToast('Tambahkan baris kotak terlebih dahulu', 'warning');
-                return;
+        function generateOffsetLayoutPattern(boxesPerRow, offsetBoxesPerRow, fullRows, offsetRows, layers) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                let isFullRow = true;
+                
+                for (let row = 0; row < (fullRows + offsetRows); row++) {
+                    const rowPattern = [];
+                    const boxesInThisRow = isFullRow ? boxesPerRow : offsetBoxesPerRow;
+                    
+                    for (let col = 0; col < boxesInThisRow; col++) {
+                        rowPattern.push({ 
+                            rotated: false, 
+                            type: 'normal',
+                            offset: !isFullRow,
+                            offsetShift: !isFullRow ? 0.5 : 0
+                        });
+                    }
+                    
+                    layerPattern.push(rowPattern);
+                    isFullRow = !isFullRow;
+                }
+                
+                pattern.push(layerPattern);
             }
-            
-            const arrangementMode = getSelectedArrangementMode();
-            layoutResult = calculateLayout(arrangementMode);
-            displayResults(layoutResult);
-            visualizeLayout(layoutResult);
-            document.getElementById('exportPDF').disabled = false;
-            showToast(`Layout berhasil dirender dengan mode ${getArrangementModeName(arrangementMode)}`, 'success');
-        });
+            return pattern;
+        }
 
-        // Display results
-        function displayResults(result) {
-            const resultsPanel = document.getElementById('resultsPanel');
-            const resultsContent = document.getElementById('resultsContent');
+        function displayResults() {
+            const container = document.getElementById('resultsContainer');
+            const { scenarios, optimal, metrics } = calculationResults;
             
-            let modeInfo = `
-                <div class="mb-4 p-3 bg-gradient-to-r from-orange-50 to-cyan-50 dark:from-orange-900/20 dark:to-cyan-900/20 rounded-xl border border-orange-200 dark:border-orange-800">
-                    <div class="flex items-center justify-center">
-                        <div class="flex items-center">
-                            <svg class="w-5 h-5 text-cyan-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                            </svg>
-                            <span class="font-semibold text-cyan-800 dark:text-cyan-200">Mode Penataan: ${getArrangementModeName(result.arrangementMode)}</span>
+            let html = `
+                <div class="p-6 rounded-2xl border-l-4 border-green-500 mb-8 jiffy-success" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));">
+                    <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                        <span class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white mr-3 jiffy-pulse">🏆</span>
+                        Layout Optimal: ${optimal.name}
+                    </h3>
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div class="text-center jiffy-bounce jiffy-stagger-1">
+                            <div class="text-4xl font-bold gradient-text">${optimal.totalBoxes}</div>
+                            <div class="text-sm font-semibold text-gray-600">Total Kotak</div>
+                        </div>
+                        <div class="text-center jiffy-bounce jiffy-stagger-2">
+                            <div class="text-4xl font-bold gradient-text">${optimal.efficiency}%</div>
+                            <div class="text-sm font-semibold text-gray-600">Efisiensi</div>
+                        </div>
+                        <div class="text-center jiffy-bounce jiffy-stagger-3">
+                            <div class="text-2xl font-bold text-gray-700">${optimal.boxesPerLayer}</div>
+                            <div class="text-sm font-semibold text-gray-600">Kotak per Lapisan</div>
+                        </div>
+                        <div class="text-center jiffy-bounce jiffy-stagger-4">
+                            <div class="text-2xl font-bold text-gray-700">${optimal.layers}</div>
+                            <div class="text-sm font-semibold text-gray-600">Lapisan Tinggi</div>
                         </div>
                     </div>
                 </div>
+
+                <div class="p-6 rounded-2xl mb-8 jiffy-slide-up" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));">
+                    <h4 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                        <span class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white mr-3 jiffy-pulse">📊</span>
+                        Analisis Mendalam
+                    </h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-1">
+                            <div class="text-gray-600 font-semibold mb-1">Volume Kontainer</div>
+                            <div class="text-2xl font-bold gradient-text">${(metrics.containerVolume / 1000000).toFixed(2)} m³</div>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-2">
+                            <div class="text-gray-600 font-semibold mb-1">Volume Terpakai</div>
+                            <div class="text-2xl font-bold text-green-600">${metrics.spaceSavings}%</div>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-3">
+                            <div class="text-gray-600 font-semibold mb-1">Ruang Terbuang</div>
+                            <div class="text-2xl font-bold text-red-600">${(metrics.wastedSpace / 1000000).toFixed(2)} m³</div>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-4">
+                            <div class="text-gray-600 font-semibold mb-1">Kotak per m³</div>
+                            <div class="text-2xl font-bold text-purple-600">${(optimal.totalBoxes / (metrics.containerVolume / 1000000)).toFixed(0)}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 jiffy-slide-up">
+                    <h4 class="text-xl font-bold text-gray-700 flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-gray-500 to-gray-700 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📋</span>
+                        Perbandingan Semua Skenario
+                    </h4>
             `;
             
-            // Add individual row arrangement details for combined mode
-            if (result.arrangementMode === 'combined') {
-                modeInfo += `
-                    <div class="mb-4 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-xl border border-purple-200 dark:border-purple-800">
-                        <h4 class="font-semibold text-purple-800 dark:text-purple-200 mb-2 flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2zm8 0h-2a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2z"></path>
-                            </svg>
-                            Detail Mode Per Baris:
-                        </h4>
-                        <div class="space-y-1 text-sm">
-                            ${rows.map((row, index) => `
-                                <div class="flex items-center justify-between">
-                                    <span class="text-purple-700 dark:text-purple-300">Baris ${index + 1}:</span>
-                                    <span class="font-medium text-purple-900 dark:text-purple-100">${getRowArrangementModeName(row.arrangementMode || 'horizontal')}</span>
-                                </div>
-                            `).join('')}
+            scenarios.forEach((scenario, index) => {
+                const isOptimal = scenario === optimal;
+                html += `
+                    <div class="p-4 rounded-xl border-2 ${isOptimal ? 'border-green-300' : 'border-gray-200'} jiffy-fade-in jiffy-stagger-${index + 1} jiffy-hover-lift" style="background: ${isOptimal ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(59, 130, 246, 0.05))' : 'rgba(255, 255, 255, 0.8)'};">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-bold ${isOptimal ? 'text-green-800' : 'text-gray-700'}">${scenario.name}</span>
+                            ${isOptimal ? '<span class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold jiffy-bounce">OPTIMAL ✨</span>' : ''}
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="font-bold text-xl ${isOptimal ? 'text-green-600' : 'text-gray-700'}">${scenario.totalBoxes}</div>
+                                <div class="text-gray-600">Total</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-gray-700">${scenario.boxesPerLayer}</div>
+                                <div class="text-gray-600">Per Lapisan</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-gray-700">${scenario.layers}</div>
+                                <div class="text-gray-600">Lapisan Tinggi</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg ${isOptimal ? 'text-blue-600' : 'text-gray-700'}">${scenario.efficiency}%</div>
+                                <div class="text-gray-600">Efisiensi</div>
+                            </div>
                         </div>
                     </div>
                 `;
-            }
+            });
             
-            resultsContent.innerHTML = `
-                ${modeInfo}
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-xl border border-green-200 dark:border-green-800">
-                        <div class="flex items-center mb-2">
-                            <svg class="w-5 h-5 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <h4 class="font-semibold text-green-800 dark:text-green-200">Kotak Tertata</h4>
-                        </div>
-                        <p class="text-2xl font-bold text-green-600">${result.placedCount}</p>
-                        <p class="text-sm text-green-600 dark:text-green-400">dari ${result.totalBoxes} kotak</p>
-                    </div>
-                    
-                    <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
-                        <div class="flex items-center mb-2">
-                            <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                            </svg>
-                            <h4 class="font-semibold text-blue-800 dark:text-blue-200">Efisiensi</h4>
-                        </div>
-                        <p class="text-2xl font-bold text-blue-600">${result.efficiency.toFixed(1)}%</p>
-                        <p class="text-sm text-blue-600 dark:text-blue-400">ruang terpakai</p>
-                    </div>
-                </div>
-                
-                <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
-                    <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Detail Perhitungan</h4>
-                    <div class="grid sm:grid-cols-4 gap-4 text-sm">
-                        <div>
-                            <p class="text-gray-600 dark:text-gray-400">Jumlah Baris</p>
-                            <p class="font-semibold text-gray-900 dark:text-white">${result.rows}</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600 dark:text-gray-400">Luas Kotak</p>
-                            <p class="font-semibold text-gray-900 dark:text-white">${result.placedArea.toFixed(0)} cm²</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600 dark:text-gray-400">Luas Wadah</p>
-                            <p class="font-semibold text-gray-900 dark:text-white">${CONTAINER_AREA.toLocaleString()} cm²</p>
-                        </div>
-                        <div>
-                            <p class="text-gray-600 dark:text-gray-400">Sisa Ruang</p>
-                            <p class="font-semibold text-gray-900 dark:text-white">${(CONTAINER_AREA - result.placedArea).toFixed(0)} cm²</p>
-                        </div>
-                    </div>
-                </div>
-                
-                ${result.unplacedCount > 0 ? `
-                    <div class="mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">
-                        <div class="flex items-center mb-2">
-                            <svg class="w-5 h-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                            <h4 class="font-semibold text-red-800 dark:text-red-200">Kotak Tidak Muat</h4>
-                        </div>
-                        <p class="text-red-600 dark:text-red-400">${result.unplacedCount} kotak tidak dapat ditata dalam wadah</p>
-                    </div>
-                ` : ''}
-            `;
-            
-            resultsPanel.classList.remove('hidden');
+            html += '</div>';
+            container.innerHTML = html;
         }
 
-        // Visualize layout
-        function visualizeLayout(result) {
+        function createVisualization() {
+            const enable3D = document.getElementById('enable3D').checked;
+            
+            if (enable3D) {
+                currentVisualizationMode = '3d';
+                document.getElementById('toggle3DMode').textContent = '📋 Mode 2D';
+                document.getElementById('threeDControls').classList.remove('hidden');
+                document.getElementById('threeDControls').classList.add('jiffy-zoom-in');
+                init3DVisualization();
+            } else {
+                currentVisualizationMode = '2d';
+                document.getElementById('toggle3DMode').textContent = '🎮 Mode 3D';
+                document.getElementById('threeDControls').classList.add('hidden');
+                create2DVisualization();
+            }
+            
+            setupLayerControls();
+        }
+
+        function toggle3DVisualization() {
+            if (currentVisualizationMode === '2d') {
+                currentVisualizationMode = '3d';
+                document.getElementById('toggle3DMode').textContent = '📋 Mode 2D';
+                document.getElementById('toggle3DMode').classList.add('jiffy-bounce');
+                setTimeout(() => document.getElementById('toggle3DMode').classList.remove('jiffy-bounce'), 600);
+                
+                if (calculationResults) {
+                    document.getElementById('threeDControls').classList.remove('hidden');
+                    document.getElementById('threeDControls').classList.add('jiffy-zoom-in');
+                    init3DVisualization();
+                }
+            } else {
+                currentVisualizationMode = '2d';
+                document.getElementById('toggle3DMode').textContent = '🎮 Mode 3D';
+                document.getElementById('toggle3DMode').classList.add('jiffy-bounce');
+                setTimeout(() => document.getElementById('toggle3DMode').classList.remove('jiffy-bounce'), 600);
+                
+                document.getElementById('threeDControls').classList.add('hidden');
+                cleanup3D();
+                if (calculationResults) {
+                    create2DVisualization();
+                }
+            }
+        }
+
+        function init3DVisualization() {
+            if (!calculationResults) return;
+
+            cleanup3D();
+
             const container = document.getElementById('visualizationContainer');
-            const scale = Math.min(500 / CONTAINER_WIDTH, 400 / CONTAINER_HEIGHT);
-            const scaledWidth = CONTAINER_WIDTH * scale;
-            const scaledHeight = CONTAINER_HEIGHT * scale;
+            container.style.display = 'none';
             
-            const colors = [
-                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1',
-                '#14B8A6', '#F472B6', '#A855F7', '#EAB308', '#EF4444'
-            ];
+            const threejsContainer = document.getElementById('threejs-container');
+            threejsContainer.style.display = 'block';
+            threejsContainer.classList.add('jiffy-zoom-in');
             
-            let svg = `
-                <div class="flex flex-col items-center space-y-4">
-                    <div class="text-center">
-                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                            Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm
-                        </p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            Mode: ${getArrangementModeName(result.arrangementMode)} • Skala: 1 cm = ${scale.toFixed(1)} px
-                        </p>
-                    </div>
-                    <div class="relative border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg" 
-                         style="width: ${scaledWidth}px; height: ${scaledHeight}px;">
+            // Setup Three.js scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf8fafc);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, threejsContainer.clientWidth / 600, 0.1, 1000);
+            camera.position.set(50, 50, 50);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(threejsContainer.clientWidth, 600);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            threejsContainer.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(50, 50, 25);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            scene.add(directionalLight);
+
+            // Create container wireframe
+            createContainer3D();
+            
+            // Create boxes
+            createBoxes3D();
+
+            // Start animation loop
+            animate3D();
+        }
+
+        function createContainer3D() {
+            const { containerDimensions } = calculationResults;
+            const geometry = new THREE.BoxGeometry(
+                containerDimensions.length / 10,
+                containerDimensions.height / 10,
+                containerDimensions.width / 10
+            );
+            
+            const edges = new THREE.EdgesGeometry(geometry);
+            const material = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
+            containerMesh = new THREE.LineSegments(edges, material);
+            
+            containerMesh.position.set(
+                containerDimensions.length / 20,
+                containerDimensions.height / 20,
+                containerDimensions.width / 20
+            );
+            
+            scene.add(containerMesh);
+        }
+
+        function createBoxes3D() {
+            const { optimal, boxDimensions } = calculationResults;
+            const showAllLayers = document.getElementById('showAllLayers').checked;
+            const currentLayer = parseInt(document.getElementById('layerSlider').value) - 1;
+            
+            boxMeshes.forEach(mesh => scene.remove(mesh));
+            boxMeshes = [];
+
+            const layersToShow = showAllLayers ? optimal.layers : 1;
+            const startLayer = showAllLayers ? 0 : currentLayer;
+            const endLayer = showAllLayers ? optimal.layers : currentLayer + 1;
+
+            for (let layerIndex = startLayer; layerIndex < endLayer && layerIndex < optimal.layout.length; layerIndex++) {
+                const layer = optimal.layout[layerIndex];
+                
+                layer.forEach((row, rowIndex) => {
+                    row.forEach((box, colIndex) => {
+                        const boxGeometry = new THREE.BoxGeometry(
+                            (box.rotated ? boxDimensions.width : boxDimensions.length) / 10,
+                            boxDimensions.height / 10,
+                            (box.rotated ? boxDimensions.length : boxDimensions.width) / 10
+                        );
+
+                        let color = 0x60a5fa; // Normal blue
+                        if (box.rotated) color = 0xf87171; // Rotated red
+                        if (box.zigzag) color = 0xa78bfa; // Zigzag purple
+                        if (box.offset) color = 0x34d399; // Offset green
+
+                        const boxMaterial = new THREE.MeshLambertMaterial({ 
+                            color: color,
+                            transparent: true,
+                            opacity: 0.8
+                        });
+
+                        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+                        
+                        // Position calculation
+                        const boxWidth = (box.rotated ? boxDimensions.width : boxDimensions.length) / 10;
+                        const boxDepth = (box.rotated ? boxDimensions.length : boxDimensions.width) / 10;
+                        
+                        let offsetX = 0;
+                        if (box.offset && box.offsetShift) {
+                            offsetX = boxWidth * box.offsetShift;
+                        }
+
+                        boxMesh.position.set(
+                            (colIndex * boxWidth) + (boxWidth / 2) + offsetX,
+                            (layerIndex * boxDimensions.height / 10) + (boxDimensions.height / 20),
+                            (rowIndex * boxDepth) + (boxDepth / 2)
+                        );
+
+                        boxMesh.castShadow = true;
+                        boxMesh.receiveShadow = true;
+                        
+                        scene.add(boxMesh);
+                        boxMeshes.push(boxMesh);
+                    });
+                });
+            }
+        }
+
+        function animate3D() {
+            if (currentVisualizationMode !== '3d') return;
+            
+            animationId = requestAnimationFrame(animate3D);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function cleanup3D() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            if (renderer) {
+                const threejsContainer = document.getElementById('threejs-container');
+                if (threejsContainer.contains(renderer.domElement)) {
+                    threejsContainer.removeChild(renderer.domElement);
+                }
+                renderer.dispose();
+                renderer = null;
+            }
+            
+            if (scene) {
+                boxMeshes.forEach(mesh => scene.remove(mesh));
+                boxMeshes = [];
+                if (containerMesh) {
+                    scene.remove(containerMesh);
+                    containerMesh = null;
+                }
+                scene = null;
+            }
+            
+            camera = null;
+            controls = null;
+            
+            document.getElementById('threejs-container').style.display = 'none';
+            document.getElementById('visualizationContainer').style.display = 'flex';
+        }
+
+        function create2DVisualization() {
+            const container = document.getElementById('visualizationContainer');
+            const { optimal, containerDimensions, boxDimensions } = calculationResults;
+            
+            // Create 2D SVG visualization
+            const svgWidth = 800;
+            const svgHeight = 500;
+            const scale = Math.min(600 / containerDimensions.length, 300 / containerDimensions.width);
+            const containerWidth = containerDimensions.length * scale;
+            const containerHeight = containerDimensions.width * scale;
+            
+            const showAllLayers = document.getElementById('showAllLayers').checked;
+            const currentLayer = parseInt(document.getElementById('layerSlider').value) - 1;
+            
+            let html = `
+                <div class="w-full jiffy-zoom-in" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 20px; padding: 30px;">
+                    <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" class="mx-auto">
+                        <defs>
+                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.5" opacity="0.5"/>
+                            </pattern>
+                            <filter id="boxShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+                            </filter>
+                        </defs>
+                        
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        
+                        <g transform="translate(${(svgWidth - containerWidth) / 2}, ${(svgHeight - containerHeight) / 2})">
+                            <rect x="0" y="0" width="${containerWidth}" height="${containerHeight}" 
+                                  fill="none" stroke="#3b82f6" stroke-width="3" rx="8" stroke-dasharray="10,5"/>
+                            
+                            <text x="${containerWidth/2}" y="-15" text-anchor="middle" 
+                                  class="text-lg font-bold fill-blue-700" style="font-family: 'Inter', sans-serif;">
+                                Kontainer ${containerDimensions.length}×${containerDimensions.width}×${containerDimensions.height} cm (Tampak Atas)
+                            </text>
             `;
             
-            // Group boxes by row for color consistency
-            const boxesByRow = {};
-            result.placedBoxes.forEach(box => {
-                if (!boxesByRow[box.rowIndex]) {
-                    boxesByRow[box.rowIndex] = [];
-                }
-                boxesByRow[box.rowIndex].push(box);
-            });
+            // Add boxes for current layer(s)
+            const layersToShow = showAllLayers ? optimal.layers : 1;
+            const startLayer = showAllLayers ? 0 : currentLayer;
+            const endLayer = showAllLayers ? optimal.layers : currentLayer + 1;
+
+            for (let layerIndex = startLayer; layerIndex < endLayer && layerIndex < optimal.layout.length; layerIndex++) {
+                const layer = optimal.layout[layerIndex];
+                const opacity = showAllLayers ? Math.max(0.6, 1 - (layerIndex * 0.15)) : 1;
+                
+                let currentTop = 0;
+                
+                layer.forEach((row, rowIndex) => {
+                    let currentLeft = 0;
+                    let maxRowHeight = 0;
+                    
+                    row.forEach((box, colIndex) => {
+                        const boxWidth = (box.rotated ? boxDimensions.width : boxDimensions.length) * scale;
+                        const boxHeight = (box.rotated ? boxDimensions.length : boxDimensions.width) * scale;
+                        
+                        maxRowHeight = Math.max(maxRowHeight, boxHeight);
+                        
+                        let fillColor = '#60a5fa';
+                        let strokeColor = '#3b82f6';
+                        if (box.rotated) {
+                            fillColor = '#f87171';
+                            strokeColor = '#ef4444';
+                        } else if (box.zigzag) {
+                            fillColor = '#a78bfa';
+                            strokeColor = '#8b5cf6';
+                        } else if (box.offset) {
+                            fillColor = '#34d399';
+                            strokeColor = '#10b981';
+                        }
+                        
+                        let offsetLeft = currentLeft;
+                        if (box.offset && box.offsetShift) {
+                            offsetLeft += boxWidth * box.offsetShift;
+                        }
+                        
+                        html += `
+                            <g class="box-group" style="cursor: pointer;">
+                                <rect x="${offsetLeft + 2}" y="${currentTop + 2}" 
+                                      width="${boxWidth}" height="${boxHeight}" 
+                                      fill="#000000" opacity="0.1" rx="4" />
+                                
+                                <rect x="${offsetLeft}" y="${currentTop}" 
+                                      width="${boxWidth}" height="${boxHeight}" 
+                                      fill="${fillColor}" stroke="${strokeColor}" stroke-width="2" 
+                                      rx="4" opacity="${opacity}" filter="url(#boxShadow)" />
+                                
+                                <text x="${offsetLeft + boxWidth/2}" y="${currentTop + boxHeight/2 + 2}" 
+                                      text-anchor="middle" dominant-baseline="middle"
+                                      class="text-xs font-bold fill-white" 
+                                      style="font-family: 'Inter', sans-serif; pointer-events: none;"
+                                      opacity="${opacity}">
+                                    ${box.rotated ? '↻' : box.zigzag ? '⟲' : box.offset ? '⬢' : '□'}
+                                </text>
+                            </g>
+                        `;
+                        
+                        currentLeft += boxWidth;
+                    });
+                    
+                    currentTop += maxRowHeight;
+                });
+            }
             
-            result.placedBoxes.forEach((box, index) => {
-                const color = colors[box.rowIndex % colors.length];
-                const x = box.x * scale;
-                const y = box.y * scale;
-                const width = box.width * scale;
-                const height = box.height * scale;
-                
-                const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
-                let displayText;
-                let fontSize;
-                
-                if (width > 80 && height > 25) {
-                    // Large boxes: show full or truncated row name
-                    const maxChars = Math.floor(width/6);
-                    displayText = rowName.length > maxChars ? 
-                        `${rowName.substring(0, maxChars-3)}...` : 
-                        rowName;
-                    fontSize = Math.max(8, Math.min(16, Math.min(width/8, height/3)));
-                } else if (width > 40 && height > 15) {
-                    // Medium boxes: show row-box format
-                    displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
-                    fontSize = Math.max(7, Math.min(12, Math.min(width/6, height/2.5)));
-                } else if (width > 20 && height > 10) {
-                    // Small boxes: show row number
-                    displayText = `${box.rowIndex + 1}`;
-                    fontSize = Math.max(6, Math.min(10, Math.min(width/4, height/2)));
-                } else {
-                    // Very small boxes: show just row number with minimum font
-                    displayText = `${box.rowIndex + 1}`;
-                    fontSize = Math.max(4, Math.min(8, Math.min(width/3, height/1.5)));
-                }
-                
-                svg += `
-                    <div class="absolute border border-white/50 flex items-center justify-center text-white font-bold shadow-sm hover:shadow-md transition-shadow duration-200"
-                         style="left: ${x}px; top: ${y}px; width: ${width}px; height: ${height}px; background-color: ${color}; font-size: ${fontSize}px; line-height: 1;"
-                         title="${rowName}, Kotak ${box.boxInRow + 1}: ${box.width} × ${box.height} cm">
-                        ${displayText}
-                    </div>
-                `;
-            });
-            
-            svg += `
-                    </div>
-                    <div class="text-center">
-                        <p class="text-xs text-gray-500 dark:text-gray-400">
-                            ${result.placedCount} kotak berhasil ditata • ${result.efficiency.toFixed(1)}% efisiensi
-                        </p>
-                    </div>
+            html += `
+                        </g>
+                        
+                        <text x="${svgWidth/2}" y="${svgHeight - 20}" text-anchor="middle" 
+                              class="text-sm font-semibold fill-gray-600" style="font-family: 'Inter', sans-serif;">
+                            ${showAllLayers ? `Menampilkan Semua ${optimal.layers} Layer` : `Layer ${currentLayer + 1} dari ${optimal.layers} (Tinggi: ${(currentLayer * boxDimensions.height)} - ${((currentLayer + 1) * boxDimensions.height)} cm)`}
+                        </text>
+                    </svg>
                 </div>
             `;
             
-            container.innerHTML = svg;
+            container.innerHTML = html;
         }
 
-        // Export to PDF
-        document.getElementById('exportPDF').addEventListener('click', async () => {
-            if (!layoutResult) {
-                showToast('Render layout terlebih dahulu', 'warning');
-                return;
-            }
+        function setupLayerControls() {
+            if (!calculationResults) return;
             
-            // Check if required libraries are loaded
-            if (typeof window.jspdf === 'undefined' || typeof html2canvas === 'undefined') {
-                showToast('Library PDF tidak tersedia', 'error');
-                return;
-            }
+            const { optimal } = calculationResults;
             
-            showToast('Sedang membuat PDF berkualitas tinggi...', 'info');
+            // Show layer controls
+            document.getElementById('layerControls').classList.remove('hidden');
+            document.getElementById('layerControls').classList.add('jiffy-elastic');
             
-            try {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('landscape', 'mm', 'a4');
-                
-                // Page 1: Title and Summary
-                pdf.setFontSize(24);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Laporan Hitung Visual', 20, 25);
-                
-                // Add date and time
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                const now = new Date();
-                pdf.text(`Dibuat: ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}`, 20, 35);
-                
-                // Container info box
-                pdf.setDrawColor(59, 130, 246);
-                pdf.setFillColor(239, 246, 255);
-                pdf.roundedRect(20, 45, 120, 35, 3, 3, 'FD');
-                
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(59, 130, 246);
-                pdf.text('Informasi Wadah', 25, 55);
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(0, 0, 0);
-                pdf.text(`Ukuran: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`, 25, 65);
-                pdf.text(`Luas Total: ${CONTAINER_AREA.toLocaleString()} cm²`, 25, 72);
-                
-                // Results box
-                pdf.setDrawColor(16, 185, 129);
-                pdf.setFillColor(236, 253, 245);
-                pdf.roundedRect(150, 45, 120, 35, 3, 3, 'FD');
-                
-                pdf.setFontSize(14);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setTextColor(16, 185, 129);
-                pdf.text('Hasil Perhitungan', 155, 55);
-                
-                pdf.setFontSize(11);
-                pdf.setFont('helvetica', 'normal');
-                pdf.setTextColor(0, 0, 0);
-                pdf.text(`Mode: ${getArrangementModeName(layoutResult.arrangementMode)}`, 155, 65);
-                pdf.text(`Efisiensi: ${layoutResult.efficiency.toFixed(1)}%`, 155, 72);
-                
-                // Detailed results
-                pdf.setFontSize(16);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Ringkasan Hasil', 20, 100);
-                
-                const results = [
-                    ['Jumlah Baris', `${layoutResult.rows} baris`],
-                    ['Total Kotak', `${layoutResult.totalBoxes} kotak`],
-                    ['Kotak Tertata', `${layoutResult.placedCount} kotak`],
-                    ['Kotak Tidak Muat', `${layoutResult.unplacedCount} kotak`],
-                    ['Luas Terpakai', `${layoutResult.placedArea.toFixed(0)} cm²`],
-                    ['Sisa Ruang', `${(CONTAINER_AREA - layoutResult.placedArea).toFixed(0)} cm²`]
-                ];
-                
-                let yPos = 110;
-                results.forEach(([label, value]) => {
-                    pdf.setFontSize(11);
-                    pdf.setFont('helvetica', 'normal');
-                    pdf.text(`• ${label}:`, 25, yPos);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text(value, 80, yPos);
-                    yPos += 8;
-                });
-                
-                // Detail baris
-                if (rows.length > 0) {
-                    pdf.setFontSize(16);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text('Detail Baris Kotak', 20, yPos + 15);
-                    yPos += 25;
-                    
-                    rows.forEach((row, index) => {
-                        if (yPos > 180) {
-                            pdf.addPage('landscape');
-                            yPos = 20;
-                        }
-                        
-                        const totalWidth = row.count * row.width;
-                        const area = row.count * row.width * row.height;
-                        const rowName = row.name || `Baris ${index + 1}`;
-                        const isOverflow = totalWidth > CONTAINER_WIDTH;
-                        
-                        // Color coding for overflow
-                        if (isOverflow) {
-                            pdf.setTextColor(239, 68, 68);
-                        } else {
-                            pdf.setTextColor(0, 0, 0);
-                        }
-                        
-                        pdf.setFontSize(10);
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.text(`${index + 1}. ${rowName}`, 25, yPos);
-                        
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.text(`${row.count} kotak @ ${row.width} × ${row.height} cm`, 25, yPos + 6);
-                        pdf.text(`Total: ${totalWidth} × ${row.height} cm = ${area.toFixed(1)} cm²`, 25, yPos + 12);
-                        
-                        if (isOverflow) {
-                            pdf.setTextColor(239, 68, 68);
-                            pdf.text('⚠ Melebihi lebar wadah', 25, yPos + 18);
-                            yPos += 24;
-                        } else {
-                            yPos += 18;
-                        }
-                        
-                        pdf.setTextColor(0, 0, 0);
-                    });
-                }
-                
-                // Page 2: High-quality visualization
-                pdf.addPage('landscape');
-                
-                // Create a high-quality visualization specifically for PDF
-                const pdfVisualization = await createHighQualityVisualization(layoutResult);
-                
-                pdf.setFontSize(20);
-                pdf.setFont('helvetica', 'bold');
-                pdf.text('Visualisasi Layout', 20, 25);
-                
-                // Add scale and dimension info
-                pdf.setFontSize(10);
-                pdf.setFont('helvetica', 'normal');
-                pdf.text(`Wadah: ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm | Mode: ${getArrangementModeName(layoutResult.arrangementMode)}`, 20, 35);
-                pdf.text(`${layoutResult.placedCount} kotak tertata dengan efisiensi ${layoutResult.efficiency.toFixed(1)}%`, 20, 42);
-                
-                // Add the high-quality image
-                if (pdfVisualization) {
-                    // Calculate optimal size while maintaining aspect ratio
-                    const maxWidth = 250;
-                    const maxHeight = 140;
-                    const aspectRatio = CONTAINER_WIDTH / CONTAINER_HEIGHT;
-                    
-                    let imgWidth, imgHeight;
-                    if (aspectRatio > maxWidth / maxHeight) {
-                        imgWidth = maxWidth;
-                        imgHeight = maxWidth / aspectRatio;
-                    } else {
-                        imgHeight = maxHeight;
-                        imgWidth = maxHeight * aspectRatio;
-                    }
-                    
-                    // Center the image
-                    const xOffset = (297 - imgWidth) / 2; // A4 landscape width is 297mm
-                    
-                    pdf.addImage(pdfVisualization, 'PNG', xOffset, 50, imgWidth, imgHeight, undefined, 'FAST');
-                    
-                    // Add legend
-                    const legendY = 50 + imgHeight + 15;
-                    pdf.setFontSize(12);
-                    pdf.setFont('helvetica', 'bold');
-                    pdf.text('Keterangan Warna:', 20, legendY);
-                    
-                    const colors = [
-                        '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-                        '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1'
-                    ];
-                    
-                    let legendX = 20;
-                    let legendYPos = legendY + 8;
-                    
-                    rows.forEach((row, index) => {
-                        if (legendX > 250) {
-                            legendX = 20;
-                            legendYPos += 8;
-                        }
-                        
-                        const color = colors[index % colors.length];
-                        const [r, g, b] = [
-                            parseInt(color.slice(1, 3), 16),
-                            parseInt(color.slice(3, 5), 16),
-                            parseInt(color.slice(5, 7), 16)
-                        ];
-                        
-                        // Draw color box
-                        pdf.setFillColor(r, g, b);
-                        pdf.rect(legendX, legendYPos - 3, 4, 4, 'F');
-                        
-                        // Add text
-                        pdf.setFontSize(9);
-                        pdf.setFont('helvetica', 'normal');
-                        pdf.setTextColor(0, 0, 0);
-                        const rowName = row.name || `Baris ${index + 1}`;
-                        pdf.text(rowName, legendX + 6, legendYPos);
-                        
-                        legendX += pdf.getTextWidth(rowName) + 15;
-                    });
-                }
-                
-                // Save PDF with timestamp
-                const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                pdf.save(`hitung-visual-${timestamp}.pdf`);
-                showToast('PDF berkualitas tinggi berhasil diekspor!', 'success');
-                
-            } catch (error) {
-                console.error('Error exporting PDF:', error);
-                showToast('Gagal mengekspor PDF', 'error');
-            }
-        });
-
-        // Create high-quality visualization for PDF
-        async function createHighQualityVisualization(result) {
-            try {
-                // Create a temporary high-resolution canvas
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Set high DPI for crisp rendering
-                const dpr = 3; // 3x resolution for high quality
-                const baseWidth = 800;
-                const baseHeight = 600;
-                
-                canvas.width = baseWidth * dpr;
-                canvas.height = baseHeight * dpr;
-                canvas.style.width = baseWidth + 'px';
-                canvas.style.height = baseHeight + 'px';
-                
-                ctx.scale(dpr, dpr);
-                
-                // Calculate scale to fit container in canvas
-                const padding = 40;
-                const availableWidth = baseWidth - (padding * 2);
-                const availableHeight = baseHeight - (padding * 2);
-                const scale = Math.min(availableWidth / CONTAINER_WIDTH, availableHeight / CONTAINER_HEIGHT);
-                
-                const scaledWidth = CONTAINER_WIDTH * scale;
-                const scaledHeight = CONTAINER_HEIGHT * scale;
-                const offsetX = (baseWidth - scaledWidth) / 2;
-                const offsetY = (baseHeight - scaledHeight) / 2;
-                
-                // Clear canvas with white background
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, baseWidth, baseHeight);
-                
-                // Draw container border
-                ctx.strokeStyle = '#374151';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(offsetX, offsetY, scaledWidth, scaledHeight);
-                
-                // Draw container background
-                ctx.fillStyle = '#f9fafb';
-                ctx.fillRect(offsetX, offsetY, scaledWidth, scaledHeight);
-                
-                // Colors for different rows
-                const colors = [
-                    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-                    '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6366F1',
-                    '#14B8A6', '#F472B6', '#A855F7', '#EAB308', '#EF4444'
-                ];
-                
-                // Draw boxes
-                result.placedBoxes.forEach((box) => {
-                    const x = offsetX + (box.x * scale);
-                    const y = offsetY + (box.y * scale);
-                    const width = box.width * scale;
-                    const height = box.height * scale;
-                    
-                    const color = colors[box.rowIndex % colors.length];
-                    
-                    // Draw box fill
-                    ctx.fillStyle = color;
-                    ctx.fillRect(x, y, width, height);
-                    
-                    // Draw box border
-                    ctx.strokeStyle = '#ffffff';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(x, y, width, height);
-                    
-                    // Always draw text, adjust font size based on box size
-                    ctx.fillStyle = '#ffffff';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    const rowName = rows[box.rowIndex]?.name || `Baris ${box.rowIndex + 1}`;
-                    let displayText;
-                    let fontSize;
-                    
-                    if (width > 80 && height > 25) {
-                        // Large boxes: show full or truncated row name
-                        const maxChars = Math.floor(width/6);
-                        displayText = rowName.length > maxChars ? 
-                            `${rowName.substring(0, maxChars-3)}...` : 
-                            rowName;
-                        fontSize = Math.max(8, Math.min(16, Math.min(width/8, height/3)));
-                    } else if (width > 40 && height > 15) {
-                        // Medium boxes: show row-box format
-                        displayText = `${box.rowIndex + 1}-${box.boxInRow + 1}`;
-                        fontSize = Math.max(7, Math.min(12, Math.min(width/6, height/2.5)));
-                    } else if (width > 20 && height > 10) {
-                        // Small boxes: show row number
-                        displayText = `${box.rowIndex + 1}`;
-                        fontSize = Math.max(6, Math.min(10, Math.min(width/4, height/2)));
-                    } else {
-                        // Very small boxes: show just row number with minimum font
-                        displayText = `${box.rowIndex + 1}`;
-                        fontSize = Math.max(4, Math.min(8, Math.min(width/3, height/1.5)));
-                    }
-                    
-                    ctx.font = `bold ${fontSize}px Arial`;
-                    ctx.fillText(displayText, x + width/2, y + height/2);
-                });
-                
-                // Add title and info
-                ctx.fillStyle = '#111827';
-                ctx.font = 'bold 16px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText(`Layout Wadah ${CONTAINER_WIDTH} × ${CONTAINER_HEIGHT} cm`, baseWidth/2, 25);
-                
-                ctx.font = '12px Arial';
-                ctx.fillText(`${result.placedCount} kotak tertata • Efisiensi ${result.efficiency.toFixed(1)}%`, baseWidth/2, baseHeight - 15);
-                
-                // Convert to data URL
-                return canvas.toDataURL('image/png', 1.0);
-                
-            } catch (error) {
-                console.error('Error creating high-quality visualization:', error);
-                return null;
+            // Setup layer slider
+            const layerSlider = document.getElementById('layerSlider');
+            const layerDisplay = document.getElementById('layerDisplay');
+            layerSlider.max = optimal.layers;
+            layerDisplay.textContent = `1 / ${optimal.layers}`;
+            
+            // Create layer tabs
+            const layerTabs = document.getElementById('layerTabs');
+            layerTabs.innerHTML = '';
+            
+            for (let i = 1; i <= optimal.layers; i++) {
+                const tab = document.createElement('button');
+                tab.className = `layer-tab px-4 py-2 text-sm font-semibold border-2 border-gray-200 ${i === 1 ? 'active' : ''} jiffy-hover-lift`;
+                tab.textContent = `Layer ${i}`;
+                tab.onclick = () => selectLayer(i);
+                layerTabs.appendChild(tab);
             }
         }
 
-        // Keyboard shortcuts
-        function initKeyboardShortcuts() {
-            document.addEventListener('keydown', (e) => {
-                // Ctrl/Cmd + Enter: Render layout
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    e.preventDefault();
-                    const renderButton = document.getElementById('renderLayout');
-                    if (!renderButton.disabled) {
-                        renderButton.click();
-                    }
+        function selectLayer(layerNum) {
+            // Update slider
+            document.getElementById('layerSlider').value = layerNum;
+            document.getElementById('layerDisplay').textContent = `${layerNum} / ${calculationResults.optimal.layers}`;
+            
+            // Update active tab
+            document.querySelectorAll('.layer-tab').forEach((tab, index) => {
+                if (index + 1 === layerNum) {
+                    tab.classList.add('active');
+                    tab.classList.add('jiffy-bounce');
+                    setTimeout(() => tab.classList.remove('jiffy-bounce'), 600);
+                } else {
+                    tab.classList.remove('active');
                 }
+            });
+            
+            // Update visualization
+            if (currentVisualizationMode === '3d') {
+                createBoxes3D();
+            } else {
+                create2DVisualization();
+            }
+        }
+
+        function showSpecificLayer(layerNum) {
+            document.getElementById('layerDisplay').textContent = `${layerNum} / ${calculationResults.optimal.layers}`;
+            selectLayer(parseInt(layerNum));
+        }
+
+        function toggleLayerMode() {
+            const showAll = document.getElementById('showAllLayers').checked;
+            
+            if (showAll) {
+                document.getElementById('layerSlider').disabled = true;
+                document.querySelectorAll('.layer-tab').forEach(tab => {
+                    tab.disabled = true;
+                    tab.classList.add('opacity-50');
+                });
+            } else {
+                document.getElementById('layerSlider').disabled = false;
+                document.querySelectorAll('.layer-tab').forEach(tab => {
+                    tab.disabled = false;
+                    tab.classList.remove('opacity-50');
+                });
+            }
+            
+            // Update visualization
+            if (currentVisualizationMode === '3d') {
+                createBoxes3D();
+            } else {
+                create2DVisualization();
+            }
+        }
+
+        function resetCamera() {
+            if (camera && controls) {
+                camera.position.set(50, 50, 50);
+                controls.reset();
                 
-                // Ctrl/Cmd + N: Add new row
-                if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-                    e.preventDefault();
-                    document.getElementById('addRow').click();
-                }
+                // Add animation feedback
+                const button = event.target;
+                button.classList.add('jiffy-bounce');
+                setTimeout(() => button.classList.remove('jiffy-bounce'), 600);
                 
-                // Ctrl/Cmd + S: Export PDF
-                if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                    e.preventDefault();
-                    const exportButton = document.getElementById('exportPDF');
-                    if (!exportButton.disabled) {
-                        exportButton.click();
-                    }
-                }
-                
-                // Ctrl/Cmd + D: Toggle dark mode
-                if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
-                    e.preventDefault();
-                    document.getElementById('darkModeToggle').click();
-                }
+                showJiffyAlert('Kamera direset ke posisi default', 'info');
+            }
+        }
+
+        function toggleWireframe() {
+            const wireframe = document.getElementById('wireframeMode').checked;
+            
+            boxMeshes.forEach(mesh => {
+                mesh.material.wireframe = wireframe;
+            });
+            
+            showJiffyAlert(wireframe ? 'Mode wireframe aktif' : 'Mode solid aktif', 'info');
+        }
+
+        function updateOpacity(value) {
+            document.getElementById('opacityValue').textContent = value;
+            
+            boxMeshes.forEach(mesh => {
+                mesh.material.opacity = parseFloat(value);
             });
         }
 
-        // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
-            initDarkMode();
-            initCollapsibleSections();
-            initKeyboardShortcuts();
-            loadContainerSettings();
-            loadSavedData();
-            updateArrangementSummary();
+        function exportToPDF() {
+            showJiffyAlert('Fitur export PDF sedang dalam pengembangan', 'info');
             
-            // Add event listeners for container inputs
-            document.getElementById('containerWidth').addEventListener('input', updateContainerDimensions);
-            document.getElementById('containerHeight').addEventListener('input', updateContainerDimensions);
-        });
+            // Add button animation
+            const button = event.target;
+            button.classList.add('jiffy-pulse');
+            setTimeout(() => button.classList.remove('jiffy-pulse'), 2000);
+        }
 
-        // Make functions global for onclick handlers
-        window.updateRow = updateRow;
-        window.removeRow = removeRow;
+        // Window resize handler
+        window.addEventListener('resize', function() {
+            if (renderer && camera) {
+                const threejsContainer = document.getElementById('threejs-container');
+                camera.aspect = threejsContainer.clientWidth / 600;
+                camera.updateProjectionMatrix();
+                renderer.setSize(threejsContainer.clientWidth, 600);
+            }
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96bc318510dd81da',t:'MTc1NDYyNjUzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c2f6f7d2e814a6',t:'MTc1NDY5NzUzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
