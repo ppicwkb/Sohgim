@@ -420,103 +420,104 @@
             </div>
         </div>
 
-        <div class="grid lg:grid-cols-2 gap-8">
+        <div class="grid lg:grid-cols-2 gap-6 lg:gap-8">
             <!-- Input Panel -->
-            <div class="glass-card rounded-2xl shadow-2xl p-8 jiffy-fade-in jiffy-stagger-1">
-                <h2 class="section-header text-3xl font-bold text-gray-800 mb-8">⚙️ Pengaturan</h2>
+            <div class="glass-card rounded-2xl shadow-2xl p-6 lg:p-8 jiffy-fade-in jiffy-stagger-1">
+                <h2 class="section-header text-2xl lg:text-3xl font-bold text-gray-800 mb-6 lg:mb-8">⚙️ Pengaturan</h2>
 
                 <!-- Container Size -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📏</span>
+                <div class="mb-6 lg:mb-8">
+                    <h3 class="text-lg lg:text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-7 h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📏</span>
                         Ukuran Kontainer (cm)
                     </h3>
-                    <div class="glass-card p-4 rounded-xl mb-4 jiffy-hover-lift">
+                    <div class="glass-card p-4 rounded-xl mb-4 jiffy-hover-lift cursor-pointer" onclick="toggleContainerPanel()">
                         <div class="text-center">
-                            <div class="text-2xl font-bold gradient-text">66.54 m³</div>
-                            <div class="text-sm text-gray-600 font-medium">Volume Kontainer Total</div>
+                            <div id="containerVolume" class="text-2xl lg:text-3xl font-bold gradient-text">66.54 m³</div>
+                            <div class="text-sm text-gray-600 font-medium">Volume Kontainer Total (Klik untuk edit)</div>
+                            <div class="text-xs text-gray-500 mt-1">▼ Klik untuk expand/collapse</div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div id="containerInputs" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Panjang</label>
-                            <input type="number" id="containerLength" value="1158" readonly
-                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                            <input type="number" id="containerLength" value="1158" oninput="updateContainerVolume()"
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center text-base jiffy-hover-lift">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Lebar</label>
-                            <input type="number" id="containerWidth" value="228" readonly
-                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                            <input type="number" id="containerWidth" value="228" oninput="updateContainerVolume()"
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center text-base jiffy-hover-lift">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Tinggi</label>
-                            <input type="number" id="containerHeight" value="252" readonly
-                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                            <input type="number" id="containerHeight" value="252" oninput="updateContainerVolume()"
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center text-base jiffy-hover-lift">
                         </div>
                     </div>
                 </div>
 
                 <!-- Box Size -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📦</span>
+                <div class="mb-6 lg:mb-8">
+                    <h3 class="text-lg lg:text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-7 h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📦</span>
                         Ukuran Kotak (cm)
                     </h3>
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Panjang</label>
                             <input type="number" id="boxLength" value="60" 
-                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center text-base jiffy-hover-lift">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Lebar</label>
                             <input type="number" id="boxWidth" value="40" 
-                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center text-base jiffy-hover-lift">
                         </div>
                         <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Tinggi</label>
                             <input type="number" id="boxHeight" value="30" 
-                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center jiffy-hover-lift">
+                                   class="input-field w-full px-4 py-3 rounded-xl font-medium text-center text-base jiffy-hover-lift">
                         </div>
                     </div>
                 </div>
 
                 <!-- Layout Pattern -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">🎯</span>
+                <div class="mb-6 lg:mb-8">
+                    <h3 class="text-lg lg:text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-7 h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">🎯</span>
                         Pola Penataan
                     </h3>
                     <div class="grid grid-cols-2 gap-3">
-                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                        <label class="radio-card border-2 rounded-xl p-3 lg:p-4 jiffy-hover-lift">
                             <input type="radio" name="layoutPattern" value="normal" checked class="sr-only">
                             <div class="radio-content text-center">
                                 <div class="text-2xl mb-2">□</div>
-                                <div class="font-semibold text-gray-700">Normal</div>
+                                <div class="font-semibold text-gray-700 text-sm lg:text-base">Normal</div>
                                 <div class="text-xs text-gray-500">Penataan standar</div>
                             </div>
                         </label>
-                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                        <label class="radio-card border-2 rounded-xl p-3 lg:p-4 jiffy-hover-lift">
                             <input type="radio" name="layoutPattern" value="zigzag" class="sr-only">
                             <div class="radio-content text-center">
                                 <div class="text-2xl mb-2">⟲</div>
-                                <div class="font-semibold text-gray-700">Zig-Zag</div>
+                                <div class="font-semibold text-gray-700 text-sm lg:text-base">Zig-Zag</div>
                                 <div class="text-xs text-gray-500">Pola bergantian</div>
                             </div>
                         </label>
-                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                        <label class="radio-card border-2 rounded-xl p-3 lg:p-4 jiffy-hover-lift">
                             <input type="radio" name="layoutPattern" value="offset" class="sr-only">
                             <div class="radio-content text-center">
                                 <div class="text-2xl mb-2">⬢</div>
-                                <div class="font-semibold text-gray-700">Offset</div>
+                                <div class="font-semibold text-gray-700 text-sm lg:text-base">Offset</div>
                                 <div class="text-xs text-gray-500">Pola bergeser</div>
                             </div>
                         </label>
-                        <label class="radio-card border-2 rounded-xl p-4 jiffy-hover-lift">
+                        <label class="radio-card border-2 rounded-xl p-3 lg:p-4 jiffy-hover-lift">
                             <input type="radio" name="layoutPattern" value="optimal" class="sr-only">
                             <div class="radio-content text-center">
                                 <div class="text-2xl mb-2">🎯</div>
-                                <div class="font-semibold text-gray-700">Optimal</div>
+                                <div class="font-semibold text-gray-700 text-sm lg:text-base">Optimal</div>
                                 <div class="text-xs text-gray-500">AI terbaik</div>
                             </div>
                         </label>
@@ -524,9 +525,9 @@
                 </div>
 
                 <!-- Additional Options -->
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
-                        <span class="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">🔧</span>
+                <div class="mb-6 lg:mb-8">
+                    <h3 class="text-lg lg:text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-7 h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">🔧</span>
                         Opsi Tambahan
                     </h3>
                     <div class="space-y-4">
@@ -534,7 +535,7 @@
                             <input type="checkbox" id="allowRotation" checked 
                                    class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
                             <div class="ml-4">
-                                <div class="font-semibold text-gray-700">Izinkan rotasi kotak (90°)</div>
+                                <div class="font-semibold text-gray-700 text-base">Izinkan rotasi kotak (90°)</div>
                                 <div class="text-sm text-gray-500">Meningkatkan efisiensi penataan</div>
                             </div>
                         </label>
@@ -542,7 +543,7 @@
                             <input type="checkbox" id="enable3D" 
                                    class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
                             <div class="ml-4">
-                                <div class="font-semibold text-gray-700">Mode Visualisasi 3D</div>
+                                <div class="font-semibold text-gray-700 text-base">Mode Visualisasi 3D</div>
                                 <div class="text-sm text-gray-500">Tampilan interaktif dengan kontrol kamera</div>
                             </div>
                         </label>
@@ -559,8 +560,8 @@
             </div>
 
             <!-- Results Panel -->
-            <div class="glass-card rounded-2xl shadow-2xl p-8 jiffy-fade-in jiffy-stagger-2">
-                <h2 class="section-header text-3xl font-bold text-gray-800 mb-8">📊 Hasil Perhitungan</h2>
+            <div class="glass-card rounded-2xl shadow-2xl p-6 lg:p-8 jiffy-fade-in jiffy-stagger-2">
+                <h2 class="section-header text-2xl lg:text-3xl font-bold text-gray-800 mb-6 lg:mb-8">📊 Hasil Perhitungan</h2>
 
                 <div id="resultsContainer" class="space-y-6">
                     <div class="text-center text-gray-500 py-12">
@@ -573,43 +574,43 @@
         </div>
 
         <!-- Enhanced Visualization Panel -->
-        <div class="mt-12 glass-card rounded-2xl shadow-2xl p-8 jiffy-fade-in jiffy-stagger-3">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="section-header text-3xl font-bold text-gray-800">🎯 Visualisasi Layout 3D</h2>
-                <div class="flex gap-3">
+        <div class="mt-8 lg:mt-12 glass-card rounded-2xl shadow-2xl p-6 lg:p-8 jiffy-fade-in jiffy-stagger-3">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8 gap-4">
+                <h2 class="section-header text-2xl lg:text-3xl font-bold text-gray-800">🎯 Visualisasi Layout 3D</h2>
+                <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                     <button id="toggle3DMode" onclick="toggle3DVisualization()" 
-                            class="visualization-mode-toggle text-white px-6 py-3 rounded-xl font-semibold jiffy-button-press jiffy-hover-lift">
+                            class="visualization-mode-toggle text-white px-6 py-3 rounded-xl font-semibold text-base jiffy-button-press jiffy-hover-lift">
                         🎮 Mode 3D
                     </button>
                     <button onclick="exportToPDF()" 
-                            class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-lg jiffy-button-press jiffy-hover-lift font-semibold">
+                            class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-pink-600 transition-all duration-300 shadow-lg jiffy-button-press jiffy-hover-lift font-semibold text-base">
                         📄 Export PDF
                     </button>
                 </div>
             </div>
 
             <!-- Layer Controls -->
-            <div id="layerControls" class="hidden mb-6 control-panel p-6 rounded-xl jiffy-elastic">
-                <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-lg font-bold text-gray-700">🏗️ Kontrol Layer (Tinggi)</h4>
+            <div id="layerControls" class="hidden mb-6 control-panel p-4 lg:p-6 rounded-xl jiffy-elastic">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 gap-3">
+                    <h4 class="text-lg font-bold text-gray-700">🏗️ Kontrol Sap (Kedalaman)</h4>
                     <div class="flex items-center gap-4">
                         <label class="flex items-center gap-2">
                             <input type="checkbox" id="showAllLayers" onchange="toggleLayerMode()" 
                                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-                            <span class="text-sm font-medium text-gray-700">Tampilkan Semua Layer</span>
+                            <span class="text-sm font-medium text-gray-700">Tampilkan Semua Sap</span>
                         </label>
                     </div>
                 </div>
-                <div class="text-xs text-gray-500 bg-blue-50 p-2 rounded-lg mb-4">
-                    💡 <strong>Layer:</strong> Lapisan kotak dari bawah ke atas (berdasarkan tinggi kontainer)
+                <div class="text-sm text-gray-500 bg-blue-50 p-3 rounded-lg mb-4">
+                    💡 <strong>Sap:</strong> Lapisan kotak dari depan ke belakang (berdasarkan lebar x tinggi kontainer)
                 </div>
                 
                 <!-- Layer Tabs -->
-                <div id="layerTabs" class="flex gap-2 mb-4 overflow-x-auto"></div>
+                <div id="layerTabs" class="flex gap-2 mb-4 overflow-x-auto pb-2"></div>
                 
                 <!-- Layer Slider -->
-                <div class="flex items-center gap-6">
-                    <label class="text-sm font-semibold text-gray-700 min-w-16">Layer:</label>
+                <div class="flex items-center gap-4 lg:gap-6">
+                    <label class="text-sm font-semibold text-gray-700 min-w-16">Sap:</label>
                     <input type="range" id="layerSlider" min="1" max="1" value="1" 
                            class="control-slider flex-1" onchange="showSpecificLayer(this.value)">
                     <span id="layerDisplay" class="text-sm font-bold text-gray-700 min-w-16 text-center">1 / 1</span>
@@ -617,8 +618,8 @@
             </div>
 
             <!-- 3D Controls Panel -->
-            <div id="threeDControls" class="hidden mb-6 control-panel p-6 rounded-xl jiffy-zoom-in">
-                <div class="grid grid-cols-2 gap-6">
+            <div id="threeDControls" class="hidden mb-6 control-panel p-4 lg:p-6 rounded-xl jiffy-zoom-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="space-y-4">
                         <h4 class="text-lg font-bold text-gray-700 flex items-center">
                             <span class="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs mr-2">🎮</span>
@@ -626,7 +627,7 @@
                         </h4>
                         <div class="space-y-3">
                             <button onclick="resetCamera()" 
-                                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all jiffy-button-press">
+                                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all jiffy-button-press text-base">
                                 🔄 Reset View
                             </button>
                             <div class="flex items-center gap-3">
@@ -649,7 +650,7 @@
                                        class="control-slider flex-1" onchange="updateOpacity(this.value)">
                                 <span id="opacityValue" class="text-sm font-bold text-gray-700 min-w-8">0.8</span>
                             </div>
-                            <div class="text-xs text-gray-500 bg-gray-100 p-2 rounded-lg">
+                            <div class="text-sm text-gray-500 bg-gray-100 p-3 rounded-lg">
                                 💡 <strong>Tips:</strong> Drag untuk memutar, scroll untuk zoom, klik kanan untuk pan
                             </div>
                         </div>
@@ -658,10 +659,10 @@
             </div>
 
             <!-- Visualization Container -->
-            <div id="visualizationContainer" class="border-4 border-gray-200 rounded-2xl p-8 min-h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white jiffy-hover-lift">
+            <div id="visualizationContainer" class="border-4 border-gray-200 rounded-2xl p-6 lg:p-8 min-h-80 lg:min-h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white jiffy-hover-lift">
                 <div class="text-center text-gray-500">
-                    <div class="text-8xl mb-6 jiffy-pulse">🎨</div>
-                    <p class="text-xl font-medium jiffy-fade-in">Visualisasi akan muncul setelah perhitungan</p>
+                    <div class="text-6xl lg:text-8xl mb-6 jiffy-pulse">🎨</div>
+                    <p class="text-lg lg:text-xl font-medium jiffy-fade-in">Visualisasi akan muncul setelah perhitungan</p>
                     <div class="mt-4 text-sm text-gray-400 jiffy-fade-in jiffy-stagger-1">Sistem akan menampilkan layout 2D/3D interaktif</div>
                 </div>
             </div>
@@ -741,6 +742,48 @@
                     }, 2000);
                 });
             });
+
+            // Initialize container panel as collapsed
+            document.getElementById('containerInputs').style.display = 'none';
+        }
+
+        function toggleContainerPanel() {
+            const inputs = document.getElementById('containerInputs');
+            const isHidden = inputs.style.display === 'none';
+            
+            if (isHidden) {
+                inputs.style.display = 'grid';
+                inputs.classList.add('jiffy-slide-up');
+            } else {
+                inputs.style.display = 'none';
+                inputs.classList.remove('jiffy-slide-up');
+            }
+            
+            // Reset calculation results when container size changes
+            if (calculationResults) {
+                calculationResults = null;
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="text-center text-gray-500 py-12">
+                        <div class="text-8xl mb-6 jiffy-pulse">📦</div>
+                        <p class="text-lg font-medium jiffy-fade-in">Ukuran kontainer diubah. Klik "Hitung Layout Optimal" untuk hasil baru</p>
+                    </div>
+                `;
+                document.getElementById('visualizationContainer').innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <div class="text-6xl lg:text-8xl mb-6 jiffy-pulse">🎨</div>
+                        <p class="text-lg lg:text-xl font-medium jiffy-fade-in">Visualisasi akan muncul setelah perhitungan</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateContainerVolume() {
+            const length = parseFloat(document.getElementById('containerLength').value) || 0;
+            const width = parseFloat(document.getElementById('containerWidth').value) || 0;
+            const height = parseFloat(document.getElementById('containerHeight').value) || 0;
+            
+            const volume = (length * width * height) / 1000000; // Convert to m³
+            document.getElementById('containerVolume').textContent = volume.toFixed(2) + ' m³';
         }
 
         function showJiffyAlert(message, type = 'info') {
@@ -790,14 +833,9 @@
             const allowRotation = document.getElementById('allowRotation').checked;
             const selectedPattern = document.querySelector('input[name="layoutPattern"]:checked').value;
 
-            // Validate inputs
+            // Basic validation
             if (!boxL || !boxW || !boxH || boxL <= 0 || boxW <= 0 || boxH <= 0) {
                 showJiffyAlert('Mohon isi semua ukuran kotak dengan benar!', 'error');
-                return;
-            }
-
-            if (boxL > containerL || boxW > containerW || boxH > containerH) {
-                showJiffyAlert('Ukuran kotak tidak boleh lebih besar dari kontainer!', 'error');
                 return;
             }
 
@@ -878,10 +916,10 @@
         }
 
         function calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, name, isRotated = false) {
-            const boxesPerRow = Math.floor(containerL / boxL);
-            const boxesPerCol = Math.floor(containerW / boxW);
-            const boxesPerLayer = boxesPerRow * boxesPerCol;
-            const layers = Math.floor(containerH / boxH);
+            const boxesPerWidth = Math.floor(containerW / boxW);
+            const boxesPerHeight = Math.floor(containerH / boxH);
+            const boxesPerLayer = boxesPerWidth * boxesPerHeight;
+            const layers = Math.floor(containerL / boxL);
             const totalBoxes = boxesPerLayer * layers;
             
             const usedVolume = totalBoxes * (boxL * boxW * boxH);
@@ -890,30 +928,30 @@
 
             return {
                 name: name,
-                boxesPerRow: boxesPerRow,
-                boxesPerCol: boxesPerCol,
+                boxesPerRow: boxesPerWidth,
+                boxesPerCol: boxesPerHeight,
                 boxesPerLayer: boxesPerLayer,
                 layers: layers,
                 totalBoxes: totalBoxes,
                 efficiency: efficiency.toFixed(1),
-                layout: generateLayoutPattern(boxesPerRow, boxesPerCol, layers, isRotated)
+                layout: generateLayoutPattern(boxesPerWidth, boxesPerHeight, layers, isRotated)
             };
         }
 
         function calculateMixedLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
             let bestResult = { totalBoxes: 0 };
             
-            const normalPerRow = Math.floor(containerL / boxL);
-            const normalPerCol = Math.floor(containerW / boxW);
-            const rotatedPerRow = Math.floor(containerL / boxW);
-            const rotatedPerCol = Math.floor(containerW / boxL);
+            const normalPerWidth = Math.floor(containerW / boxW);
+            const normalPerHeight = Math.floor(containerH / boxH);
+            const rotatedPerWidth = Math.floor(containerW / boxL);
+            const rotatedPerHeight = Math.floor(containerH / boxW);
             
-            for (let normalRows = 0; normalRows <= normalPerCol; normalRows++) {
-                const remainingWidth = containerW - (normalRows * boxW);
-                const rotatedRows = Math.floor(remainingWidth / boxL);
+            for (let normalHeight = 0; normalHeight <= normalPerHeight; normalHeight++) {
+                const remainingHeight = containerH - (normalHeight * boxH);
+                const rotatedHeight = Math.floor(remainingHeight / boxW);
                 
-                const totalBoxesPerLayer = (normalRows * normalPerRow) + (rotatedRows * rotatedPerRow);
-                const layers = Math.floor(containerH / boxH);
+                const totalBoxesPerLayer = (normalHeight * normalPerWidth) + (rotatedHeight * rotatedPerWidth);
+                const layers = Math.floor(containerL / boxL);
                 const totalBoxes = totalBoxesPerLayer * layers;
                 
                 if (totalBoxes > bestResult.totalBoxes) {
@@ -923,13 +961,13 @@
                     
                     bestResult = {
                         name: 'Kombinasi Optimal',
-                        boxesPerRow: Math.max(normalPerRow, rotatedPerRow),
-                        boxesPerCol: normalRows + rotatedRows,
+                        boxesPerRow: Math.max(normalPerWidth, rotatedPerWidth),
+                        boxesPerCol: normalHeight + rotatedHeight,
                         boxesPerLayer: totalBoxesPerLayer,
                         layers: layers,
                         totalBoxes: totalBoxes,
                         efficiency: efficiency.toFixed(1),
-                        layout: generateMixedLayoutPattern(normalPerRow, rotatedPerRow, normalRows, rotatedRows, layers)
+                        layout: generateMixedLayoutPattern(normalPerWidth, rotatedPerWidth, normalHeight, rotatedHeight, layers)
                     };
                 }
             }
@@ -938,28 +976,28 @@
         }
 
         function calculateZigZagLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
-            const normalPerRow = Math.floor(containerL / boxL);
-            const rotatedPerRow = Math.floor(containerL / boxW);
+            const normalPerWidth = Math.floor(containerW / boxW);
+            const rotatedPerWidth = Math.floor(containerW / boxL);
             
-            let totalRows = 0;
-            let currentWidth = 0;
+            let totalHeight = 0;
+            let currentHeight = 0;
             let alternateNormal = true;
             
-            while (currentWidth < containerW) {
-                const nextRowWidth = alternateNormal ? boxW : boxL;
-                if (currentWidth + nextRowWidth <= containerW) {
-                    currentWidth += nextRowWidth;
-                    totalRows++;
+            while (currentHeight < containerH) {
+                const nextRowHeight = alternateNormal ? boxH : boxW;
+                if (currentHeight + nextRowHeight <= containerH) {
+                    currentHeight += nextRowHeight;
+                    totalHeight++;
                     alternateNormal = !alternateNormal;
                 } else {
                     break;
                 }
             }
             
-            const normalRowCount = Math.ceil(totalRows / 2);
-            const rotatedRowCount = Math.floor(totalRows / 2);
-            const boxesPerLayer = (normalRowCount * normalPerRow) + (rotatedRowCount * rotatedPerRow);
-            const layers = Math.floor(containerH / boxH);
+            const normalRowCount = Math.ceil(totalHeight / 2);
+            const rotatedRowCount = Math.floor(totalHeight / 2);
+            const boxesPerLayer = (normalRowCount * normalPerWidth) + (rotatedRowCount * rotatedPerWidth);
+            const layers = Math.floor(containerL / boxL);
             const totalBoxes = boxesPerLayer * layers;
             
             const usedVolume = totalBoxes * (boxL * boxW * boxH);
@@ -968,28 +1006,28 @@
             
             return {
                 name: 'Pola Zig-Zag',
-                boxesPerRow: Math.max(normalPerRow, rotatedPerRow),
-                boxesPerCol: totalRows,
+                boxesPerRow: Math.max(normalPerWidth, rotatedPerWidth),
+                boxesPerCol: totalHeight,
                 boxesPerLayer: boxesPerLayer,
                 layers: layers,
                 totalBoxes: totalBoxes,
                 efficiency: efficiency.toFixed(1),
-                layout: generateZigZagLayoutPattern(normalPerRow, rotatedPerRow, normalRowCount, rotatedRowCount, layers)
+                layout: generateZigZagLayoutPattern(normalPerWidth, rotatedPerWidth, normalRowCount, rotatedRowCount, layers)
             };
         }
 
         function calculateOffsetLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
-            const boxesPerRow = Math.floor(containerL / boxL);
-            const boxesPerCol = Math.floor(containerW / boxW);
+            const boxesPerWidth = Math.floor(containerW / boxW);
+            const boxesPerHeight = Math.floor(containerH / boxH);
             
-            const offsetShift = boxL / 2;
-            const offsetBoxesPerRow = Math.floor((containerL - offsetShift) / boxL);
+            const offsetShift = boxW / 2;
+            const offsetBoxesPerWidth = Math.floor((containerW - offsetShift) / boxW);
             
-            const fullRows = Math.ceil(boxesPerCol / 2);
-            const offsetRows = Math.floor(boxesPerCol / 2);
+            const fullRows = Math.ceil(boxesPerHeight / 2);
+            const offsetRows = Math.floor(boxesPerHeight / 2);
             
-            const boxesPerLayer = (fullRows * boxesPerRow) + (offsetRows * offsetBoxesPerRow);
-            const layers = Math.floor(containerH / boxH);
+            const boxesPerLayer = (fullRows * boxesPerWidth) + (offsetRows * offsetBoxesPerWidth);
+            const layers = Math.floor(containerL / boxL);
             const totalBoxes = boxesPerLayer * layers;
             
             const usedVolume = totalBoxes * (boxL * boxW * boxH);
@@ -998,13 +1036,13 @@
             
             return {
                 name: 'Pola Offset',
-                boxesPerRow: boxesPerRow,
-                boxesPerCol: boxesPerCol,
+                boxesPerRow: boxesPerWidth,
+                boxesPerCol: boxesPerHeight,
                 boxesPerLayer: boxesPerLayer,
                 layers: layers,
                 totalBoxes: totalBoxes,
                 efficiency: efficiency.toFixed(1),
-                layout: generateOffsetLayoutPattern(boxesPerRow, offsetBoxesPerRow, fullRows, offsetRows, layers)
+                layout: generateOffsetLayoutPattern(boxesPerWidth, offsetBoxesPerWidth, fullRows, offsetRows, layers)
             };
         }
 
@@ -1182,11 +1220,11 @@
                             </div>
                             <div class="text-center">
                                 <div class="font-bold text-lg text-gray-700">${scenario.boxesPerLayer}</div>
-                                <div class="text-gray-600">Per Lapisan</div>
+                                <div class="text-gray-600">Per Sap</div>
                             </div>
                             <div class="text-center">
                                 <div class="font-bold text-lg text-gray-700">${scenario.layers}</div>
-                                <div class="text-gray-600">Lapisan Tinggi</div>
+                                <div class="text-gray-600">Jumlah Sap</div>
                             </div>
                             <div class="text-center">
                                 <div class="font-bold text-lg ${isOptimal ? 'text-blue-600' : 'text-gray-700'}">${scenario.efficiency}%</div>
@@ -1307,9 +1345,25 @@
                 containerDimensions.width / 10
             );
             
+            // Create container wireframe with enhanced styling
             const edges = new THREE.EdgesGeometry(geometry);
-            const material = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 3 });
+            const material = new THREE.LineBasicMaterial({ 
+                color: 0x1e40af, 
+                linewidth: 4,
+                transparent: true,
+                opacity: 0.8
+            });
             containerMesh = new THREE.LineSegments(edges, material);
+            
+            // Add semi-transparent container walls
+            const wallMaterial = new THREE.MeshPhongMaterial({
+                color: 0x3b82f6,
+                transparent: true,
+                opacity: 0.05,
+                side: THREE.DoubleSide
+            });
+            const containerWalls = new THREE.Mesh(geometry, wallMaterial);
+            containerMesh.add(containerWalls);
             
             containerMesh.position.set(
                 containerDimensions.length / 20,
@@ -1343,18 +1397,105 @@
                             (box.rotated ? boxDimensions.length : boxDimensions.width) / 10
                         );
 
-                        let color = 0x60a5fa; // Normal blue
-                        if (box.rotated) color = 0xf87171; // Rotated red
-                        if (box.zigzag) color = 0xa78bfa; // Zigzag purple
-                        if (box.offset) color = 0x34d399; // Offset green
+                        // Enhanced colors and materials
+                        let color = 0x3b82f6; // Normal blue
+                        let emissive = 0x1e40af;
+                        if (box.rotated) {
+                            color = 0xef4444; // Rotated red
+                            emissive = 0xb91c1c;
+                        } else if (box.zigzag) {
+                            color = 0x8b5cf6; // Zigzag purple
+                            emissive = 0x6d28d9;
+                        } else if (box.offset) {
+                            color = 0x10b981; // Offset green
+                            emissive = 0x047857;
+                        }
 
-                        const boxMaterial = new THREE.MeshLambertMaterial({ 
+                        // Create main box material with enhanced properties
+                        const boxMaterial = new THREE.MeshPhongMaterial({ 
                             color: color,
+                            emissive: emissive,
+                            emissiveIntensity: 0.1,
+                            shininess: 30,
                             transparent: true,
-                            opacity: 0.8
+                            opacity: 0.85,
+                            side: THREE.DoubleSide
                         });
 
                         const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+                        
+                        // Add wireframe edges for clearer borders
+                        const edges = new THREE.EdgesGeometry(boxGeometry);
+                        const edgeMaterial = new THREE.LineBasicMaterial({ 
+                            color: 0x000000, 
+                            linewidth: 2,
+                            transparent: true,
+                            opacity: 0.8
+                        });
+                        const wireframe = new THREE.LineSegments(edges, edgeMaterial);
+                        boxMesh.add(wireframe);
+                        
+                        // Add texture pattern using canvas
+                        const canvas = document.createElement('canvas');
+                        canvas.width = 64;
+                        canvas.height = 64;
+                        const ctx = canvas.getContext('2d');
+                        
+                        // Create texture pattern based on box type
+                        ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+                        ctx.fillRect(0, 0, 64, 64);
+                        
+                        // Add pattern overlay
+                        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+                        ctx.lineWidth = 1;
+                        
+                        if (box.rotated) {
+                            // Diagonal lines for rotated boxes
+                            for (let i = 0; i < 64; i += 8) {
+                                ctx.beginPath();
+                                ctx.moveTo(i, 0);
+                                ctx.lineTo(i + 32, 32);
+                                ctx.stroke();
+                            }
+                        } else if (box.zigzag) {
+                            // Zigzag pattern
+                            ctx.beginPath();
+                            for (let i = 0; i < 64; i += 8) {
+                                ctx.moveTo(i, 16);
+                                ctx.lineTo(i + 4, 32);
+                                ctx.lineTo(i + 8, 16);
+                            }
+                            ctx.stroke();
+                        } else if (box.offset) {
+                            // Hexagonal pattern
+                            ctx.beginPath();
+                            ctx.arc(32, 32, 12, 0, Math.PI * 2);
+                            ctx.stroke();
+                        } else {
+                            // Grid pattern for normal boxes
+                            for (let i = 0; i < 64; i += 16) {
+                                ctx.beginPath();
+                                ctx.moveTo(i, 0);
+                                ctx.lineTo(i, 64);
+                                ctx.moveTo(0, i);
+                                ctx.lineTo(64, i);
+                                ctx.stroke();
+                            }
+                        }
+                        
+                        // Add box number/label
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`${layerIndex + 1}-${rowIndex + 1}-${colIndex + 1}`, 32, 36);
+                        
+                        const texture = new THREE.CanvasTexture(canvas);
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        texture.repeat.set(1, 1);
+                        
+                        boxMaterial.map = texture;
+                        boxMaterial.needsUpdate = true;
                         
                         // Position calculation
                         const boxWidth = (box.rotated ? boxDimensions.width : boxDimensions.length) / 10;
@@ -1366,9 +1507,9 @@
                         }
 
                         boxMesh.position.set(
-                            (colIndex * boxWidth) + (boxWidth / 2) + offsetX,
-                            (layerIndex * boxDimensions.height / 10) + (boxDimensions.height / 20),
-                            (rowIndex * boxDepth) + (boxDepth / 2)
+                            (layerIndex * boxDimensions.length / 10) + (boxDimensions.length / 20),
+                            (rowIndex * boxDimensions.height / 10) + (boxDimensions.height / 20),
+                            (colIndex * boxDepth) + (boxDepth / 2) + offsetX
                         );
 
                         boxMesh.castShadow = true;
@@ -1425,37 +1566,104 @@
             const container = document.getElementById('visualizationContainer');
             const { optimal, containerDimensions, boxDimensions } = calculationResults;
             
-            // Create 2D SVG visualization
-            const svgWidth = 800;
-            const svgHeight = 500;
-            const scale = Math.min(600 / containerDimensions.length, 300 / containerDimensions.width);
-            const containerWidth = containerDimensions.length * scale;
-            const containerHeight = containerDimensions.width * scale;
+            // Create responsive 2D SVG visualization with professional design
+            const containerRect = container.getBoundingClientRect();
+            const isMobile = window.innerWidth < 1024;
+            const svgWidth = Math.min(containerRect.width - (isMobile ? 48 : 64), isMobile ? 500 : 1000);
+            const svgHeight = Math.min(containerRect.height - (isMobile ? 48 : 64), isMobile ? 400 : 700);
+            
+            // Calculate proper scale to fit container in view with better proportions
+            const padding = 120;
+            const scaleX = (svgWidth - padding) / containerDimensions.width;
+            const scaleY = (svgHeight - padding) / containerDimensions.height;
+            const scale = Math.min(scaleX, scaleY, 0.8); // Optimal scale for visibility
+            
+            const containerWidth = containerDimensions.width * scale;
+            const containerHeight = containerDimensions.height * scale;
             
             const showAllLayers = document.getElementById('showAllLayers').checked;
             const currentLayer = parseInt(document.getElementById('layerSlider').value) - 1;
             
             let html = `
-                <div class="w-full jiffy-zoom-in" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border-radius: 20px; padding: 30px;">
-                    <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" class="mx-auto">
+                <div class="w-full jiffy-zoom-in" style="background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%); border-radius: 24px; padding: ${isMobile ? '24px' : '40px'}; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);">
+                    <div class="mb-6 text-center">
+                        <h4 class="text-xl lg:text-2xl font-bold text-white mb-2">📐 Layout Visualization</h4>
+                        <p class="text-sm lg:text-base text-slate-300">Tampak belakang kontainer dengan penataan kotak optimal</p>
+                    </div>
+                    
+                    <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" class="mx-auto" style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
                         <defs>
-                            <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" stroke-width="0.5" opacity="0.5"/>
+                            <!-- Professional grid pattern -->
+                            <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#cbd5e1" stroke-width="0.5" opacity="0.6"/>
+                                <circle cx="0" cy="0" r="1" fill="#94a3b8" opacity="0.3"/>
                             </pattern>
+                            
+                            <!-- Enhanced shadow filters -->
                             <filter id="boxShadow" x="-50%" y="-50%" width="200%" height="200%">
-                                <feDropShadow dx="2" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.2"/>
+                                <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                                <feOffset dx="2" dy="4" result="offset"/>
+                                <feFlood flood-color="#000000" flood-opacity="0.25"/>
+                                <feComposite in2="offset" operator="in"/>
+                                <feMerge>
+                                    <feMergeNode/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
                             </filter>
+                            
+                            <filter id="containerGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            
+                            <!-- Gradient definitions for professional look -->
+                            <linearGradient id="containerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.1" />
+                                <stop offset="50%" style="stop-color:#1d4ed8;stop-opacity:0.05" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0.1" />
+                            </linearGradient>
+                            
+                            <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#1d4ed8;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+                            </linearGradient>
                         </defs>
                         
+                        <!-- Professional grid background -->
                         <rect width="100%" height="100%" fill="url(#grid)" />
                         
+                        <!-- Main container group with enhanced positioning -->
                         <g transform="translate(${(svgWidth - containerWidth) / 2}, ${(svgHeight - containerHeight) / 2})">
-                            <rect x="0" y="0" width="${containerWidth}" height="${containerHeight}" 
-                                  fill="none" stroke="#3b82f6" stroke-width="3" rx="8" stroke-dasharray="10,5"/>
                             
+                            <!-- Container shadow -->
+                            <rect x="4" y="6" width="${containerWidth}" height="${containerHeight}" 
+                                  fill="#000000" opacity="0.15" rx="12" />
+                            
+                            <!-- Main container with professional styling -->
+                            <rect x="0" y="0" width="${containerWidth}" height="${containerHeight}" 
+                                  fill="url(#containerGradient)" stroke="url(#borderGradient)" stroke-width="4" 
+                                  rx="12" filter="url(#containerGlow)" />
+                            
+                            <!-- Container inner border -->
+                            <rect x="2" y="2" width="${containerWidth-4}" height="${containerHeight-4}" 
+                                  fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" rx="10" />
+                            
+                            <!-- Container title with better positioning -->
+                            <text x="${containerWidth/2}" y="-35" text-anchor="middle" 
+                                  class="${isMobile ? 'text-base' : 'text-xl'} font-bold" 
+                                  fill="url(#borderGradient)" style="font-family: 'Inter', sans-serif;">
+                                📦 Kontainer ${containerDimensions.width} × ${containerDimensions.height} cm
+                            </text>
+                            
+                            <!-- Dimension labels -->
                             <text x="${containerWidth/2}" y="-15" text-anchor="middle" 
-                                  class="text-lg font-bold fill-blue-700" style="font-family: 'Inter', sans-serif;">
-                                Kontainer ${containerDimensions.length}×${containerDimensions.width}×${containerDimensions.height} cm (Tampak Atas)
+                                  class="${isMobile ? 'text-xs' : 'text-sm'} font-semibold" 
+                                  fill="#64748b" style="font-family: 'Inter', sans-serif;">
+                                Tampak Belakang • Volume: ${((containerDimensions.length * containerDimensions.width * containerDimensions.height) / 1000000).toFixed(2)} m³
                             </text>
             `;
             
@@ -1466,74 +1674,308 @@
 
             for (let layerIndex = startLayer; layerIndex < endLayer && layerIndex < optimal.layout.length; layerIndex++) {
                 const layer = optimal.layout[layerIndex];
-                const opacity = showAllLayers ? Math.max(0.6, 1 - (layerIndex * 0.15)) : 1;
-                
-                let currentTop = 0;
+                const opacity = showAllLayers ? Math.max(0.4, 1 - (layerIndex * 0.1)) : 1;
                 
                 layer.forEach((row, rowIndex) => {
-                    let currentLeft = 0;
-                    let maxRowHeight = 0;
                     
                     row.forEach((box, colIndex) => {
-                        const boxWidth = (box.rotated ? boxDimensions.width : boxDimensions.length) * scale;
-                        const boxHeight = (box.rotated ? boxDimensions.length : boxDimensions.width) * scale;
-                        
-                        maxRowHeight = Math.max(maxRowHeight, boxHeight);
+                        const boxWidth = (box.rotated ? boxDimensions.height : boxDimensions.width) * scale;
+                        const boxHeight = (box.rotated ? boxDimensions.width : boxDimensions.height) * scale;
                         
                         let fillColor = '#60a5fa';
                         let strokeColor = '#3b82f6';
-                        if (box.rotated) {
-                            fillColor = '#f87171';
-                            strokeColor = '#ef4444';
-                        } else if (box.zigzag) {
-                            fillColor = '#a78bfa';
-                            strokeColor = '#8b5cf6';
-                        } else if (box.offset) {
-                            fillColor = '#34d399';
-                            strokeColor = '#10b981';
+                        
+                        // Adjust colors based on layer depth when showing all layers
+                        if (showAllLayers) {
+                            const layerColorIntensity = 1 - (layerIndex * 0.15);
+                            if (box.rotated) {
+                                fillColor = `rgba(248, 113, 113, ${layerColorIntensity})`;
+                                strokeColor = '#ef4444';
+                            } else if (box.zigzag) {
+                                fillColor = `rgba(167, 139, 250, ${layerColorIntensity})`;
+                                strokeColor = '#8b5cf6';
+                            } else if (box.offset) {
+                                fillColor = `rgba(52, 211, 153, ${layerColorIntensity})`;
+                                strokeColor = '#10b981';
+                            } else {
+                                fillColor = `rgba(96, 165, 250, ${layerColorIntensity})`;
+                                strokeColor = '#3b82f6';
+                            }
+                        } else {
+                            if (box.rotated) {
+                                fillColor = '#f87171';
+                                strokeColor = '#ef4444';
+                            } else if (box.zigzag) {
+                                fillColor = '#a78bfa';
+                                strokeColor = '#8b5cf6';
+                            } else if (box.offset) {
+                                fillColor = '#34d399';
+                                strokeColor = '#10b981';
+                            }
                         }
                         
-                        let offsetLeft = currentLeft;
+                        // Calculate position with proper spacing and alignment
+                        let boxX = colIndex * (boxDimensions.width * scale) + 8; // Add padding
+                        let boxY = rowIndex * (boxDimensions.height * scale) + 8; // Add padding
+                        
+                        // Add depth effect for multiple layers when showing all
+                        if (showAllLayers && layerIndex > 0) {
+                            boxX += layerIndex * 3; // Slight offset for depth
+                            boxY += layerIndex * 3; // Slight offset for depth
+                        }
+                        
+                        // Handle offset positioning
                         if (box.offset && box.offsetShift) {
-                            offsetLeft += boxWidth * box.offsetShift;
+                            boxX += (boxDimensions.width * scale * box.offsetShift);
+                        }
+                        
+                        // Create enhanced pattern definitions for different box types
+                        const patternId = `pattern-${layerIndex}-${rowIndex}-${colIndex}`;
+                        const gradientId = `gradient-${layerIndex}-${rowIndex}-${colIndex}`;
+                        const glowId = `glow-${layerIndex}-${rowIndex}-${colIndex}`;
+                        
+                        let patternDef = '';
+                        let gradientDef = '';
+                        let glowDef = '';
+                        
+                        if (box.rotated) {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="12" height="12">
+                                    <rect width="12" height="12" fill="${fillColor}"/>
+                                    <path d="M0,12 L12,0 M3,12 L12,3 M0,9 L9,0" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:1" />
+                                </linearGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        } else if (box.zigzag) {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="16" height="12">
+                                    <rect width="16" height="12" fill="${fillColor}"/>
+                                    <path d="M0,6 L4,2 L8,10 L12,2 L16,6" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <radialGradient id="${gradientId}" cx="50%" cy="50%" r="70%">
+                                    <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#6d28d9;stop-opacity:1" />
+                                </radialGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        } else if (box.offset) {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="20" height="20">
+                                    <rect width="20" height="20" fill="${fillColor}"/>
+                                    <circle cx="10" cy="10" r="6" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+                                    <circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.7)"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#10b981;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+                                </linearGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        } else {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="14" height="14">
+                                    <rect width="14" height="14" fill="${fillColor}"/>
+                                    <path d="M0,0 L0,14 M0,0 L14,0 M7,0 L7,14 M0,7 L14,7" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+                                </linearGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
                         }
                         
                         html += `
-                            <g class="box-group" style="cursor: pointer;">
-                                <rect x="${offsetLeft + 2}" y="${currentTop + 2}" 
+                            <defs>
+                                ${patternDef}
+                                ${gradientDef}
+                                ${glowDef}
+                            </defs>
+                            
+                            <g class="box-group" style="cursor: pointer;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                <!-- Enhanced shadow with blur -->
+                                <rect x="${boxX + 4}" y="${boxY + 6}" 
                                       width="${boxWidth}" height="${boxHeight}" 
-                                      fill="#000000" opacity="0.1" rx="4" />
+                                      fill="#000000" opacity="0.2" rx="6" 
+                                      filter="url(#boxShadow)" />
                                 
-                                <rect x="${offsetLeft}" y="${currentTop}" 
+                                <!-- Main box with enhanced gradient and glow -->
+                                <rect x="${boxX}" y="${boxY}" 
                                       width="${boxWidth}" height="${boxHeight}" 
-                                      fill="${fillColor}" stroke="${strokeColor}" stroke-width="2" 
-                                      rx="4" opacity="${opacity}" filter="url(#boxShadow)" />
+                                      fill="url(#${gradientId})" stroke="${strokeColor}" stroke-width="3" 
+                                      rx="6" opacity="${opacity}" filter="url(#${glowId})" />
                                 
-                                <text x="${offsetLeft + boxWidth/2}" y="${currentTop + boxHeight/2 + 2}" 
-                                      text-anchor="middle" dominant-baseline="middle"
-                                      class="text-xs font-bold fill-white" 
-                                      style="font-family: 'Inter', sans-serif; pointer-events: none;"
-                                      opacity="${opacity}">
-                                    ${box.rotated ? '↻' : box.zigzag ? '⟲' : box.offset ? '⬢' : '□'}
-                                </text>
+                                <!-- Pattern overlay with better opacity -->
+                                <rect x="${boxX + 2}" y="${boxY + 2}" 
+                                      width="${boxWidth - 4}" height="${boxHeight - 4}" 
+                                      fill="url(#${patternId})" opacity="0.7" rx="4" />
+                                
+                                <!-- Enhanced inner border with gradient -->
+                                <rect x="${boxX + 1.5}" y="${boxY + 1.5}" 
+                                      width="${boxWidth - 3}" height="${boxHeight - 3}" 
+                                      fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" rx="4.5" />
+                                
+                                <!-- Professional box labels (only if box is large enough) -->
+                                ${boxWidth > 25 && boxHeight > 25 ? `
+                                    <!-- Icon background -->
+                                    <circle cx="${boxX + boxWidth/2}" cy="${boxY + boxHeight/2 - 6}" r="8" 
+                                            fill="rgba(0,0,0,0.3)" opacity="${opacity * 0.8}"/>
+                                    
+                                    <!-- Box type icon -->
+                                    <text x="${boxX + boxWidth/2}" y="${boxY + boxHeight/2 - 6}" 
+                                          text-anchor="middle" dominant-baseline="middle"
+                                          class="${isMobile ? 'text-sm' : 'text-base'} font-bold fill-white" 
+                                          style="font-family: 'Inter', sans-serif; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);"
+                                          opacity="${opacity}">
+                                        ${box.rotated ? '↻' : box.zigzag ? '⟲' : box.offset ? '⬢' : '□'}
+                                    </text>
+                                    
+                                    <!-- Box number with background -->
+                                    <rect x="${boxX + boxWidth/2 - 12}" y="${boxY + boxHeight/2 + 2}" 
+                                          width="24" height="12" rx="6" 
+                                          fill="rgba(0,0,0,0.4)" opacity="${opacity * 0.9}"/>
+                                    
+                                    <text x="${boxX + boxWidth/2}" y="${boxY + boxHeight/2 + 8}" 
+                                          text-anchor="middle" dominant-baseline="middle"
+                                          class="${isMobile ? 'text-xs' : 'text-sm'} font-bold fill-white" 
+                                          style="font-family: 'Inter', sans-serif; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"
+                                          opacity="${opacity}">
+                                        ${showAllLayers ? `S${layerIndex + 1}` : `${layerIndex + 1}-${rowIndex + 1}-${colIndex + 1}`}
+                                    </text>
+                                ` : boxWidth > 15 && boxHeight > 15 ? `
+                                    <!-- Minimal label for smaller boxes -->
+                                    <text x="${boxX + boxWidth/2}" y="${boxY + boxHeight/2}" 
+                                          text-anchor="middle" dominant-baseline="middle"
+                                          class="text-xs font-bold fill-white" 
+                                          style="font-family: 'Inter', sans-serif; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"
+                                          opacity="${opacity}">
+                                        ${layerIndex + 1}
+                                    </text>
+                                ` : ''}
                             </g>
                         `;
-                        
-                        currentLeft += boxWidth;
+
                     });
-                    
-                    currentTop += maxRowHeight;
                 });
             }
             
             html += `
                         </g>
                         
-                        <text x="${svgWidth/2}" y="${svgHeight - 20}" text-anchor="middle" 
-                              class="text-sm font-semibold fill-gray-600" style="font-family: 'Inter', sans-serif;">
-                            ${showAllLayers ? `Menampilkan Semua ${optimal.layers} Layer` : `Layer ${currentLayer + 1} dari ${optimal.layers} (Tinggi: ${(currentLayer * boxDimensions.height)} - ${((currentLayer + 1) * boxDimensions.height)} cm)`}
-                        </text>
+                        <!-- Professional footer with statistics -->
+                        <g transform="translate(0, ${svgHeight - 80})">
+                            <!-- Footer background -->
+                            <rect x="20" y="0" width="${svgWidth - 40}" height="70" 
+                                  fill="rgba(30, 41, 59, 0.9)" rx="12" />
+                            
+                            <!-- Layer information -->
+                            <text x="${svgWidth/2}" y="25" text-anchor="middle" 
+                                  class="${isMobile ? 'text-sm' : 'text-lg'} font-bold fill-white" 
+                                  style="font-family: 'Inter', sans-serif;">
+                                ${showAllLayers ? `📊 Menampilkan Semua ${optimal.layers} Sap (Overlay View)` : `📋 Sap ${currentLayer + 1} dari ${optimal.layers}`}
+                            </text>
+                            
+                            <!-- Statistics row -->
+                            <g transform="translate(40, 40)">
+                                <text x="0" y="0" class="${isMobile ? 'text-xs' : 'text-sm'} font-semibold fill-slate-300" 
+                                      style="font-family: 'Inter', sans-serif;">
+                                    📦 ${showAllLayers ? `${optimal.totalBoxes} kotak (${optimal.boxesPerLayer} per sap)` : `${optimal.boxesPerLayer} kotak di sap ini`}
+                                </text>
+                                
+                                <text x="${(svgWidth - 80) / 3}" y="0" class="${isMobile ? 'text-xs' : 'text-sm'} font-semibold fill-slate-300" 
+                                      style="font-family: 'Inter', sans-serif;">
+                                    🎯 ${optimal.efficiency}% efisiensi
+                                </text>
+                                
+                                <text x="${2 * (svgWidth - 80) / 3}" y="0" class="${isMobile ? 'text-xs' : 'text-sm'} font-semibold fill-slate-300" 
+                                      style="font-family: 'Inter', sans-serif;">
+                                    📏 ${showAllLayers ? `Kedalaman: 0-${optimal.layers * boxDimensions.length} cm` : `${(currentLayer * boxDimensions.length)}-${((currentLayer + 1) * boxDimensions.length)} cm`}
+                                </text>
+                            </g>
+                        </g>
+                        
+
                     </svg>
+                    
+                    <!-- Professional control panel -->
+                    <div class="mt-6 flex flex-col lg:flex-row justify-between items-center gap-4 p-4 bg-slate-800 rounded-xl">
+                        <div class="flex items-center gap-4">
+                            <div class="text-white font-semibold">🎮 Kontrol Visualisasi:</div>
+                            <button onclick="create2DVisualization()" 
+                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all">
+                                🔄 Refresh
+                            </button>
+                        </div>
+                        
+                        ${showAllLayers ? `
+                        <div class="flex items-center gap-4 text-slate-300 text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded opacity-100"></div>
+                                <span>Sap 1 (Depan)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded opacity-70"></div>
+                                <span>Sap 2-3</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded opacity-40"></div>
+                                <span>Sap ${optimal.layers} (Belakang)</span>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="flex items-center gap-2 text-slate-300 text-sm">
+                            <span>💡 Tips: Hover kotak untuk detail, gunakan layer controls untuk navigasi</span>
+                        </div>
+                        `}
+                    </div>
                 </div>
             `;
             
@@ -1562,7 +2004,7 @@
             for (let i = 1; i <= optimal.layers; i++) {
                 const tab = document.createElement('button');
                 tab.className = `layer-tab px-4 py-2 text-sm font-semibold border-2 border-gray-200 ${i === 1 ? 'active' : ''} jiffy-hover-lift`;
-                tab.textContent = `Layer ${i}`;
+                tab.textContent = `Sap ${i}`;
                 tab.onclick = () => selectLayer(i);
                 layerTabs.appendChild(tab);
             }
@@ -1673,5 +2115,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c2f6f7d2e814a6',t:'MTc1NDY5NzUzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c3fba17006fd27',t:'MTc1NDcwODIxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
