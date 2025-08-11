@@ -1,532 +1,3238 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Container Box Visualizer</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/three@0.132.2/build/three.min.js"></script>
-  <script src="https://unpkg.com/@react-three/fiber@8.0.27/dist/react-three-fiber.umd.js"></script>
-  <script src="https://unpkg.com/@react-three/drei@9.57.0/dist/drei.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/uuid@8.3.2/dist/umd/uuidv4.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitung Muat Kotak Kontainer - Professional 3D</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradientShift 4s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .gradient-button {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .gradient-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .gradient-button:active {
+            transform: translateY(0);
+        }
+
+        /* Simple Animations */
+        .jiffy-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .jiffy-bounce {
+            animation: bounce 0.6s ease-out;
+        }
+
+        @keyframes bounce {
+            0% { transform: scale(0.9); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .jiffy-pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .jiffy-hover-lift {
+            transition: transform 0.2s ease;
+        }
+
+        .jiffy-hover-lift:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Simple 3D Container */
+        #threejs-container {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+
+        .layer-tab {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .layer-tab.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .layer-tab:hover:not(.active) {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            box-shadow: 
+                0 20px 40px -10px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        .control-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        }
+
+        .visualization-mode-toggle {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            background-size: 200% 200%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 10px 25px -5px rgba(16, 185, 129, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .visualization-mode-toggle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .visualization-mode-toggle:hover {
+            background-position: 100% 50%;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 
+                0 20px 40px -10px rgba(16, 185, 129, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .visualization-mode-toggle:hover::before {
+            left: 100%;
+        }
+
+        .input-field {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(226, 232, 240, 0.8);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .input-field::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 
+                0 0 0 4px rgba(59, 130, 246, 0.15),
+                0 10px 25px -5px rgba(59, 130, 246, 0.2);
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.02);
+        }
+
+        .input-field:focus::before {
+            opacity: 1;
+        }
+
+        .radio-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(226, 232, 240, 0.6);
+        }
+
+        .radio-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .radio-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 15px 35px -5px rgba(59, 130, 246, 0.2);
+        }
+
+        .radio-card:hover::before {
+            opacity: 1;
+        }
+
+        .radio-card input:checked + .radio-content {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border-color: #3b82f6;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        .radio-card input:checked {
+            border-color: #3b82f6;
+            box-shadow: 
+                0 0 0 4px rgba(59, 130, 246, 0.15),
+                0 15px 35px -5px rgba(59, 130, 246, 0.3);
+        }
+
+        .metric-card {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 
+                0 32px 64px -12px rgba(59, 130, 246, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+
+        .metric-card:hover::before {
+            opacity: 1;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .jiffy-progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 2px;
+            animation: progressBar 2s ease-in-out;
+            transform-origin: left;
+        }
+
+        @keyframes progressBar {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+        }
+
+        .section-header {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            border-radius: 3px;
+            box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .section-header::after {
+            content: '';
+            position: absolute;
+            left: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 1px;
+        }
+
+        .header-decoration {
+            position: relative;
+        }
+
+        .header-decoration::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 6px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, #ec4899, transparent);
+            border-radius: 3px;
+            animation: headerGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes headerGlow {
+            0%, 100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+            50% { opacity: 1; transform: translateX(-50%) scaleX(1.1); }
+        }
+
+        /* Premium 3D Controls */
+        .control-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #e2e8f0, #cbd5e1, #94a3b8);
+            outline: none;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .control-slider::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .control-slider:hover::before {
+            opacity: 1;
+        }
+
+        .control-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            cursor: pointer;
+            box-shadow: 
+                0 6px 12px rgba(59, 130, 246, 0.4),
+                0 0 0 2px rgba(255, 255, 255, 0.8),
+                0 0 0 4px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .control-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 
+                0 8px 16px rgba(59, 130, 246, 0.5),
+                0 0 0 3px rgba(255, 255, 255, 0.9),
+                0 0 0 6px rgba(59, 130, 246, 0.3);
+        }
+
+        .control-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 6px 12px rgba(59, 130, 246, 0.4),
+                0 0 0 2px rgba(59, 130, 246, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .control-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 
+                0 8px 16px rgba(59, 130, 246, 0.5),
+                0 0 0 4px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Premium Alert Styles */
+        .jiffy-alert {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 1000;
+            padding: 20px 28px;
+            border-radius: 16px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 
+                0 20px 40px -10px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            min-width: 300px;
+        }
+
+        .jiffy-alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: alertShimmer 2s ease-in-out;
+        }
+
+        @keyframes alertShimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .jiffy-alert.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            box-shadow: 
+                0 20px 40px -10px rgba(16, 185, 129, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .jiffy-alert.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+            box-shadow: 
+                0 20px 40px -10px rgba(239, 68, 68, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .jiffy-alert.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            box-shadow: 
+                0 20px 40px -10px rgba(245, 158, 11, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .jiffy-alert.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            box-shadow: 
+                0 20px 40px -10px rgba(59, 130, 246, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Simple Effects */
+        .glow-effect {
+            position: relative;
+        }
+
+        .glow-effect:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+        }
+
+        /* Selection Styling */
+        ::selection {
+            background: rgba(59, 130, 246, 0.3);
+            color: #1e40af;
+        }
+
+        ::-moz-selection {
+            background: rgba(59, 130, 246, 0.3);
+            color: #1e40af;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-  <div id="root"></div>
-
-  <script type="text/babel">
-  const { useState, useRef, useEffect } = React;
-  const R3F = window.ReactThreeFiber; // This is how we access R3F with UMD build
-  const { Canvas, useFrame } = R3F;
-  const THREE = window.THREE; // Access THREE.js from global
-  const { OrbitControls } = THREE;
-  const { v4: uuidv4 } = uuid;
-  
-    // Default container setup
-    const defaultContainer = {
-      width: 10,
-      height: 8,
-      depth: 20,
-      layers: [
-        { id: 'layer-1', boxes: [], order: 0 },
-        { id: 'layer-2', boxes: [], order: 1 },
-        { id: 'layer-3', boxes: [], order: 2 }
-      ]
-    };
-
-    // 2D View Component
-    function Layer2DView({ layer, container }) {
-      const canvasRef = useRef(null);
-
-      useEffect(() => {
-        const ctx = canvasRef.current?.getContext('2d');
-        if (!ctx) return;
-
-        // Clear canvas
-        ctx.clearRect(0, 0, container.width * 40, container.height * 40);
-
-        // Draw each box (scaled up for visibility)
-        layer.boxes.forEach(box => {
-          ctx.fillStyle = box.color;
-          ctx.fillRect(
-            box.position.x * 40, 
-            box.position.y * 40, 
-            box.width * 40, 
-            box.height * 40
-          );
-          ctx.strokeRect(
-            box.position.x * 40, 
-            box.position.y * 40, 
-            box.width * 40, 
-            box.height * 40
-          );
-          
-          // Box label
-          ctx.fillStyle = '#000';
-          ctx.font = '10px Arial';
-          ctx.fillText(
-            `${box.width}x${box.height}x${box.depth}`,
-            box.position.x * 40 + 5,
-            box.position.y * 40 + 15
-          );
-        });
-      }, [layer, container]);
-
-      return (
-        <div className="overflow-auto border border-gray-300 p-2">
-          <canvas 
-            ref={canvasRef} 
-            width={container.width * 40} 
-            height={container.height * 40}
-            className="bg-white"
-          />
+<body>
+    <div class="main-container container mx-auto px-4 py-8">
+        <!-- Enhanced Header -->
+        <div class="text-center mb-12 jiffy-bounce">
+            <div class="header-decoration inline-block">
+                <h1 class="text-5xl font-bold gradient-text mb-4">📦 Hitung Muat Kotak Kontainer 3D</h1>
+            </div>
+            <p class="text-xl text-white/80 font-medium jiffy-slide-up">Kalkulator otomatis dengan visualisasi 3D interaktif untuk optimasi penataan kotak</p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <div class="glass-card px-4 py-2 rounded-full jiffy-fade-in jiffy-stagger-1">
+                    <span class="text-sm font-medium text-gray-700">🎮 3D Interactive</span>
+                </div>
+                <div class="glass-card px-4 py-2 rounded-full jiffy-fade-in jiffy-stagger-2">
+                    <span class="text-sm font-medium text-gray-700">📋 Multi-Layer</span>
+                </div>
+                <div class="glass-card px-4 py-2 rounded-full jiffy-fade-in jiffy-stagger-3">
+                    <span class="text-sm font-medium text-gray-700">🎯 AI-Powered</span>
+                </div>
+            </div>
         </div>
-      );
-    }
 
-    // 3D Box Component
-    function Box3D({ box }) {
-      return (
-        <mesh position={[box.position.x, box.position.y, box.position.z]}>
-          <boxGeometry args={[box.width, box.height, box.depth]} />
-          <meshStandardMaterial color={box.color} />
-        </mesh>
-      );
-    }
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+            <!-- Input Panel -->
+            <div class="glass-card rounded-xl md:rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 jiffy-fade-in jiffy-stagger-1">
+                <h2 class="section-header text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4 md:mb-6 lg:mb-8">⚙️ Pengaturan</h2>
 
-    // 3D View Component
-    function Container3DView({ container }) {
-      const [doorOpen, setDoorOpen] = useState(false);
-      const doorRef = useRef();
-
-      // Animate door when state changes
-      useFrame(() => {
-        if (doorRef.current) {
-          doorRef.current.rotation.y = THREE.MathUtils.lerp(
-            doorRef.current.rotation.y,
-            doorOpen ? Math.PI / 2 : 0,
-            0.1
-          );
-        }
-      });
-
-      return (
-        <Canvas camera={{ position: [15, 15, 15], fov: 50 }}>
-          <ambientLight intensity={0.5} />
-          <spotLight position={[10, 15, 10]} angle={0.15} penumbra={1} intensity={1} />
-          <pointLight position={[-10, -10, -10]} intensity={0.5} />
-          
-          {/* Container structure */}
-          <group>
-            {/* Floor */}
-            <mesh position={[0, -container.height/2, 0]} rotation={[-Math.PI/2, 0, 0]}>
-              <planeGeometry args={[container.width, container.depth]} />
-              <meshStandardMaterial color="#aaa" />
-            </mesh>
-            
-            {/* Walls */}
-            <mesh position={[0, 0, -container.depth/2]}>
-              <boxGeometry args={[container.width, container.height, 0.1]} />
-              <meshStandardMaterial color="#888" />
-            </mesh>
-            
-            {/* Left wall */}
-            <mesh position={[-container.width/2, 0, 0]}>
-              <boxGeometry args={[0.1, container.height, container.depth]} />
-              <meshStandardMaterial color="#777" />
-            </mesh>
-            
-            {/* Right wall */}
-            <mesh position={[container.width/2, 0, 0]}>
-              <boxGeometry args={[0.1, container.height, container.depth]} />
-              <meshStandardMaterial color="#777" />
-            </mesh>
-            
-            {/* Top */}
-            <mesh position={[0, container.height/2, 0]}>
-              <boxGeometry args={[container.width, 0.1, container.depth]} />
-              <meshStandardMaterial color="#999" />
-            </mesh>
-            
-            {/* Door (front wall that opens) */}
-            <mesh
-              ref={doorRef}
-              position={[0, 0, container.depth/2]}
-              rotation={[0, 0, 0]}
-              rotation-origin-x={-container.width/2}
-            >
-              <boxGeometry args={[container.width, container.height, 0.1]} />
-              <meshStandardMaterial color="#666" />
-            </mesh>
-          </group>
-
-          {/* Render all boxes from all layers */}
-          {container.layers.flatMap(layer => 
-            layer.boxes.map(box => (
-              <Box3D key={box.id} box={{
-                ...box,
-                position: {
-                  x: box.position.x - container.width/2 + box.width/2,
-                  y: box.position.y - container.height/2 + box.height/2,
-                  z: box.position.z - container.depth/2 + box.depth/2 + layer.order * 1.5
-                }
-              }} />
-            ))
-          )}
-
-          <OrbitControls enablePan={true} enableZoom={true} enableRotate={true} />
-        </Canvas>
-      );
-    }
-
-    // Box arrangement algorithm
-    function arrangeBoxesInLayer(boxes, container) {
-      const arrangedBoxes = [];
-      let currentX = 0;
-      let currentY = 0;
-      let maxHeightInRow = 0;
-
-      boxes.forEach(box => {
-        // Check if box fits in current row
-        if (currentX + box.width > container.width) {
-          // Move to next row
-          currentX = 0;
-          currentY += maxHeightInRow;
-          maxHeightInRow = 0;
-        }
-
-        // Check if box fits vertically
-        if (currentY + box.height > container.height) {
-          console.warn("Box doesn't fit in container height");
-          return;
-        }
-
-        // Position the box
-        arrangedBoxes.push({
-          ...box,
-          position: {
-            x: currentX,
-            y: currentY,
-            z: 0
-          }
-        });
-
-        // Update tracking variables
-        currentX += box.width;
-        maxHeightInRow = Math.max(maxHeightInRow, box.height);
-      });
-
-      return arrangedBoxes;
-    }
-
-    // Main App Component
-    function App() {
-      const [container, setContainer] = useState(defaultContainer);
-      const [activeLayerId, setActiveLayerId] = useState(container.layers[0].id);
-      const [viewMode, setViewMode] = useState('2D');
-      const [newBox, setNewBox] = useState({ width: 2, height: 2, depth: 2 });
-      const [containerSize, setContainerSize] = useState({
-        width: defaultContainer.width,
-        height: defaultContainer.height,
-        depth: defaultContainer.depth
-      });
-
-      const activeLayer = container.layers.find(l => l.id === activeLayerId);
-
-      const addBox = () => {
-        const updatedLayers = container.layers.map(layer => {
-          if (layer.id === activeLayerId) {
-            const newBoxWithPosition = {
-              ...newBox,
-              id: uuidv4(),
-              color: `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`,
-              position: { x: 0, y: 0, z: 0 }
-            };
-            return {
-              ...layer,
-              boxes: arrangeBoxesInLayer([...layer.boxes, newBoxWithPosition], container)
-            };
-          }
-          return layer;
-        });
-
-        setContainer({ ...container, layers: updatedLayers });
-      };
-
-      const updateContainerSize = () => {
-        setContainer({
-          ...container,
-          width: containerSize.width,
-          height: containerSize.height,
-          depth: containerSize.depth
-        });
-      };
-
-      const addLayer = () => {
-        const newLayer = {
-          id: uuidv4(),
-          boxes: [],
-          order: container.layers.length
-        };
-        setContainer({
-          ...container,
-          layers: [...container.layers, newLayer]
-        });
-      };
-
-      const removeLayer = (layerId) => {
-        if (container.layers.length <= 1) {
-          alert("You need at least one layer");
-          return;
-        }
-        
-        const updatedLayers = container.layers.filter(l => l.id !== layerId);
-        setContainer({ ...container, layers: updatedLayers });
-        
-        if (activeLayerId === layerId) {
-          setActiveLayerId(updatedLayers[0].id);
-        }
-      };
-
-      const removeBox = (boxId) => {
-        const updatedLayers = container.layers.map(layer => {
-          if (layer.id === activeLayerId) {
-            return {
-              ...layer,
-              boxes: layer.boxes.filter(b => b.id !== boxId)
-            };
-          }
-          return layer;
-        });
-
-        setContainer({ ...container, layers: updatedLayers });
-      };
-
-      return (
-        <div className="min-h-screen">
-          <div className="container mx-auto p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Control Panel */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h1 className="text-2xl font-bold mb-4">📦 Container Box Visualizer</h1>
-              
-              <div className="flex gap-2 mb-6">
-                <button 
-                  onClick={() => setViewMode('2D')} 
-                  className={`px-4 py-2 rounded ${viewMode === '2D' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                >
-                  2D View
-                </button>
-                <button 
-                  onClick={() => setViewMode('3D')} 
-                  className={`px-4 py-2 rounded ${viewMode === '3D' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                >
-                  3D View
-                </button>
-              </div>
-
-              {/* Container Size Controls */}
-              <div className="mb-6 p-4 bg-gray-50 rounded">
-                <h2 className="text-xl font-semibold mb-2">Container Size</h2>
-                <div className="grid grid-cols-3 gap-2 mb-2">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Width</label>
-                    <input 
-                      type="number" 
-                      value={containerSize.width}
-                      onChange={(e) => setContainerSize({...containerSize, width: +e.target.value})}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Height</label>
-                    <input 
-                      type="number" 
-                      value={containerSize.height}
-                      onChange={(e) => setContainerSize({...containerSize, height: +e.target.value})}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Depth</label>
-                    <input 
-                      type="number" 
-                      value={containerSize.depth}
-                      onChange={(e) => setContainerSize({...containerSize, depth: +e.target.value})}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                </div>
-                <button 
-                  onClick={updateContainerSize}
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                  Update Container
-                </button>
-              </div>
-
-              {/* Box Input Form */}
-              <div className="mb-6">
-                <h2 className="text-xl font-semibold mb-2">Add New Box</h2>
-                <div className="grid grid-cols-3 gap-2 mb-2">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Width</label>
-                    <input 
-                      type="number" 
-                      value={newBox.width}
-                      onChange={(e) => setNewBox({...newBox, width: +e.target.value})}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Height</label>
-                    <input 
-                      type="number" 
-                      value={newBox.height}
-                      onChange={(e) => setNewBox({...newBox, height: +e.target.value})}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Depth</label>
-                    <input 
-                      type="number" 
-                      value={newBox.depth}
-                      onChange={(e) => setNewBox({...newBox, depth: +e.target.value})}
-                      className="w-full p-2 border rounded"
-                    />
-                  </div>
-                </div>
-                <button 
-                  onClick={addBox}
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
-                >
-                  Add Box to Current Layer
-                </button>
-              </div>
-
-              {/* Layer Management */}
-              <div className="mb-4">
-                <div className="flex justify-between items-center mb-2">
-                  <h2 className="text-xl font-semibold">Layers</h2>
-                  <button 
-                    onClick={addLayer}
-                    className="bg-purple-500 text-white px-3 py-1 rounded text-sm"
-                  >
-                    + Add Layer
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {container.layers.map(layer => (
-                    <div 
-                      key={layer.id} 
-                      className={`p-3 rounded border ${activeLayerId === layer.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}
-                    >
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center">
-                          <button
-                            onClick={() => setActiveLayerId(layer.id)}
-                            className={`mr-2 px-2 py-1 rounded ${activeLayerId === layer.id ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-                          >
-                            Layer {layer.order + 1}
-                          </button>
-                          <span className="text-sm text-gray-600">
-                            {layer.boxes.length} boxes
-                          </span>
+                <!-- Container Size -->
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h3 class="text-base md:text-lg lg:text-xl font-semibold text-gray-700 mb-3 md:mb-4 flex items-center">
+                        <span class="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs md:text-sm mr-2 md:mr-3 jiffy-pulse">📏</span>
+                        <span class="text-sm md:text-base lg:text-lg">Ukuran Kontainer (cm)</span>
+                    </h3>
+                    <div class="glass-card p-3 md:p-4 rounded-lg md:rounded-xl mb-3 md:mb-4 jiffy-hover-lift cursor-pointer" onclick="toggleContainerPanel()">
+                        <div class="text-center">
+                            <div id="containerVolume" class="text-xl md:text-2xl lg:text-3xl font-bold gradient-text">66.54 m³</div>
+                            <div class="text-xs md:text-sm text-gray-600 font-medium">Volume Kontainer Total (Klik untuk edit)</div>
+                            <div class="text-xs text-gray-500 mt-1">▼ Klik untuk expand/collapse</div>
                         </div>
-                        {container.layers.length > 1 && (
-                          <button
-                            onClick={() => removeLayer(layer.id)}
-                            className="text-red-500 hover:text-red-700 text-sm"
-                          >
-                            Remove
-                          </button>
-                        )}
-                      </div>
                     </div>
-                  ))}
+                    <div id="containerInputs" class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        <div class="space-y-1 md:space-y-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700">Panjang</label>
+                            <input type="number" id="containerLength" value="1158" oninput="updateContainerVolume()"
+                                   class="input-field w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-medium text-center text-sm md:text-base jiffy-hover-lift">
+                        </div>
+                        <div class="space-y-1 md:space-y-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700">Lebar</label>
+                            <input type="number" id="containerWidth" value="228" oninput="updateContainerVolume()"
+                                   class="input-field w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-medium text-center text-sm md:text-base jiffy-hover-lift">
+                        </div>
+                        <div class="space-y-1 md:space-y-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700">Tinggi</label>
+                            <input type="number" id="containerHeight" value="252" oninput="updateContainerVolume()"
+                                   class="input-field w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-medium text-center text-sm md:text-base jiffy-hover-lift">
+                        </div>
+                    </div>
                 </div>
-              </div>
+
+                <!-- Box Size -->
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h3 class="text-base md:text-lg lg:text-xl font-semibold text-gray-700 mb-3 md:mb-4 flex items-center">
+                        <span class="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white text-xs md:text-sm mr-2 md:mr-3 jiffy-pulse">📦</span>
+                        <span class="text-sm md:text-base lg:text-lg">Ukuran Kotak (cm)</span>
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+                        <div class="space-y-1 md:space-y-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700">Panjang</label>
+                            <input type="number" id="boxLength" value="60" 
+                                   class="input-field w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-medium text-center text-sm md:text-base jiffy-hover-lift">
+                        </div>
+                        <div class="space-y-1 md:space-y-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700">Lebar</label>
+                            <input type="number" id="boxWidth" value="40" 
+                                   class="input-field w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-medium text-center text-sm md:text-base jiffy-hover-lift">
+                        </div>
+                        <div class="space-y-1 md:space-y-2">
+                            <label class="block text-xs md:text-sm font-semibold text-gray-700">Tinggi</label>
+                            <input type="number" id="boxHeight" value="30" 
+                                   class="input-field w-full px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-xl font-medium text-center text-sm md:text-base jiffy-hover-lift">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layout Pattern -->
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h3 class="text-base md:text-lg lg:text-xl font-semibold text-gray-700 mb-3 md:mb-4 flex items-center">
+                        <span class="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white text-xs md:text-sm mr-2 md:mr-3 jiffy-pulse">🎯</span>
+                        <span class="text-sm md:text-base lg:text-lg">Pola Penataan</span>
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2 md:gap-3">
+                        <label class="radio-card border-2 rounded-lg md:rounded-xl p-2 md:p-3 lg:p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="normal" checked class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-xl md:text-2xl mb-1 md:mb-2">□</div>
+                                <div class="font-semibold text-gray-700 text-xs md:text-sm lg:text-base">Normal</div>
+                                <div class="text-xs text-gray-500 hidden sm:block">Penataan standar</div>
+                            </div>
+                        </label>
+                        <label class="radio-card border-2 rounded-lg md:rounded-xl p-2 md:p-3 lg:p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="zigzag" class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-xl md:text-2xl mb-1 md:mb-2">⟲</div>
+                                <div class="font-semibold text-gray-700 text-xs md:text-sm lg:text-base">Zig-Zag</div>
+                                <div class="text-xs text-gray-500 hidden sm:block">Pola bergantian</div>
+                            </div>
+                        </label>
+                        <label class="radio-card border-2 rounded-lg md:rounded-xl p-2 md:p-3 lg:p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="offset" class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-xl md:text-2xl mb-1 md:mb-2">⬢</div>
+                                <div class="font-semibold text-gray-700 text-xs md:text-sm lg:text-base">Offset</div>
+                                <div class="text-xs text-gray-500 hidden sm:block">Pola bergeser</div>
+                            </div>
+                        </label>
+                        <label class="radio-card border-2 rounded-lg md:rounded-xl p-2 md:p-3 lg:p-4 jiffy-hover-lift">
+                            <input type="radio" name="layoutPattern" value="optimal" class="sr-only">
+                            <div class="radio-content text-center">
+                                <div class="text-xl md:text-2xl mb-1 md:mb-2">🎯</div>
+                                <div class="font-semibold text-gray-700 text-xs md:text-sm lg:text-base">Optimal</div>
+                                <div class="text-xs text-gray-500 hidden sm:block">AI terbaik</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Additional Options -->
+                <div class="mb-4 md:mb-6 lg:mb-8">
+                    <h3 class="text-base md:text-lg lg:text-xl font-semibold text-gray-700 mb-3 md:mb-4 flex items-center">
+                        <span class="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-xs md:text-sm mr-2 md:mr-3 jiffy-pulse">🔧</span>
+                        <span class="text-sm md:text-base lg:text-lg">Opsi Tambahan</span>
+                    </h3>
+                    <div class="space-y-3 md:space-y-4">
+                        <label class="flex items-center p-3 md:p-4 glass-card rounded-lg md:rounded-xl cursor-pointer jiffy-hover-lift transition-all">
+                            <input type="checkbox" id="allowRotation" checked 
+                                   class="w-4 h-4 md:w-5 md:h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0">
+                            <div class="ml-3 md:ml-4">
+                                <div class="font-semibold text-gray-700 text-sm md:text-base">Izinkan rotasi kotak (90°)</div>
+                                <div class="text-xs md:text-sm text-gray-500">Meningkatkan efisiensi penataan</div>
+                            </div>
+                        </label>
+                        <div class="p-3 md:p-4 glass-card rounded-lg md:rounded-xl jiffy-hover-lift transition-all">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="font-semibold text-gray-700 text-sm md:text-base">Mode Visualisasi</div>
+                                    <div class="text-xs md:text-sm text-gray-500">Pilih tampilan 2D atau 3D setelah perhitungan</div>
+                                </div>
+                                <div class="text-2xl">🎮</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3 md:space-y-4">
+                    <button onclick="calculateOptimalLayout()" 
+                            class="gradient-button glow-effect w-full text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg md:rounded-xl shadow-lg text-base md:text-lg jiffy-button-press jiffy-hover-lift">
+                        🧮 Hitung Layout Optimal
+                    </button>
+                </div>
             </div>
 
-            {/* Visualization Area */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              {viewMode === '2D' ? (
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-xl font-semibold">
-                      Layer {activeLayer.order + 1} (2D View - Back View)
-                    </h2>
-                    <div className="text-sm text-gray-600">
-                      Container: {container.width} × {container.height} × {container.depth}
+            <!-- Results Panel -->
+            <div class="glass-card rounded-xl md:rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 jiffy-fade-in jiffy-stagger-2">
+                <h2 class="section-header text-xl md:text-2xl lg:text-3xl font-bold text-gray-800 mb-4 md:mb-6 lg:mb-8">📊 Hasil Perhitungan</h2>
+
+                <div id="resultsContainer" class="space-y-4 md:space-y-6">
+                    <div class="text-center text-gray-500 py-8 md:py-12">
+                        <div class="text-6xl md:text-8xl mb-4 md:mb-6 jiffy-pulse">📦</div>
+                        <p class="text-base md:text-lg font-medium jiffy-fade-in px-2">Masukkan ukuran dan klik "Hitung Layout Optimal" untuk melihat hasil</p>
+                        <div class="mt-3 md:mt-4 text-xs md:text-sm text-gray-400 jiffy-fade-in jiffy-stagger-1 px-2">Sistem AI siap menganalisis konfigurasi optimal Anda</div>
                     </div>
-                  </div>
-                  <Layer2DView layer={activeLayer} container={container} />
-                  
-                  {/* Box List */}
-                  <div className="mt-4">
-                    <h3 className="font-medium mb-2">Boxes in this layer:</h3>
-                    {activeLayer.boxes.length > 0 ? (
-                      <div className="grid grid-cols-2 gap-2">
-                        {activeLayer.boxes.map(box => (
-                          <div 
-                            key={box.id} 
-                            className="p-2 border rounded flex justify-between items-center"
-                            style={{ backgroundColor: `${box.color}20`, borderColor: box.color }}
-                          >
-                            <span>
-                              {box.width} × {box.height} × {box.depth}
-                            </span>
-                            <button 
-                              onClick={() => removeBox(box.id)}
-                              className="text-red-500 hover:text-red-700 text-sm"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500">No boxes in this layer yet</p>
-                    )}
-                  </div>
                 </div>
-              ) : (
-                <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <h2 className="text-xl font-semibold">3D Container View</h2>
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => setContainer({...container, layers: [...container.layers].reverse()})}
-                        className="bg-gray-200 px-3 py-1 rounded text-sm"
-                      >
-                        Reverse Layers
-                      </button>
-                      <button 
-                        onClick={() => setDoorOpen(!doorOpen)}
-                        className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-                      >
-                        {doorOpen ? 'Close Door' : 'Open Door'}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-600 mb-2">
-                    {container.layers.length} layers, {container.layers.reduce((sum, layer) => sum + layer.boxes.length, 0)} total boxes
-                  </div>
-                  <div className="h-[500px] border border-gray-300 rounded">
-                    <Container3DView container={container} />
-                  </div>
-                </div>
-              )}
             </div>
-          </div>
         </div>
-      );
-    }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
-</body>
+        <!-- Enhanced Visualization Panel -->
+        <div class="mt-6 md:mt-8 lg:mt-12 glass-card rounded-xl md:rounded-2xl shadow-2xl p-4 md:p-6 lg:p-8 jiffy-fade-in jiffy-stagger-3">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 md:mb-6 lg:mb-8 gap-3 md:gap-4">
+                <h2 class="section-header text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">🎯 Visualisasi Layout</h2>
+                <div class="flex flex-col sm:flex-row gap-2 md:gap-3 w-full lg:w-auto">
+                    <button id="toggle3DMode" onclick="toggle3DVisualization()" 
+                            class="visualization-mode-toggle glow-effect text-white px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-semibold text-sm md:text-base jiffy-button-press jiffy-hover-lift">
+                        🎮 Mode 3D
+                    </button>
+                </div>
+            </div>
+
+            <!-- Layer Controls -->
+            <div id="layerControls" class="hidden mb-4 md:mb-6 control-panel p-3 md:p-4 lg:p-6 rounded-lg md:rounded-xl jiffy-elastic">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-3 md:mb-4 gap-2 md:gap-3">
+                    <h4 class="text-base md:text-lg font-bold text-gray-700">🏗️ Kontrol Sap</h4>
+                    <div class="flex items-center gap-3 md:gap-4">
+                        <label class="flex items-center gap-2">
+                            <input type="checkbox" id="showAllLayers" onchange="toggleLayerMode()" 
+                                   class="w-3 h-3 md:w-4 md:h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            <span class="text-xs md:text-sm font-medium text-gray-700">Tampilkan Semua</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="text-xs md:text-sm text-gray-500 bg-blue-50 p-2 md:p-3 rounded-lg mb-3 md:mb-4">
+                    💡 <strong>Sap:</strong> Lapisan kotak dari depan ke belakang
+                </div>
+                
+                <!-- Layer Tabs -->
+                <div id="layerTabs" class="flex gap-1 md:gap-2 mb-3 md:mb-4 overflow-x-auto pb-2"></div>
+                
+                <!-- Layer Slider -->
+                <div class="flex items-center gap-2 md:gap-4 lg:gap-6">
+                    <label class="text-xs md:text-sm font-semibold text-gray-700 min-w-8 md:min-w-12">Sap:</label>
+                    <input type="range" id="layerSlider" min="1" max="1" value="1" 
+                           class="control-slider flex-1" onchange="showSpecificLayer(this.value)">
+                    <span id="layerDisplay" class="text-xs md:text-sm font-bold text-gray-700 min-w-12 md:min-w-16 text-center">1 / 1</span>
+                </div>
+            </div>
+
+            <!-- 3D Controls Panel -->
+            <div id="threeDControls" class="hidden mb-4 md:mb-6 control-panel p-3 md:p-4 lg:p-6 rounded-lg md:rounded-xl jiffy-zoom-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                    <div class="space-y-3 md:space-y-4">
+                        <h4 class="text-base md:text-lg font-bold text-gray-700 flex items-center">
+                            <span class="w-5 h-5 md:w-6 md:h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xs mr-2">🎮</span>
+                            <span class="text-sm md:text-base">Kontrol Kamera</span>
+                        </h4>
+                        <div class="space-y-2 md:space-y-3">
+                            <button onclick="resetCamera()" 
+                                    class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all jiffy-button-press text-sm md:text-base">
+                                🔄 Reset View
+                            </button>
+                            <button id="doorToggleBtn" onclick="toggleContainerDoors()" 
+                                    class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2 md:py-3 px-3 md:px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all jiffy-button-press text-sm md:text-base">
+                                🚪 Buka Pintu
+                            </button>
+                            <div class="flex items-center gap-2 md:gap-3">
+                                <label class="text-xs md:text-sm font-medium text-gray-700 min-w-16 md:min-w-20">Wireframe:</label>
+                                <input type="checkbox" id="wireframeMode" onchange="toggleWireframe()" 
+                                       class="w-3 h-3 md:w-4 md:h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3 md:space-y-4">
+                        <h4 class="text-base md:text-lg font-bold text-gray-700 flex items-center">
+                            <span class="w-5 h-5 md:w-6 md:h-6 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center text-white text-xs mr-2">🎨</span>
+                            <span class="text-sm md:text-base">Visual Settings</span>
+                        </h4>
+                        <div class="space-y-2 md:space-y-3">
+                            <div class="flex items-center gap-2 md:gap-3">
+                                <label class="text-xs md:text-sm font-medium text-gray-700 min-w-16 md:min-w-20">Opacity:</label>
+                                <input type="range" id="opacitySlider" min="0.1" max="1" step="0.1" value="0.8" 
+                                       class="control-slider flex-1" onchange="updateOpacity(this.value)">
+                                <span id="opacityValue" class="text-xs md:text-sm font-bold text-gray-700 min-w-6 md:min-w-8">0.8</span>
+                            </div>
+                            <div class="text-xs md:text-sm text-gray-500 bg-gray-100 p-2 md:p-3 rounded-lg">
+                                💡 <strong>Tips:</strong> Drag untuk memutar, scroll untuk zoom
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Container -->
+            <div id="visualizationContainer" class="border-2 md:border-4 border-gray-200 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 min-h-64 md:min-h-80 lg:min-h-96 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white jiffy-hover-lift">
+                <div class="text-center text-gray-500">
+                    <div class="text-5xl md:text-6xl lg:text-8xl mb-4 md:mb-6 jiffy-pulse">🎨</div>
+                    <p class="text-base md:text-lg lg:text-xl font-medium jiffy-fade-in px-2">Visualisasi akan muncul setelah perhitungan</p>
+                    <div class="mt-3 md:mt-4 text-xs md:text-sm text-gray-400 jiffy-fade-in jiffy-stagger-1 px-2">Sistem akan menampilkan layout 2D/3D interaktif</div>
+                </div>
+            </div>
+
+            <!-- 3D Container -->
+            <div id="threejs-container" class="hidden rounded-xl md:rounded-2xl overflow-hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let calculationResults = null;
+        let currentVisualizationMode = '2d';
+        let scene, camera, renderer, controls;
+        let boxMeshes = [];
+        let containerMesh = null;
+        let animationId = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeJiffyAnimations();
+            setupEventListeners();
+        });
+
+        function initializeJiffyAnimations() {
+            // Add entrance animations to cards
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('jiffy-fade-in');
+                }, index * 100);
+            });
+
+            // Add hover effects to interactive elements
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.classList.add('jiffy-hover-lift');
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.classList.remove('jiffy-hover-lift');
+                });
+            });
+
+            // Add input field animations
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.classList.add('jiffy-zoom-in');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.classList.remove('jiffy-zoom-in');
+                });
+            });
+        }
+
+        function setupEventListeners() {
+            // Radio button change listeners
+            const radioButtons = document.querySelectorAll('input[name="layoutPattern"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    this.closest('.radio-card').classList.add('jiffy-bounce');
+                    setTimeout(() => {
+                        this.closest('.radio-card').classList.remove('jiffy-bounce');
+                    }, 600);
+                });
+            });
+
+            // Checkbox listeners
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    this.closest('label').classList.add('jiffy-pulse');
+                    setTimeout(() => {
+                        this.closest('label').classList.remove('jiffy-pulse');
+                    }, 2000);
+                });
+            });
+
+            // Initialize container panel as collapsed
+            document.getElementById('containerInputs').style.display = 'none';
+        }
+
+        function toggleContainerPanel() {
+            const inputs = document.getElementById('containerInputs');
+            const isHidden = inputs.style.display === 'none';
+            
+            if (isHidden) {
+                inputs.style.display = 'grid';
+                inputs.classList.add('jiffy-slide-up');
+            } else {
+                inputs.style.display = 'none';
+                inputs.classList.remove('jiffy-slide-up');
+            }
+            
+            // Reset calculation results when container size changes
+            if (calculationResults) {
+                calculationResults = null;
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="text-center text-gray-500 py-12">
+                        <div class="text-8xl mb-6 jiffy-pulse">📦</div>
+                        <p class="text-lg font-medium jiffy-fade-in">Ukuran kontainer diubah. Klik "Hitung Layout Optimal" untuk hasil baru</p>
+                    </div>
+                `;
+                document.getElementById('visualizationContainer').innerHTML = `
+                    <div class="text-center text-gray-500">
+                        <div class="text-6xl lg:text-8xl mb-6 jiffy-pulse">🎨</div>
+                        <p class="text-lg lg:text-xl font-medium jiffy-fade-in">Visualisasi akan muncul setelah perhitungan</p>
+                    </div>
+                `;
+            }
+        }
+
+        function updateContainerVolume() {
+            const length = parseFloat(document.getElementById('containerLength').value) || 0;
+            const width = parseFloat(document.getElementById('containerWidth').value) || 0;
+            const height = parseFloat(document.getElementById('containerHeight').value) || 0;
+            
+            const volume = (length * width * height) / 1000000; // Convert to m³
+            document.getElementById('containerVolume').textContent = volume.toFixed(2) + ' m³';
+        }
+
+        function showJiffyAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `jiffy-alert ${type} jiffy-bounce`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            alert.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <span class="text-xl">${icons[type]}</span>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.classList.add('jiffy-fade-out');
+                setTimeout(() => {
+                    if (alert.parentNode) {
+                        alert.parentNode.removeChild(alert);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        function calculateOptimalLayout() {
+            const button = event.target;
+            button.classList.add('jiffy-pulse');
+            setTimeout(() => button.classList.remove('jiffy-pulse'), 2000);
+
+            // Get input values with validation
+            const containerL = parseFloat(document.getElementById('containerLength').value);
+            const containerW = parseFloat(document.getElementById('containerWidth').value);
+            const containerH = parseFloat(document.getElementById('containerHeight').value);
+            
+            const boxL = parseFloat(document.getElementById('boxLength').value);
+            const boxW = parseFloat(document.getElementById('boxWidth').value);
+            const boxH = parseFloat(document.getElementById('boxHeight').value);
+            
+            const allowRotation = document.getElementById('allowRotation').checked;
+            const selectedPatternElement = document.querySelector('input[name="layoutPattern"]:checked');
+            
+            if (!selectedPatternElement) {
+                showJiffyAlert('Mohon pilih pola penataan!', 'error');
+                return;
+            }
+            
+            const selectedPattern = selectedPatternElement.value;
+
+            // Enhanced validation
+            if (!containerL || !containerW || !containerH || containerL <= 0 || containerW <= 0 || containerH <= 0) {
+                showJiffyAlert('Mohon isi semua ukuran kontainer dengan benar!', 'error');
+                return;
+            }
+            
+            if (!boxL || !boxW || !boxH || boxL <= 0 || boxW <= 0 || boxH <= 0) {
+                showJiffyAlert('Mohon isi semua ukuran kotak dengan benar!', 'error');
+                return;
+            }
+            
+            // Check if box fits in container
+            if (boxL > containerL || boxW > containerW || boxH > containerH) {
+                if (!allowRotation || (boxW > containerL || boxL > containerW || boxH > containerH)) {
+                    showJiffyAlert('Kotak terlalu besar untuk kontainer!', 'error');
+                    return;
+                }
+            }
+
+            // Show loading state
+            document.getElementById('resultsContainer').innerHTML = `
+                <div class="text-center py-12">
+                    <div class="loading-spinner mx-auto mb-6"></div>
+                    <p class="text-xl font-semibold text-gray-700 mb-2">Menghitung layout ${selectedPattern}...</p>
+                    <div class="w-64 mx-auto bg-gray-200 rounded-full h-2 mb-4">
+                        <div class="jiffy-progress-bar h-2 rounded-full"></div>
+                    </div>
+                    <p class="text-sm text-gray-500">Menganalisis konfigurasi optimal...</p>
+                </div>
+            `;
+
+            // Calculate scenarios
+            setTimeout(() => {
+                const scenarios = [];
+                let optimal;
+
+                if (selectedPattern === 'optimal') {
+                    const normal = calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, 'Normal', false);
+                    scenarios.push(normal);
+
+                    if (allowRotation) {
+                        const rotated = calculateScenario(containerL, containerW, containerH, boxW, boxL, boxH, 'Rotasi 90°', true);
+                        scenarios.push(rotated);
+                        
+                        const mixed = calculateMixedLayout(containerL, containerW, containerH, boxL, boxW, boxH);
+                        scenarios.push(mixed);
+                    }
+
+                    optimal = scenarios.reduce((best, current) => 
+                        current.totalBoxes > best.totalBoxes ? current : best
+                    );
+                } else {
+                    switch (selectedPattern) {
+                        case 'normal':
+                            optimal = calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, 'Normal', false);
+                            break;
+                        case 'zigzag':
+                            optimal = calculateZigZagLayout(containerL, containerW, containerH, boxL, boxW, boxH);
+                            break;
+                        case 'offset':
+                            optimal = calculateOffsetLayout(containerL, containerW, containerH, boxL, boxW, boxH);
+                            break;
+                    }
+                    scenarios.push(optimal);
+                }
+
+                // Calculate metrics
+                const containerVolume = containerL * containerW * containerH;
+                const boxVolume = boxL * boxW * boxH;
+                const wastedSpace = containerVolume - (optimal.totalBoxes * boxVolume);
+
+                calculationResults = {
+                    scenarios: scenarios,
+                    optimal: optimal,
+                    containerDimensions: { length: containerL, width: containerW, height: containerH },
+                    boxDimensions: { length: boxL, width: boxW, height: boxH },
+                    metrics: {
+                        containerVolume: containerVolume,
+                        boxVolume: boxVolume,
+                        wastedSpace: wastedSpace,
+                        spaceSavings: ((optimal.totalBoxes * boxVolume) / containerVolume * 100).toFixed(1)
+                    }
+                };
+
+                displayResults();
+                createVisualization();
+                showJiffyAlert('Perhitungan selesai! 🎉', 'success');
+            }, 2000);
+        }
+
+        function calculateScenario(containerL, containerW, containerH, boxL, boxW, boxH, name, isRotated = false) {
+            const boxesPerWidth = Math.floor(containerW / boxW);
+            const boxesPerHeight = Math.floor(containerH / boxH);
+            const boxesPerLayer = boxesPerWidth * boxesPerHeight;
+            const layers = Math.floor(containerL / boxL);
+            const totalBoxes = boxesPerLayer * layers;
+            
+            const usedVolume = totalBoxes * (boxL * boxW * boxH);
+            const containerVolume = containerL * containerW * containerH;
+            const efficiency = (usedVolume / containerVolume) * 100;
+
+            return {
+                name: name,
+                boxesPerRow: boxesPerWidth,
+                boxesPerCol: boxesPerHeight,
+                boxesPerLayer: boxesPerLayer,
+                layers: layers,
+                totalBoxes: totalBoxes,
+                efficiency: efficiency.toFixed(1),
+                layout: generateLayoutPattern(boxesPerWidth, boxesPerHeight, layers, isRotated)
+            };
+        }
+
+        function calculateMixedLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
+            let bestResult = { totalBoxes: 0 };
+            
+            const normalPerWidth = Math.floor(containerW / boxW);
+            const normalPerHeight = Math.floor(containerH / boxH);
+            const rotatedPerWidth = Math.floor(containerW / boxL);
+            const rotatedPerHeight = Math.floor(containerH / boxW);
+            
+            for (let normalHeight = 0; normalHeight <= normalPerHeight; normalHeight++) {
+                const remainingHeight = containerH - (normalHeight * boxH);
+                const rotatedHeight = Math.floor(remainingHeight / boxW);
+                
+                const totalBoxesPerLayer = (normalHeight * normalPerWidth) + (rotatedHeight * rotatedPerWidth);
+                const layers = Math.floor(containerL / boxL);
+                const totalBoxes = totalBoxesPerLayer * layers;
+                
+                if (totalBoxes > bestResult.totalBoxes) {
+                    const usedVolume = totalBoxes * (boxL * boxW * boxH);
+                    const containerVolume = containerL * containerW * containerH;
+                    const efficiency = (usedVolume / containerVolume) * 100;
+                    
+                    bestResult = {
+                        name: 'Kombinasi Optimal',
+                        boxesPerRow: Math.max(normalPerWidth, rotatedPerWidth),
+                        boxesPerCol: normalHeight + rotatedHeight,
+                        boxesPerLayer: totalBoxesPerLayer,
+                        layers: layers,
+                        totalBoxes: totalBoxes,
+                        efficiency: efficiency.toFixed(1),
+                        layout: generateMixedLayoutPattern(normalPerWidth, rotatedPerWidth, normalHeight, rotatedHeight, layers)
+                    };
+                }
+            }
+            
+            return bestResult;
+        }
+
+        function calculateZigZagLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
+            const normalPerWidth = Math.floor(containerW / boxW);
+            const rotatedPerWidth = Math.floor(containerW / boxL);
+            
+            let totalHeight = 0;
+            let currentHeight = 0;
+            let alternateNormal = true;
+            
+            while (currentHeight < containerH) {
+                const nextRowHeight = alternateNormal ? boxH : boxW;
+                if (currentHeight + nextRowHeight <= containerH) {
+                    currentHeight += nextRowHeight;
+                    totalHeight++;
+                    alternateNormal = !alternateNormal;
+                } else {
+                    break;
+                }
+            }
+            
+            const normalRowCount = Math.ceil(totalHeight / 2);
+            const rotatedRowCount = Math.floor(totalHeight / 2);
+            const boxesPerLayer = (normalRowCount * normalPerWidth) + (rotatedRowCount * rotatedPerWidth);
+            const layers = Math.floor(containerL / boxL);
+            const totalBoxes = boxesPerLayer * layers;
+            
+            const usedVolume = totalBoxes * (boxL * boxW * boxH);
+            const containerVolume = containerL * containerW * containerH;
+            const efficiency = (usedVolume / containerVolume) * 100;
+            
+            return {
+                name: 'Pola Zig-Zag',
+                boxesPerRow: Math.max(normalPerWidth, rotatedPerWidth),
+                boxesPerCol: totalHeight,
+                boxesPerLayer: boxesPerLayer,
+                layers: layers,
+                totalBoxes: totalBoxes,
+                efficiency: efficiency.toFixed(1),
+                layout: generateZigZagLayoutPattern(normalPerWidth, rotatedPerWidth, normalRowCount, rotatedRowCount, layers)
+            };
+        }
+
+        function calculateOffsetLayout(containerL, containerW, containerH, boxL, boxW, boxH) {
+            const boxesPerWidth = Math.floor(containerW / boxW);
+            const boxesPerHeight = Math.floor(containerH / boxH);
+            
+            const offsetShift = boxW / 2;
+            const offsetBoxesPerWidth = Math.floor((containerW - offsetShift) / boxW);
+            
+            const fullRows = Math.ceil(boxesPerHeight / 2);
+            const offsetRows = Math.floor(boxesPerHeight / 2);
+            
+            const boxesPerLayer = (fullRows * boxesPerWidth) + (offsetRows * offsetBoxesPerWidth);
+            const layers = Math.floor(containerL / boxL);
+            const totalBoxes = boxesPerLayer * layers;
+            
+            const usedVolume = totalBoxes * (boxL * boxW * boxH);
+            const containerVolume = containerL * containerW * containerH;
+            const efficiency = (usedVolume / containerVolume) * 100;
+            
+            return {
+                name: 'Pola Offset',
+                boxesPerRow: boxesPerWidth,
+                boxesPerCol: boxesPerHeight,
+                boxesPerLayer: boxesPerLayer,
+                layers: layers,
+                totalBoxes: totalBoxes,
+                efficiency: efficiency.toFixed(1),
+                layout: generateOffsetLayoutPattern(boxesPerWidth, offsetBoxesPerWidth, fullRows, offsetRows, layers)
+            };
+        }
+
+        function generateLayoutPattern(boxesPerRow, boxesPerCol, layers, isRotated) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                for (let col = 0; col < boxesPerCol; col++) {
+                    const row = [];
+                    for (let r = 0; r < boxesPerRow; r++) {
+                        row.push({ rotated: isRotated, type: isRotated ? 'rotated' : 'normal' });
+                    }
+                    layerPattern.push(row);
+                }
+                pattern.push(layerPattern);
+            }
+            return pattern;
+        }
+
+        function generateMixedLayoutPattern(normalPerRow, rotatedPerRow, normalRows, rotatedRows, layers) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                
+                for (let col = 0; col < normalRows; col++) {
+                    const row = [];
+                    for (let r = 0; r < normalPerRow; r++) {
+                        row.push({ rotated: false, type: 'normal' });
+                    }
+                    layerPattern.push(row);
+                }
+                
+                for (let col = 0; col < rotatedRows; col++) {
+                    const row = [];
+                    for (let r = 0; r < rotatedPerRow; r++) {
+                        row.push({ rotated: true, type: 'rotated' });
+                    }
+                    layerPattern.push(row);
+                }
+                
+                pattern.push(layerPattern);
+            }
+            return pattern;
+        }
+
+        function generateZigZagLayoutPattern(normalPerRow, rotatedPerRow, normalRowCount, rotatedRowCount, layers) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                let isNormalRow = true;
+                
+                for (let row = 0; row < (normalRowCount + rotatedRowCount); row++) {
+                    const rowPattern = [];
+                    const boxesInThisRow = isNormalRow ? normalPerRow : rotatedPerRow;
+                    
+                    for (let col = 0; col < boxesInThisRow; col++) {
+                        rowPattern.push({ 
+                            rotated: !isNormalRow, 
+                            type: isNormalRow ? 'normal' : 'rotated',
+                            zigzag: true 
+                        });
+                    }
+                    
+                    layerPattern.push(rowPattern);
+                    isNormalRow = !isNormalRow;
+                }
+                
+                pattern.push(layerPattern);
+            }
+            return pattern;
+        }
+
+        function generateOffsetLayoutPattern(boxesPerRow, offsetBoxesPerRow, fullRows, offsetRows, layers) {
+            const pattern = [];
+            for (let layer = 0; layer < layers; layer++) {
+                const layerPattern = [];
+                let isFullRow = true;
+                
+                for (let row = 0; row < (fullRows + offsetRows); row++) {
+                    const rowPattern = [];
+                    const boxesInThisRow = isFullRow ? boxesPerRow : offsetBoxesPerRow;
+                    
+                    for (let col = 0; col < boxesInThisRow; col++) {
+                        rowPattern.push({ 
+                            rotated: false, 
+                            type: 'normal',
+                            offset: !isFullRow,
+                            offsetShift: !isFullRow ? 0.5 : 0
+                        });
+                    }
+                    
+                    layerPattern.push(rowPattern);
+                    isFullRow = !isFullRow;
+                }
+                
+                pattern.push(layerPattern);
+            }
+            return pattern;
+        }
+
+        function displayResults() {
+            const container = document.getElementById('resultsContainer');
+            const { scenarios, optimal, metrics } = calculationResults;
+            
+            let html = `
+                <div class="p-6 rounded-2xl border-l-4 border-green-500 mb-8 jiffy-success" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(59, 130, 246, 0.1));">
+                    <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                        <span class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white mr-3 jiffy-pulse">🏆</span>
+                        Layout Optimal: ${optimal.name}
+                    </h3>
+                    <div class="grid grid-cols-2 gap-6 mb-6">
+                        <div class="text-center jiffy-bounce jiffy-stagger-1">
+                            <div class="text-4xl font-bold gradient-text">${optimal.totalBoxes}</div>
+                            <div class="text-sm font-semibold text-gray-600">Total Kotak</div>
+                        </div>
+                        <div class="text-center jiffy-bounce jiffy-stagger-2">
+                            <div class="text-4xl font-bold gradient-text">${optimal.efficiency}%</div>
+                            <div class="text-sm font-semibold text-gray-600">Efisiensi</div>
+                        </div>
+                        <div class="text-center jiffy-bounce jiffy-stagger-3">
+                            <div class="text-2xl font-bold text-gray-700">${optimal.boxesPerLayer}</div>
+                            <div class="text-sm font-semibold text-gray-600">Kotak per Lapisan</div>
+                        </div>
+                        <div class="text-center jiffy-bounce jiffy-stagger-4">
+                            <div class="text-2xl font-bold text-gray-700">${optimal.layers}</div>
+                            <div class="text-sm font-semibold text-gray-600">Lapisan Tinggi</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-6 rounded-2xl mb-8 jiffy-slide-up" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05));">
+                    <h4 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                        <span class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white mr-3 jiffy-pulse">📊</span>
+                        Analisis Mendalam
+                    </h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-1">
+                            <div class="text-gray-600 font-semibold mb-1">Volume Kontainer</div>
+                            <div class="text-2xl font-bold gradient-text">${(metrics.containerVolume / 1000000).toFixed(2)} m³</div>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-2">
+                            <div class="text-gray-600 font-semibold mb-1">Volume Terpakai</div>
+                            <div class="text-2xl font-bold text-green-600">${metrics.spaceSavings}%</div>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-3">
+                            <div class="text-gray-600 font-semibold mb-1">Ruang Terbuang</div>
+                            <div class="text-2xl font-bold text-red-600">${(metrics.wastedSpace / 1000000).toFixed(2)} m³</div>
+                        </div>
+                        <div class="metric-card p-4 rounded-xl jiffy-hover-lift jiffy-fade-in jiffy-stagger-4">
+                            <div class="text-gray-600 font-semibold mb-1">Kotak per m³</div>
+                            <div class="text-2xl font-bold text-purple-600">${(optimal.totalBoxes / (metrics.containerVolume / 1000000)).toFixed(0)}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-4 jiffy-slide-up">
+                    <h4 class="text-xl font-bold text-gray-700 flex items-center">
+                        <span class="w-8 h-8 bg-gradient-to-r from-gray-500 to-gray-700 rounded-full flex items-center justify-center text-white text-sm mr-3 jiffy-pulse">📋</span>
+                        Perbandingan Semua Skenario
+                    </h4>
+            `;
+            
+            scenarios.forEach((scenario, index) => {
+                const isOptimal = scenario === optimal;
+                html += `
+                    <div class="p-4 rounded-xl border-2 ${isOptimal ? 'border-green-300' : 'border-gray-200'} jiffy-fade-in jiffy-stagger-${index + 1} jiffy-hover-lift" style="background: ${isOptimal ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.05), rgba(59, 130, 246, 0.05))' : 'rgba(255, 255, 255, 0.8)'};">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-lg font-bold ${isOptimal ? 'text-green-800' : 'text-gray-700'}">${scenario.name}</span>
+                            ${isOptimal ? '<span class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-3 py-1 rounded-full text-xs font-bold jiffy-bounce">OPTIMAL ✨</span>' : ''}
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 text-sm">
+                            <div class="text-center">
+                                <div class="font-bold text-xl ${isOptimal ? 'text-green-600' : 'text-gray-700'}">${scenario.totalBoxes}</div>
+                                <div class="text-gray-600">Total</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-gray-700">${scenario.boxesPerLayer}</div>
+                                <div class="text-gray-600">Per Sap</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg text-gray-700">${scenario.layers}</div>
+                                <div class="text-gray-600">Jumlah Sap</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="font-bold text-lg ${isOptimal ? 'text-blue-600' : 'text-gray-700'}">${scenario.efficiency}%</div>
+                                <div class="text-gray-600">Efisiensi</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function createVisualization() {
+            // Always start with 2D mode by default
+            currentVisualizationMode = '2d';
+            document.getElementById('toggle3DMode').textContent = '🎮 Mode 3D';
+            document.getElementById('threeDControls').classList.add('hidden');
+            create2DVisualization();
+            setupLayerControls();
+        }
+
+        function toggle3DVisualization() {
+            if (!calculationResults) {
+                showJiffyAlert('Mohon hitung layout terlebih dahulu!', 'warning');
+                return;
+            }
+
+            const button = document.getElementById('toggle3DMode');
+            button.disabled = true;
+            
+            if (currentVisualizationMode === '2d') {
+                // Switch to 3D mode
+                currentVisualizationMode = '3d';
+                button.textContent = '⏳ Loading 3D...';
+                button.classList.add('jiffy-bounce');
+                
+                setTimeout(() => {
+                    try {
+                        document.getElementById('threeDControls').classList.remove('hidden');
+                        document.getElementById('threeDControls').classList.add('jiffy-zoom-in');
+                        init3DVisualization();
+                        button.textContent = '📋 Mode 2D';
+                        button.disabled = false;
+                        showJiffyAlert('Mode 3D aktif! 🎮', 'success');
+                    } catch (error) {
+                        console.error('3D initialization failed:', error);
+                        currentVisualizationMode = '2d';
+                        button.textContent = '🎮 Mode 3D';
+                        document.getElementById('threeDControls').classList.add('hidden');
+                        create2DVisualization();
+                        button.disabled = false;
+                        showJiffyAlert('3D mode tidak tersedia, menggunakan 2D', 'warning');
+                    }
+                    button.classList.remove('jiffy-bounce');
+                }, 500);
+                
+            } else {
+                // Switch to 2D mode
+                currentVisualizationMode = '2d';
+                button.textContent = '⏳ Loading 2D...';
+                button.classList.add('jiffy-bounce');
+                
+                setTimeout(() => {
+                    document.getElementById('threeDControls').classList.add('hidden');
+                    cleanup3D();
+                    create2DVisualization();
+                    button.textContent = '🎮 Mode 3D';
+                    button.disabled = false;
+                    button.classList.remove('jiffy-bounce');
+                    showJiffyAlert('Mode 2D aktif! 📋', 'success');
+                }, 300);
+            }
+        }
+
+        function init3DVisualization() {
+            if (!calculationResults) {
+                throw new Error('No calculation results available');
+            }
+
+            // Check if Three.js is available
+            if (typeof THREE === 'undefined') {
+                throw new Error('Three.js library not loaded');
+            }
+
+            try {
+                cleanup3D();
+
+                const container = document.getElementById('visualizationContainer');
+                const threejsContainer = document.getElementById('threejs-container');
+                
+                if (!container || !threejsContainer) {
+                    throw new Error('Required DOM elements not found');
+                }
+
+                container.style.display = 'none';
+                threejsContainer.style.display = 'block';
+                threejsContainer.classList.add('jiffy-zoom-in');
+            
+            // Setup Three.js scene with enhanced settings
+            scene = new THREE.Scene();
+            
+            // Enhanced background with gradient
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(256, 256, 0, 256, 256, 256);
+            gradient.addColorStop(0, '#f8fafc');
+            gradient.addColorStop(0.5, '#e2e8f0');
+            gradient.addColorStop(1, '#cbd5e1');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 512, 512);
+            
+            const backgroundTexture = new THREE.CanvasTexture(canvas);
+            scene.background = backgroundTexture;
+            
+            // Add fog for depth perception
+            scene.fog = new THREE.Fog(0xe2e8f0, 50, 200);
+
+            // Enhanced camera with better positioning
+            camera = new THREE.PerspectiveCamera(60, threejsContainer.clientWidth / 600, 0.1, 2000);
+            camera.position.set(80, 60, 80);
+
+            // Enhanced renderer with better quality
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setSize(threejsContainer.clientWidth, 600);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
+            threejsContainer.appendChild(renderer.domElement);
+
+            // Enhanced controls with smooth interaction
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.08;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 30;
+            controls.maxDistance = 200;
+            controls.maxPolarAngle = Math.PI / 2;
+            controls.autoRotate = false;
+            controls.autoRotateSpeed = 0.5;
+
+            // Professional lighting setup
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+            scene.add(ambientLight);
+
+            // Main directional light with enhanced shadows
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            directionalLight.position.set(100, 80, 50);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 4096;
+            directionalLight.shadow.mapSize.height = 4096;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 500;
+            directionalLight.shadow.camera.left = -100;
+            directionalLight.shadow.camera.right = 100;
+            directionalLight.shadow.camera.top = 100;
+            directionalLight.shadow.camera.bottom = -100;
+            directionalLight.shadow.bias = -0.0001;
+            scene.add(directionalLight);
+
+            // Secondary fill light
+            const fillLight = new THREE.DirectionalLight(0x87ceeb, 0.6);
+            fillLight.position.set(-50, 40, -30);
+            scene.add(fillLight);
+
+            // Rim light for dramatic effect
+            const rimLight = new THREE.DirectionalLight(0xffa500, 0.4);
+            rimLight.position.set(0, 20, -80);
+            scene.add(rimLight);
+
+            // Point lights for accent
+            const pointLight1 = new THREE.PointLight(0x3b82f6, 0.8, 100);
+            pointLight1.position.set(30, 40, 30);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0x8b5cf6, 0.6, 80);
+            pointLight2.position.set(-20, 30, -20);
+            scene.add(pointLight2);
+
+            // Create enhanced container
+            createContainer3D();
+            
+            // Create enhanced boxes
+            createBoxes3D();
+
+            // Add environment elements (removed warehouse setting)
+            createSimpleEnvironment3D();
+
+            // Start enhanced animation loop
+            animate3D();
+            
+            } catch (error) {
+                console.error('3D Visualization Error:', error);
+                showJiffyAlert('Error initializing 3D view. Switching to 2D mode.', 'error');
+                currentVisualizationMode = '2d';
+                document.getElementById('toggle3DMode').textContent = '🎮 Mode 3D';
+                document.getElementById('threeDControls').classList.add('hidden');
+                create2DVisualization();
+            }
+        }
+
+        function createSimpleEnvironment3D() {
+            // Create simple ground plane
+            const groundGeometry = new THREE.PlaneGeometry(200, 200);
+            const groundMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xf1f5f9,
+                metalness: 0.1,
+                roughness: 0.9
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+        }
+
+        function createContainer3D() {
+            const { containerDimensions } = calculationResults;
+            
+            // Clean up existing container
+            if (containerMesh) {
+                scene.remove(containerMesh);
+                containerMesh = null;
+            }
+            
+            // Create container group
+            containerMesh = new THREE.Group();
+            
+            // Container dimensions in Three.js units (scaled down by 10)
+            const length = containerDimensions.length / 10;
+            const width = containerDimensions.width / 10;
+            const height = containerDimensions.height / 10;
+            
+            // Enhanced container structure
+            const wallThickness = 0.8;
+            
+            // Create realistic metal texture for container walls
+            const metalCanvas = document.createElement('canvas');
+            metalCanvas.width = 512;
+            metalCanvas.height = 512;
+            const metalCtx = metalCanvas.getContext('2d');
+            
+            // Create corrugated metal pattern
+            const gradient = metalCtx.createLinearGradient(0, 0, 0, 512);
+            gradient.addColorStop(0, '#6b7280');
+            gradient.addColorStop(0.3, '#4b5563');
+            gradient.addColorStop(0.7, '#374151');
+            gradient.addColorStop(1, '#1f2937');
+            metalCtx.fillStyle = gradient;
+            metalCtx.fillRect(0, 0, 512, 512);
+            
+            // Add corrugated lines
+            metalCtx.strokeStyle = '#9ca3af';
+            metalCtx.lineWidth = 2;
+            for (let i = 0; i < 512; i += 16) {
+                metalCtx.beginPath();
+                metalCtx.moveTo(0, i);
+                metalCtx.lineTo(512, i);
+                metalCtx.stroke();
+            }
+            
+            // Add vertical reinforcement lines
+            metalCtx.strokeStyle = '#d1d5db';
+            metalCtx.lineWidth = 1;
+            for (let i = 0; i < 512; i += 64) {
+                metalCtx.beginPath();
+                metalCtx.moveTo(i, 0);
+                metalCtx.lineTo(i, 512);
+                metalCtx.stroke();
+            }
+            
+            const metalTexture = new THREE.CanvasTexture(metalCanvas);
+            metalTexture.wrapS = THREE.RepeatWrapping;
+            metalTexture.wrapT = THREE.RepeatWrapping;
+            metalTexture.repeat.set(4, 4);
+            
+            // Enhanced wall material with realistic properties
+            const wallMaterial = new THREE.MeshStandardMaterial({
+                map: metalTexture,
+                color: 0x6b7280,
+                metalness: 0.8,
+                roughness: 0.4,
+                transparent: true,
+                opacity: 0.9,
+                side: THREE.DoubleSide
+            });
+            
+            // Create wooden floor texture
+            const floorCanvas = document.createElement('canvas');
+            floorCanvas.width = 512;
+            floorCanvas.height = 512;
+            const floorCtx = floorCanvas.getContext('2d');
+            
+            // Wood grain pattern
+            const woodGradient = floorCtx.createLinearGradient(0, 0, 512, 0);
+            woodGradient.addColorStop(0, '#8b4513');
+            woodGradient.addColorStop(0.3, '#a0522d');
+            woodGradient.addColorStop(0.6, '#8b4513');
+            woodGradient.addColorStop(1, '#654321');
+            floorCtx.fillStyle = woodGradient;
+            floorCtx.fillRect(0, 0, 512, 512);
+            
+            // Add wood planks
+            floorCtx.strokeStyle = '#654321';
+            floorCtx.lineWidth = 3;
+            for (let i = 0; i < 512; i += 64) {
+                floorCtx.beginPath();
+                floorCtx.moveTo(0, i);
+                floorCtx.lineTo(512, i);
+                floorCtx.stroke();
+            }
+            
+            const floorTexture = new THREE.CanvasTexture(floorCanvas);
+            floorTexture.wrapS = THREE.RepeatWrapping;
+            floorTexture.wrapT = THREE.RepeatWrapping;
+            floorTexture.repeat.set(8, 8);
+            
+            // Enhanced floor with realistic wood material
+            const floorGeometry = new THREE.BoxGeometry(length, 1, width);
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                map: floorTexture,
+                color: 0x8b4513,
+                metalness: 0.1,
+                roughness: 0.8
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.position.set(length/2, 0.5, width/2);
+            floor.receiveShadow = true;
+            floor.castShadow = true;
+            containerMesh.add(floor);
+            
+            // Enhanced walls with proper geometry and materials
+            const leftWallGeometry = new THREE.BoxGeometry(wallThickness, height, width);
+            const leftWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            leftWall.position.set(wallThickness/2, height/2, width/2);
+            leftWall.castShadow = true;
+            leftWall.receiveShadow = true;
+            containerMesh.add(leftWall);
+            
+            const rightWall = new THREE.Mesh(leftWallGeometry, wallMaterial);
+            rightWall.position.set(length - wallThickness/2, height/2, width/2);
+            rightWall.castShadow = true;
+            rightWall.receiveShadow = true;
+            containerMesh.add(rightWall);
+            
+            const frontWallGeometry = new THREE.BoxGeometry(length, height, wallThickness);
+            const frontWall = new THREE.Mesh(frontWallGeometry, wallMaterial);
+            frontWall.position.set(length/2, height/2, wallThickness/2);
+            frontWall.castShadow = true;
+            frontWall.receiveShadow = true;
+            containerMesh.add(frontWall);
+            
+            // Enhanced doors with realistic hinges and handles
+            const doorWidth = width * 0.45;
+            const doorHeight = height - 4;
+            
+            // Create door material with different texture
+            const doorMaterial = new THREE.MeshStandardMaterial({
+                map: metalTexture,
+                color: 0x4b5563,
+                metalness: 0.9,
+                roughness: 0.3,
+                transparent: true,
+                opacity: 0.95
+            });
+            
+            const leftDoorGeometry = new THREE.BoxGeometry(wallThickness, doorHeight, doorWidth);
+            const leftDoor = new THREE.Mesh(leftDoorGeometry, doorMaterial);
+            leftDoor.position.set(length - wallThickness/2, doorHeight/2 + 2, doorWidth/2);
+            leftDoor.userData = { isLeftDoor: true, isOpen: false };
+            leftDoor.castShadow = true;
+            leftDoor.receiveShadow = true;
+            
+            // Add door handle
+            const handleGeometry = new THREE.CylinderGeometry(0.3, 0.3, 2, 8);
+            const handleMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0xffd700, 
+                metalness: 1.0, 
+                roughness: 0.1 
+            });
+            const leftHandle = new THREE.Mesh(handleGeometry, handleMaterial);
+            leftHandle.rotation.z = Math.PI / 2;
+            leftHandle.position.set(0.5, 0, doorWidth * 0.8);
+            leftDoor.add(leftHandle);
+            
+            containerMesh.add(leftDoor);
+            
+            const rightDoor = new THREE.Mesh(leftDoorGeometry, doorMaterial);
+            rightDoor.position.set(length - wallThickness/2, doorHeight/2 + 2, width - doorWidth/2);
+            rightDoor.userData = { isRightDoor: true, isOpen: false };
+            rightDoor.castShadow = true;
+            rightDoor.receiveShadow = true;
+            
+            // Add door handle
+            const rightHandle = new THREE.Mesh(handleGeometry, handleMaterial);
+            rightHandle.rotation.z = Math.PI / 2;
+            rightHandle.position.set(0.5, 0, -doorWidth * 0.8);
+            rightDoor.add(rightHandle);
+            
+            containerMesh.add(rightDoor);
+            
+            // Store door references
+            containerMesh.userData.leftDoor = leftDoor;
+            containerMesh.userData.rightDoor = rightDoor;
+            
+            // Enhanced structural elements
+            // Corner reinforcements
+            const cornerGeometry = new THREE.BoxGeometry(2, height, 2);
+            const cornerMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x374151, 
+                metalness: 0.9, 
+                roughness: 0.2 
+            });
+            
+            // Add corner posts
+            const corners = [
+                [1, height/2, 1],
+                [length-1, height/2, 1],
+                [1, height/2, width-1],
+                [length-1, height/2, width-1]
+            ];
+            
+            corners.forEach(pos => {
+                const corner = new THREE.Mesh(cornerGeometry, cornerMaterial);
+                corner.position.set(...pos);
+                corner.castShadow = true;
+                corner.receiveShadow = true;
+                containerMesh.add(corner);
+            });
+            
+            // Top frame
+            const topFrameGeometry = new THREE.BoxGeometry(length, 1, 1);
+            const topFrame = new THREE.Mesh(topFrameGeometry, cornerMaterial);
+            topFrame.position.set(length/2, height, 0.5);
+            topFrame.castShadow = true;
+            containerMesh.add(topFrame);
+            
+            const topFrame2 = new THREE.Mesh(topFrameGeometry, cornerMaterial);
+            topFrame2.position.set(length/2, height, width - 0.5);
+            topFrame2.castShadow = true;
+            containerMesh.add(topFrame2);
+            
+            // Enhanced wireframe with professional styling
+            const outlineGeometry = new THREE.EdgesGeometry(new THREE.BoxGeometry(length, height, width));
+            const outlineMaterial = new THREE.LineBasicMaterial({ 
+                color: 0x1f2937, 
+                linewidth: 2,
+                transparent: true,
+                opacity: 0.8
+            });
+            const outline = new THREE.LineSegments(outlineGeometry, outlineMaterial);
+            outline.position.set(length/2, height/2, width/2);
+            containerMesh.add(outline);
+            
+            // Add container branding/labels
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 256;
+            labelCanvas.height = 128;
+            const labelCtx = labelCanvas.getContext('2d');
+            labelCtx.fillStyle = '#ffffff';
+            labelCtx.fillRect(0, 0, 256, 128);
+            labelCtx.fillStyle = '#1f2937';
+            labelCtx.font = 'bold 24px Arial';
+            labelCtx.textAlign = 'center';
+            labelCtx.fillText('CONTAINER', 128, 40);
+            labelCtx.font = '16px Arial';
+            labelCtx.fillText(`${containerDimensions.length}×${containerDimensions.width}×${containerDimensions.height}cm`, 128, 70);
+            labelCtx.fillText('CARGO', 128, 95);
+            
+            const labelTexture = new THREE.CanvasTexture(labelCanvas);
+            const labelMaterial = new THREE.MeshBasicMaterial({ 
+                map: labelTexture,
+                transparent: true
+            });
+            const labelGeometry = new THREE.PlaneGeometry(8, 4);
+            const label = new THREE.Mesh(labelGeometry, labelMaterial);
+            label.position.set(length/2, height * 0.8, wallThickness + 0.1);
+            containerMesh.add(label);
+            
+            containerMesh.position.set(0, 0, 0);
+            scene.add(containerMesh);
+        }
+
+        function createBoxes3D() {
+            const { optimal, boxDimensions } = calculationResults;
+            const showAllLayers = document.getElementById('showAllLayers').checked;
+            const currentLayer = parseInt(document.getElementById('layerSlider').value) - 1;
+            
+            // Clean up existing boxes properly
+            boxMeshes.forEach(mesh => {
+                if (mesh.parent) {
+                    mesh.parent.remove(mesh);
+                }
+                if (mesh.geometry) mesh.geometry.dispose();
+                if (mesh.material) {
+                    if (Array.isArray(mesh.material)) {
+                        mesh.material.forEach(mat => mat.dispose());
+                    } else {
+                        mesh.material.dispose();
+                    }
+                }
+            });
+            boxMeshes = [];
+
+            const startLayer = showAllLayers ? 0 : currentLayer;
+            const endLayer = showAllLayers ? optimal.layers : currentLayer + 1;
+
+            // Create premium whitecraft/browncraft box materials with ultra-realistic textures
+            const createBoxTexture = (color, pattern) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512;
+                canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+                
+                // Create realistic cardboard base colors
+                let baseColor, shadowColor, highlightColor;
+                if (pattern === 'whitecraft') {
+                    baseColor = '#f8f9fa';
+                    shadowColor = '#e9ecef';
+                    highlightColor = '#ffffff';
+                } else {
+                    // browncraft
+                    baseColor = '#d4a574';
+                    shadowColor = '#b8956a';
+                    highlightColor = '#e6c08a';
+                }
+                
+                // Create realistic cardboard gradient
+                const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 300);
+                gradient.addColorStop(0, highlightColor);
+                gradient.addColorStop(0.4, baseColor);
+                gradient.addColorStop(0.8, shadowColor);
+                gradient.addColorStop(1, adjustBrightness(shadowColor, -15));
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 512, 512);
+                
+                // Add realistic cardboard fiber texture
+                ctx.globalCompositeOperation = 'multiply';
+                for (let i = 0; i < 2000; i++) {
+                    const x = Math.random() * 512;
+                    const y = Math.random() * 512;
+                    const size = Math.random() * 2 + 0.5;
+                    const opacity = Math.random() * 0.08 + 0.02;
+                    ctx.fillStyle = `rgba(139,69,19,${opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Add cardboard grain lines
+                ctx.strokeStyle = `rgba(139,69,19,0.15)`;
+                ctx.lineWidth = 0.5;
+                for (let i = 0; i < 512; i += Math.random() * 8 + 4) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, i);
+                    ctx.lineTo(512, i + Math.random() * 4 - 2);
+                    ctx.stroke();
+                }
+                ctx.globalCompositeOperation = 'source-over';
+                
+                // Add realistic cardboard patterns based on box type
+                if (pattern === 'normal' || pattern === 'whitecraft') {
+                    // Realistic cardboard corrugated texture
+                    ctx.strokeStyle = 'rgba(139,69,19,0.2)';
+                    ctx.lineWidth = 1.5;
+                    for (let i = 0; i < 512; i += 32) {
+                        ctx.beginPath();
+                        ctx.moveTo(0, i);
+                        ctx.lineTo(512, i);
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i, 512);
+                        ctx.stroke();
+                    }
+                    
+                    // Realistic packing tape with transparency and shine
+                    const tapeColor = pattern === 'whitecraft' ? 'rgba(220,220,220,0.8)' : 'rgba(210,180,140,0.8)';
+                    const tapeGradient = ctx.createLinearGradient(0, 250, 0, 266);
+                    tapeGradient.addColorStop(0, tapeColor);
+                    tapeGradient.addColorStop(0.3, 'rgba(255,255,255,0.6)');
+                    tapeGradient.addColorStop(0.7, tapeColor);
+                    tapeGradient.addColorStop(1, adjustBrightness(tapeColor, -20));
+                    ctx.fillStyle = tapeGradient;
+                    ctx.fillRect(0, 250, 512, 16);
+                    ctx.fillRect(248, 0, 16, 512);
+                    
+                    // Add realistic tape edges and bubbles
+                    ctx.strokeStyle = 'rgba(160,160,160,0.6)';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(0, 250, 512, 16);
+                    ctx.strokeRect(248, 0, 16, 512);
+                    
+                    // Add small air bubbles in tape
+                    for (let i = 0; i < 8; i++) {
+                        const x = Math.random() * 512;
+                        const y = 250 + Math.random() * 16;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 1, 0, Math.PI * 2);
+                        ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                        ctx.fill();
+                    }
+                    
+                } else if (pattern === 'rotated') {
+                    // Rotated cardboard with diagonal corrugation
+                    ctx.strokeStyle = 'rgba(139,69,19,0.25)';
+                    ctx.lineWidth = 2;
+                    for (let i = -512; i < 1024; i += 28) {
+                        ctx.beginPath();
+                        ctx.moveTo(i, 0);
+                        ctx.lineTo(i + 512, 512);
+                        ctx.stroke();
+                    }
+                    
+                    // Add rotation indicator with cardboard style
+                    ctx.fillStyle = 'rgba(139,69,19,0.4)';
+                    ctx.font = 'bold 36px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('↻', 256, 280);
+                    
+                    // Add shadow to rotation symbol
+                    ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                    ctx.fillText('↻', 258, 282);
+                    
+                } else if (pattern === 'zigzag') {
+                    // Zigzag pattern with cardboard texture
+                    ctx.strokeStyle = 'rgba(139,69,19,0.3)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    for (let x = 0; x < 512; x += 6) {
+                        const y = Math.sin(x * 0.025) * 35 + 256;
+                        if (x === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.stroke();
+                    
+                    // Add cardboard fold lines
+                    ctx.strokeStyle = 'rgba(139,69,19,0.15)';
+                    ctx.lineWidth = 1;
+                    for (let x = 0; x < 512; x += 64) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, 0);
+                        ctx.lineTo(x, 512);
+                        ctx.stroke();
+                    }
+                    
+                } else if (pattern === 'offset') {
+                    // Offset pattern with honeycomb cardboard structure
+                    ctx.strokeStyle = 'rgba(139,69,19,0.25)';
+                    ctx.lineWidth = 2;
+                    for (let y = 0; y < 512; y += 48) {
+                        for (let x = 0; x < 512; x += 42) {
+                            const offsetX = (y % 96 === 0) ? 0 : 21;
+                            ctx.beginPath();
+                            ctx.arc(x + offsetX, y, 16, 0, Math.PI * 2);
+                            ctx.stroke();
+                            
+                            // Add inner cardboard structure
+                            ctx.beginPath();
+                            ctx.arc(x + offsetX, y, 8, 0, Math.PI * 2);
+                            ctx.strokeStyle = 'rgba(139,69,19,0.15)';
+                            ctx.lineWidth = 1;
+                            ctx.stroke();
+                            ctx.strokeStyle = 'rgba(139,69,19,0.25)';
+                            ctx.lineWidth = 2;
+                        }
+                    }
+                }
+                
+                // Add realistic cardboard wear, stains and aging
+                ctx.globalCompositeOperation = 'multiply';
+                
+                // Add cardboard stains and discoloration
+                for (let i = 0; i < 15; i++) {
+                    const x = Math.random() * 512;
+                    const y = Math.random() * 512;
+                    const size = Math.random() * 25 + 8;
+                    const opacity = Math.random() * 0.08 + 0.02;
+                    ctx.fillStyle = `rgba(139,69,19,${opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Add edge wear and scuffs
+                for (let i = 0; i < 8; i++) {
+                    const isEdge = Math.random() > 0.5;
+                    const x = isEdge ? (Math.random() > 0.5 ? Math.random() * 50 : 462 + Math.random() * 50) : Math.random() * 512;
+                    const y = isEdge ? Math.random() * 512 : (Math.random() > 0.5 ? Math.random() * 50 : 462 + Math.random() * 50);
+                    const size = Math.random() * 15 + 5;
+                    ctx.fillStyle = `rgba(101,67,33,${Math.random() * 0.12 + 0.03})`;
+                    ctx.beginPath();
+                    ctx.arc(x, y, size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                // Add subtle moisture marks
+                for (let i = 0; i < 5; i++) {
+                    const x = Math.random() * 512;
+                    const y = Math.random() * 512;
+                    const width = Math.random() * 40 + 20;
+                    const height = Math.random() * 20 + 10;
+                    ctx.fillStyle = `rgba(160,82,45,${Math.random() * 0.06 + 0.01})`;
+                    ctx.fillRect(x, y, width, height);
+                }
+                
+                ctx.globalCompositeOperation = 'source-over';
+                
+                return new THREE.CanvasTexture(canvas);
+            };
+            
+            // Helper function to adjust color brightness
+            function adjustBrightness(color, amount) {
+                const hex = color.replace('#', '');
+                const r = Math.max(0, Math.min(255, parseInt(hex.substr(0, 2), 16) + amount));
+                const g = Math.max(0, Math.min(255, parseInt(hex.substr(2, 2), 16) + amount));
+                const b = Math.max(0, Math.min(255, parseInt(hex.substr(4, 2), 16) + amount));
+                return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+            }
+
+            for (let layerIndex = startLayer; layerIndex < endLayer && layerIndex < optimal.layout.length; layerIndex++) {
+                const layer = optimal.layout[layerIndex];
+                
+                layer.forEach((row, rowIndex) => {
+                    row.forEach((box, colIndex) => {
+                        const boxGeometry = new THREE.BoxGeometry(
+                            (box.rotated ? boxDimensions.width : boxDimensions.length) / 10,
+                            boxDimensions.height / 10,
+                            (box.rotated ? boxDimensions.length : boxDimensions.width) / 10
+                        );
+
+                        // Whitecraft/Browncraft colors and materials based on box type
+                        let baseColor, pattern, metalness, roughness;
+                        const useWhitecraft = (layerIndex + rowIndex + colIndex) % 2 === 0;
+                        
+                        if (box.rotated) {
+                            baseColor = useWhitecraft ? '#f8f9fa' : '#d4a574';
+                            pattern = 'rotated';
+                            metalness = 0.05;
+                            roughness = 0.95;
+                        } else if (box.zigzag) {
+                            baseColor = useWhitecraft ? '#f1f3f4' : '#c49968';
+                            pattern = 'zigzag';
+                            metalness = 0.05;
+                            roughness = 0.95;
+                        } else if (box.offset) {
+                            baseColor = useWhitecraft ? '#f3f4f6' : '#d2a373';
+                            pattern = 'offset';
+                            metalness = 0.05;
+                            roughness = 0.95;
+                        } else {
+                            baseColor = useWhitecraft ? '#f8f9fa' : '#d4a574';
+                            pattern = useWhitecraft ? 'whitecraft' : 'normal';
+                            metalness = 0.05;
+                            roughness = 0.95;
+                        }
+
+                        // Create texture for this box type
+                        const boxTexture = createBoxTexture(baseColor, pattern);
+                        boxTexture.wrapS = THREE.RepeatWrapping;
+                        boxTexture.wrapT = THREE.RepeatWrapping;
+                        boxTexture.repeat.set(2, 2);
+
+                        // Premium material with PBR properties
+                        const boxMaterial = new THREE.MeshStandardMaterial({
+                            map: boxTexture,
+                            color: baseColor,
+                            metalness: metalness,
+                            roughness: roughness,
+                            transparent: true,
+                            opacity: showAllLayers ? Math.max(0.8, 1 - (layerIndex * 0.08)) : 1.0,
+                            normalScale: new THREE.Vector2(0.5, 0.5),
+                            envMapIntensity: 0.3
+                        });
+
+                        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+                        
+                        // Enhanced wireframe edges with better styling
+                        const edges = new THREE.EdgesGeometry(boxGeometry);
+                        const edgeMaterial = new THREE.LineBasicMaterial({ 
+                            color: 0x1a1a1a,
+                            transparent: true,
+                            opacity: 0.8,
+                            linewidth: 2
+                        });
+                        const wireframe = new THREE.LineSegments(edges, edgeMaterial);
+                        boxMesh.add(wireframe);
+                        
+                        // Add premium corner reinforcements with metallic finish
+                        const cornerSize = 0.4;
+                        const cornerGeometry = new THREE.BoxGeometry(cornerSize, cornerSize, cornerSize);
+                        const cornerMaterial = new THREE.MeshStandardMaterial({
+                            color: 0x1a202c,
+                            metalness: 0.9,
+                            roughness: 0.1,
+                            emissive: 0x0a0a0a,
+                            emissiveIntensity: 0.1
+                        });
+                        
+                        const boxWidth = (box.rotated ? boxDimensions.width : boxDimensions.length) / 10;
+                        const boxHeight = boxDimensions.height / 10;
+                        const boxDepth = (box.rotated ? boxDimensions.length : boxDimensions.width) / 10;
+                        
+                        // Add premium corner protectors
+                        const cornerPositions = [
+                            [-boxWidth/2, -boxHeight/2, -boxDepth/2],
+                            [boxWidth/2, -boxHeight/2, -boxDepth/2],
+                            [-boxWidth/2, boxHeight/2, -boxDepth/2],
+                            [boxWidth/2, boxHeight/2, -boxDepth/2],
+                            [-boxWidth/2, -boxHeight/2, boxDepth/2],
+                            [boxWidth/2, -boxHeight/2, boxDepth/2],
+                            [-boxWidth/2, boxHeight/2, boxDepth/2],
+                            [boxWidth/2, boxHeight/2, boxDepth/2]
+                        ];
+                        
+                        cornerPositions.forEach(pos => {
+                            const corner = new THREE.Mesh(cornerGeometry, cornerMaterial);
+                            corner.position.set(...pos);
+                            corner.rotation.set(
+                                Math.random() * 0.2 - 0.1,
+                                Math.random() * 0.2 - 0.1,
+                                Math.random() * 0.2 - 0.1
+                            );
+                            corner.castShadow = true;
+                            boxMesh.add(corner);
+                        });
+                        
+                        // Add premium box labels with professional design
+                        const labelCanvas = document.createElement('canvas');
+                        labelCanvas.width = 256;
+                        labelCanvas.height = 128;
+                        const labelCtx = labelCanvas.getContext('2d');
+                        
+                        // Premium label background with gradient
+                        const labelGradient = labelCtx.createLinearGradient(0, 0, 0, 128);
+                        labelGradient.addColorStop(0, 'rgba(255,255,255,0.95)');
+                        labelGradient.addColorStop(1, 'rgba(240,240,240,0.95)');
+                        labelCtx.fillStyle = labelGradient;
+                        labelCtx.fillRect(0, 0, 256, 128);
+                        
+                        // Premium border with rounded corners effect
+                        labelCtx.strokeStyle = '#2d3748';
+                        labelCtx.lineWidth = 3;
+                        labelCtx.strokeRect(3, 3, 250, 122);
+                        
+                        // Inner border highlight
+                        labelCtx.strokeStyle = 'rgba(255,255,255,0.8)';
+                        labelCtx.lineWidth = 1;
+                        labelCtx.strokeRect(6, 6, 244, 116);
+                        
+                        // Premium label text with shadow
+                        labelCtx.fillStyle = '#1a202c';
+                        labelCtx.font = 'bold 18px Inter, Arial';
+                        labelCtx.textAlign = 'center';
+                        
+                        // Text shadow
+                        labelCtx.fillStyle = 'rgba(0,0,0,0.3)';
+                        labelCtx.fillText(`BOX ${layerIndex + 1}-${rowIndex + 1}-${colIndex + 1}`, 129, 31);
+                        
+                        // Main text
+                        labelCtx.fillStyle = '#1a202c';
+                        labelCtx.fillText(`BOX ${layerIndex + 1}-${rowIndex + 1}-${colIndex + 1}`, 128, 30);
+                        
+                        // Type indicator with color coding
+                        const typeText = box.rotated ? 'ROTATED' : box.zigzag ? 'ZIGZAG' : box.offset ? 'OFFSET' : 'NORMAL';
+                        const typeColor = box.rotated ? '#ef4444' : box.zigzag ? '#8b5cf6' : box.offset ? '#10b981' : '#3b82f6';
+                        
+                        labelCtx.font = 'bold 14px Inter, Arial';
+                        labelCtx.fillStyle = typeColor;
+                        labelCtx.fillText(typeText, 128, 55);
+                        
+                        // Dimensions with better formatting
+                        const dims = box.rotated ? 
+                            `${boxDimensions.width}×${boxDimensions.height}×${boxDimensions.length}cm` :
+                            `${boxDimensions.length}×${boxDimensions.height}×${boxDimensions.width}cm`;
+                        labelCtx.font = '12px Inter, Arial';
+                        labelCtx.fillStyle = '#4a5568';
+                        labelCtx.fillText(dims, 128, 80);
+                        
+                        // Add premium QR code placeholder
+                        labelCtx.fillStyle = '#2d3748';
+                        labelCtx.fillRect(200, 90, 25, 25);
+                        labelCtx.fillStyle = '#ffffff';
+                        for (let i = 0; i < 5; i++) {
+                            for (let j = 0; j < 5; j++) {
+                                if ((i + j) % 2 === 0) {
+                                    labelCtx.fillRect(202 + i * 4, 92 + j * 4, 3, 3);
+                                }
+                            }
+                        }
+                        
+                        // Add company logo placeholder
+                        labelCtx.fillStyle = '#3b82f6';
+                        labelCtx.font = 'bold 10px Arial';
+                        labelCtx.textAlign = 'left';
+                        labelCtx.fillText('CARGO', 15, 105);
+                        labelCtx.fillText('SMART', 15, 118);
+                        
+                        const labelTexture = new THREE.CanvasTexture(labelCanvas);
+                        const labelMaterial = new THREE.MeshBasicMaterial({ 
+                            map: labelTexture,
+                            transparent: true,
+                            opacity: 0.95
+                        });
+                        const labelGeometry = new THREE.PlaneGeometry(boxWidth * 0.9, boxHeight * 0.5);
+                        const label = new THREE.Mesh(labelGeometry, labelMaterial);
+                        label.position.set(0, 0, boxDepth/2 + 0.02);
+                        label.castShadow = false;
+                        label.receiveShadow = false;
+                        boxMesh.add(label);
+                        
+                        // Position calculation with enhanced precision
+                        let offsetX = 0;
+                        if (box.offset && box.offsetShift) {
+                            offsetX = boxWidth * box.offsetShift;
+                        }
+
+                        boxMesh.position.set(
+                            (layerIndex * boxDimensions.length / 10) + (boxDimensions.length / 20) + 1,
+                            (rowIndex * boxDimensions.height / 10) + (boxDimensions.height / 20) + 1,
+                            (colIndex * boxDepth) + (boxDepth / 2) + offsetX + 1
+                        );
+
+                        // Enhanced shadow properties
+                        boxMesh.castShadow = true;
+                        boxMesh.receiveShadow = true;
+                        
+                        // Add subtle animation for newly created boxes
+                        boxMesh.scale.set(0.1, 0.1, 0.1);
+                        const targetScale = 1;
+                        const animateScale = () => {
+                            const currentScale = boxMesh.scale.x;
+                            if (currentScale < targetScale) {
+                                const newScale = Math.min(currentScale + 0.05, targetScale);
+                                boxMesh.scale.set(newScale, newScale, newScale);
+                                requestAnimationFrame(animateScale);
+                            }
+                        };
+                        setTimeout(() => animateScale(), layerIndex * 100 + rowIndex * 50 + colIndex * 25);
+                        
+                        scene.add(boxMesh);
+                        boxMeshes.push(boxMesh);
+                    });
+                });
+            }
+        }
+
+        function animate3D() {
+            if (currentVisualizationMode !== '3d' || !renderer || !scene || !camera) {
+                return;
+            }
+            
+            animationId = requestAnimationFrame(animate3D);
+            
+            try {
+                // Enhanced controls update
+                if (controls) {
+                    controls.update();
+                }
+                
+                // Animate particles if they exist
+                if (scene.userData.particles && scene.userData.particles.geometry) {
+                    const positions = scene.userData.particles.geometry.attributes.position.array;
+                    for (let i = 1; i < positions.length; i += 3) {
+                        positions[i] += Math.sin(Date.now() * 0.001 + i) * 0.01;
+                    }
+                    scene.userData.particles.geometry.attributes.position.needsUpdate = true;
+                    scene.userData.particles.rotation.y += 0.001;
+                }
+                
+                // Animate light glows
+                if (scene.children) {
+                    scene.children.forEach(child => {
+                        if (child.material && child.material.emissive && child.material.emissiveIntensity !== undefined) {
+                            if (child.material.emissive.getHex() === 0xffffcc) {
+                                child.material.emissiveIntensity = 0.3 + Math.sin(Date.now() * 0.003) * 0.1;
+                            }
+                        }
+                    });
+                }
+                
+                // Enhanced rendering with post-processing effects
+                renderer.render(scene, camera);
+                
+            } catch (error) {
+                console.error('Animation error:', error);
+                // Stop animation on error
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+            }
+        }
+
+        function cleanup3D() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            
+            // Clean up boxes
+            boxMeshes.forEach(mesh => {
+                if (mesh.parent) {
+                    mesh.parent.remove(mesh);
+                }
+                if (mesh.geometry) mesh.geometry.dispose();
+                if (mesh.material) {
+                    if (Array.isArray(mesh.material)) {
+                        mesh.material.forEach(mat => mat.dispose());
+                    } else {
+                        mesh.material.dispose();
+                    }
+                }
+            });
+            boxMeshes = [];
+            
+            // Clean up container
+            if (containerMesh) {
+                containerMesh.children.forEach(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(mat => mat.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                });
+                if (scene) scene.remove(containerMesh);
+                containerMesh = null;
+            }
+            
+            // Clean up controls
+            if (controls) {
+                controls.dispose();
+                controls = null;
+            }
+            
+            // Clean up renderer
+            if (renderer) {
+                const threejsContainer = document.getElementById('threejs-container');
+                if (threejsContainer && threejsContainer.contains(renderer.domElement)) {
+                    threejsContainer.removeChild(renderer.domElement);
+                }
+                renderer.dispose();
+                renderer = null;
+            }
+            
+            // Clean up scene
+            if (scene) {
+                scene.clear();
+                scene = null;
+            }
+            
+            camera = null;
+            
+            document.getElementById('threejs-container').style.display = 'none';
+            document.getElementById('visualizationContainer').style.display = 'flex';
+        }
+
+        function create2DVisualization() {
+            const container = document.getElementById('visualizationContainer');
+            const { optimal, containerDimensions, boxDimensions } = calculationResults;
+            
+            // Create responsive 2D SVG visualization with professional design
+            const containerRect = container.getBoundingClientRect();
+            const isMobile = window.innerWidth < 768;
+            const isTablet = window.innerWidth < 1024;
+            
+            // Better responsive sizing
+            let svgWidth, svgHeight, padding;
+            if (isMobile) {
+                svgWidth = Math.min(containerRect.width - 32, 350);
+                svgHeight = Math.min(containerRect.height - 32, 300);
+                padding = 60;
+            } else if (isTablet) {
+                svgWidth = Math.min(containerRect.width - 48, 600);
+                svgHeight = Math.min(containerRect.height - 48, 450);
+                padding = 80;
+            } else {
+                svgWidth = Math.min(containerRect.width - 64, 1000);
+                svgHeight = Math.min(containerRect.height - 64, 700);
+                padding = 120;
+            }
+            
+            // Calculate proper scale to fit container in view with better proportions
+            const scaleX = (svgWidth - padding) / containerDimensions.width;
+            const scaleY = (svgHeight - padding) / containerDimensions.height;
+            const scale = Math.min(scaleX, scaleY, isMobile ? 0.6 : 0.8); // Smaller scale for mobile
+            
+            const containerWidth = containerDimensions.width * scale;
+            const containerHeight = containerDimensions.height * scale;
+            
+            const showAllLayers = document.getElementById('showAllLayers').checked;
+            const currentLayer = parseInt(document.getElementById('layerSlider').value) - 1;
+            
+            let html = `
+                <div class="w-full jiffy-zoom-in" style="background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%); border-radius: ${isMobile ? '16px' : '24px'}; padding: ${isMobile ? '16px' : isTablet ? '24px' : '40px'}; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);">
+                    <div class="mb-4 md:mb-6 text-center">
+                        <h4 class="text-lg md:text-xl lg:text-2xl font-bold text-white mb-2">📐 Layout Visualization</h4>
+                        <p class="text-xs md:text-sm lg:text-base text-slate-300 px-2">Tampak belakang kontainer dengan penataan kotak optimal</p>
+                    </div>
+                    
+                    <svg width="${svgWidth}" height="${svgHeight}" viewBox="0 0 ${svgWidth} ${svgHeight}" class="mx-auto" style="background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%); border-radius: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                        <defs>
+                            <!-- Professional grid pattern -->
+                            <pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse">
+                                <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#cbd5e1" stroke-width="0.5" opacity="0.6"/>
+                                <circle cx="0" cy="0" r="1" fill="#94a3b8" opacity="0.3"/>
+                            </pattern>
+                            
+                            <!-- Enhanced shadow filters -->
+                            <filter id="boxShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+                                <feOffset dx="2" dy="4" result="offset"/>
+                                <feFlood flood-color="#000000" flood-opacity="0.25"/>
+                                <feComposite in2="offset" operator="in"/>
+                                <feMerge>
+                                    <feMergeNode/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            
+                            <filter id="containerGlow" x="-50%" y="-50%" width="200%" height="200%">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            
+                            <!-- Gradient definitions for professional look -->
+                            <linearGradient id="containerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.1" />
+                                <stop offset="50%" style="stop-color:#1d4ed8;stop-opacity:0.05" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:0.1" />
+                            </linearGradient>
+                            
+                            <linearGradient id="borderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="50%" style="stop-color:#1d4ed8;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        
+                        <!-- Professional grid background -->
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                        
+                        <!-- Main container group with enhanced positioning -->
+                        <g transform="translate(${(svgWidth - containerWidth) / 2}, ${(svgHeight - containerHeight) / 2})">
+                            
+                            <!-- Container shadow -->
+                            <rect x="4" y="6" width="${containerWidth}" height="${containerHeight}" 
+                                  fill="#000000" opacity="0.15" rx="12" />
+                            
+                            <!-- Main container with professional styling -->
+                            <rect x="0" y="0" width="${containerWidth}" height="${containerHeight}" 
+                                  fill="url(#containerGradient)" stroke="url(#borderGradient)" stroke-width="4" 
+                                  rx="12" filter="url(#containerGlow)" />
+                            
+                            <!-- Container inner border -->
+                            <rect x="2" y="2" width="${containerWidth-4}" height="${containerHeight-4}" 
+                                  fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1" rx="10" />
+                            
+                            <!-- Container title with better positioning -->
+                            <text x="${containerWidth/2}" y="${isMobile ? '-25' : '-35'}" text-anchor="middle" 
+                                  class="${isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-xl'} font-bold" 
+                                  fill="url(#borderGradient)" style="font-family: 'Inter', sans-serif;">
+                                🚛 ${isMobile ? `${containerDimensions.width}×${containerDimensions.height}` : `Kontainer ${containerDimensions.width} × ${containerDimensions.height} cm`}
+                            </text>
+                            
+                            <!-- Dimension labels -->
+                            <text x="${containerWidth/2}" y="${isMobile ? '-10' : '-15'}" text-anchor="middle" 
+                                  class="${isMobile ? 'text-xs' : 'text-sm'} font-semibold" 
+                                  fill="#64748b" style="font-family: 'Inter', sans-serif;">
+                                ${isMobile ? `Vol: ${((containerDimensions.length * containerDimensions.width * containerDimensions.height) / 1000000).toFixed(1)} m³` : `Tampak Belakang • Volume: ${((containerDimensions.length * containerDimensions.width * containerDimensions.height) / 1000000).toFixed(2)} m³`}
+                            </text>
+            `;
+            
+            // Add boxes for current layer(s)
+            const layersToShow = showAllLayers ? optimal.layers : 1;
+            const startLayer = showAllLayers ? 0 : currentLayer;
+            const endLayer = showAllLayers ? optimal.layers : currentLayer + 1;
+
+            for (let layerIndex = startLayer; layerIndex < endLayer && layerIndex < optimal.layout.length; layerIndex++) {
+                const layer = optimal.layout[layerIndex];
+                const opacity = showAllLayers ? Math.max(0.4, 1 - (layerIndex * 0.1)) : 1;
+                
+                layer.forEach((row, rowIndex) => {
+                    
+                    row.forEach((box, colIndex) => {
+                        const boxWidth = (box.rotated ? boxDimensions.height : boxDimensions.width) * scale;
+                        const boxHeight = (box.rotated ? boxDimensions.width : boxDimensions.height) * scale;
+                        
+                        let fillColor = '#60a5fa';
+                        let strokeColor = '#3b82f6';
+                        
+                        // Adjust colors based on layer depth when showing all layers
+                        if (showAllLayers) {
+                            const layerColorIntensity = 1 - (layerIndex * 0.15);
+                            if (box.rotated) {
+                                fillColor = `rgba(248, 113, 113, ${layerColorIntensity})`;
+                                strokeColor = '#ef4444';
+                            } else if (box.zigzag) {
+                                fillColor = `rgba(167, 139, 250, ${layerColorIntensity})`;
+                                strokeColor = '#8b5cf6';
+                            } else if (box.offset) {
+                                fillColor = `rgba(52, 211, 153, ${layerColorIntensity})`;
+                                strokeColor = '#10b981';
+                            } else {
+                                fillColor = `rgba(96, 165, 250, ${layerColorIntensity})`;
+                                strokeColor = '#3b82f6';
+                            }
+                        } else {
+                            if (box.rotated) {
+                                fillColor = '#f87171';
+                                strokeColor = '#ef4444';
+                            } else if (box.zigzag) {
+                                fillColor = '#a78bfa';
+                                strokeColor = '#8b5cf6';
+                            } else if (box.offset) {
+                                fillColor = '#34d399';
+                                strokeColor = '#10b981';
+                            }
+                        }
+                        
+                        // Calculate position with proper spacing and alignment
+                        let boxX = colIndex * (boxDimensions.width * scale) + 8; // Add padding
+                        let boxY = rowIndex * (boxDimensions.height * scale) + 8; // Add padding
+                        
+                        // Add depth effect for multiple layers when showing all
+                        if (showAllLayers && layerIndex > 0) {
+                            boxX += layerIndex * 3; // Slight offset for depth
+                            boxY += layerIndex * 3; // Slight offset for depth
+                        }
+                        
+                        // Handle offset positioning
+                        if (box.offset && box.offsetShift) {
+                            boxX += (boxDimensions.width * scale * box.offsetShift);
+                        }
+                        
+                        // Create enhanced pattern definitions for different box types
+                        const patternId = `pattern-${layerIndex}-${rowIndex}-${colIndex}`;
+                        const gradientId = `gradient-${layerIndex}-${rowIndex}-${colIndex}`;
+                        const glowId = `glow-${layerIndex}-${rowIndex}-${colIndex}`;
+                        
+                        let patternDef = '';
+                        let gradientDef = '';
+                        let glowDef = '';
+                        
+                        if (box.rotated) {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="12" height="12">
+                                    <rect width="12" height="12" fill="${fillColor}"/>
+                                    <path d="M0,12 L12,0 M3,12 L12,3 M0,9 L9,0" stroke="rgba(255,255,255,0.4)" stroke-width="1.5"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#dc2626;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#b91c1c;stop-opacity:1" />
+                                </linearGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        } else if (box.zigzag) {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="16" height="12">
+                                    <rect width="16" height="12" fill="${fillColor}"/>
+                                    <path d="M0,6 L4,2 L8,10 L12,2 L16,6" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <radialGradient id="${gradientId}" cx="50%" cy="50%" r="70%">
+                                    <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#6d28d9;stop-opacity:1" />
+                                </radialGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        } else if (box.offset) {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="20" height="20">
+                                    <rect width="20" height="20" fill="${fillColor}"/>
+                                    <circle cx="10" cy="10" r="6" stroke="rgba(255,255,255,0.5)" stroke-width="2" fill="none"/>
+                                    <circle cx="10" cy="10" r="2" fill="rgba(255,255,255,0.7)"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="0%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#34d399;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#10b981;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#047857;stop-opacity:1" />
+                                </linearGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        } else {
+                            patternDef = `
+                                <pattern id="${patternId}" patternUnits="userSpaceOnUse" width="14" height="14">
+                                    <rect width="14" height="14" fill="${fillColor}"/>
+                                    <path d="M0,0 L0,14 M0,0 L14,0 M7,0 L7,14 M0,7 L14,7" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                                </pattern>
+                            `;
+                            gradientDef = `
+                                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1" />
+                                </linearGradient>
+                            `;
+                            glowDef = `
+                                <filter id="${glowId}">
+                                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            `;
+                        }
+                        
+                        html += `
+                            <defs>
+                                ${patternDef}
+                                ${gradientDef}
+                                ${glowDef}
+                            </defs>
+                            
+                            <g class="box-group" style="cursor: pointer;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                <!-- Enhanced shadow with blur -->
+                                <rect x="${boxX + 4}" y="${boxY + 6}" 
+                                      width="${boxWidth}" height="${boxHeight}" 
+                                      fill="#000000" opacity="0.2" rx="6" 
+                                      filter="url(#boxShadow)" />
+                                
+                                <!-- Main box with enhanced gradient and glow -->
+                                <rect x="${boxX}" y="${boxY}" 
+                                      width="${boxWidth}" height="${boxHeight}" 
+                                      fill="url(#${gradientId})" stroke="${strokeColor}" stroke-width="3" 
+                                      rx="6" opacity="${opacity}" filter="url(#${glowId})" />
+                                
+                                <!-- Pattern overlay with better opacity -->
+                                <rect x="${boxX + 2}" y="${boxY + 2}" 
+                                      width="${boxWidth - 4}" height="${boxHeight - 4}" 
+                                      fill="url(#${patternId})" opacity="0.7" rx="4" />
+                                
+                                <!-- Enhanced inner border with gradient -->
+                                <rect x="${boxX + 1.5}" y="${boxY + 1.5}" 
+                                      width="${boxWidth - 3}" height="${boxHeight - 3}" 
+                                      fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" rx="4.5" />
+                                
+                                <!-- Professional box labels (responsive sizing) -->
+                                ${boxWidth > (isMobile ? 15 : 25) && boxHeight > (isMobile ? 15 : 25) ? `
+                                    <!-- Icon background -->
+                                    <circle cx="${boxX + boxWidth/2}" cy="${boxY + boxHeight/2 - (isMobile ? 3 : 6)}" r="${isMobile ? 6 : 8}" 
+                                            fill="rgba(0,0,0,0.3)" opacity="${opacity * 0.8}"/>
+                                    
+                                    <!-- Box type icon -->
+                                    <text x="${boxX + boxWidth/2}" y="${boxY + boxHeight/2 - (isMobile ? 3 : 6)}" 
+                                          text-anchor="middle" dominant-baseline="middle"
+                                          class="${isMobile ? 'text-xs' : isTablet ? 'text-sm' : 'text-base'} font-bold fill-white" 
+                                          style="font-family: 'Inter', sans-serif; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);"
+                                          opacity="${opacity}">
+                                        ${box.rotated ? '↻' : box.zigzag ? '⟲' : box.offset ? '⬢' : '□'}
+                                    </text>
+                                    
+                                    <!-- Box number with background -->
+                                    <rect x="${boxX + boxWidth/2 - (isMobile ? 8 : 12)}" y="${boxY + boxHeight/2 + (isMobile ? 1 : 2)}" 
+                                          width="${isMobile ? 16 : 24}" height="${isMobile ? 8 : 12}" rx="${isMobile ? 4 : 6}" 
+                                          fill="rgba(0,0,0,0.4)" opacity="${opacity * 0.9}"/>
+                                    
+                                    <text x="${boxX + boxWidth/2}" y="${boxY + boxHeight/2 + (isMobile ? 5 : 8)}" 
+                                          text-anchor="middle" dominant-baseline="middle"
+                                          class="${isMobile ? 'text-xs' : 'text-sm'} font-bold fill-white" 
+                                          style="font-family: 'Inter', sans-serif; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"
+                                          opacity="${opacity}">
+                                        ${showAllLayers ? `S${layerIndex + 1}` : isMobile ? `${layerIndex + 1}` : `${layerIndex + 1}-${rowIndex + 1}-${colIndex + 1}`}
+                                    </text>
+                                ` : boxWidth > (isMobile ? 8 : 15) && boxHeight > (isMobile ? 8 : 15) ? `
+                                    <!-- Minimal label for smaller boxes -->
+                                    <text x="${boxX + boxWidth/2}" y="${boxY + boxHeight/2}" 
+                                          text-anchor="middle" dominant-baseline="middle"
+                                          class="${isMobile ? 'text-xs' : 'text-xs'} font-bold fill-white" 
+                                          style="font-family: 'Inter', sans-serif; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"
+                                          opacity="${opacity}">
+                                        ${layerIndex + 1}
+                                    </text>
+                                ` : ''}
+                            </g>
+                        `;
+
+                    });
+                });
+            }
+            
+            html += `
+                        </g>
+                        
+                        <!-- Professional footer with statistics -->
+                        <g transform="translate(0, ${svgHeight - (isMobile ? 60 : 80)})">
+                            <!-- Footer background -->
+                            <rect x="${isMobile ? 10 : 20}" y="0" width="${svgWidth - (isMobile ? 20 : 40)}" height="${isMobile ? 50 : 70}" 
+                                  fill="rgba(30, 41, 59, 0.9)" rx="${isMobile ? 8 : 12}" />
+                            
+                            <!-- Layer information -->
+                            <text x="${svgWidth/2}" y="${isMobile ? 18 : 25}" text-anchor="middle" 
+                                  class="${isMobile ? 'text-xs' : isTablet ? 'text-sm' : 'text-lg'} font-bold fill-white" 
+                                  style="font-family: 'Inter', sans-serif;">
+                                ${showAllLayers ? (isMobile ? `📊 ${optimal.layers} Sap` : `📊 Menampilkan Semua ${optimal.layers} Sap`) : (isMobile ? `📋 Sap ${currentLayer + 1}/${optimal.layers}` : `📋 Sap ${currentLayer + 1} dari ${optimal.layers}`)}
+                            </text>
+                            
+                            <!-- Statistics row -->
+                            <g transform="translate(${isMobile ? 15 : 40}, ${isMobile ? 30 : 40})">
+                                ${isMobile ? `
+                                    <!-- Mobile: Single line with key stats -->
+                                    <text x="${(svgWidth - 30) / 2}" y="0" text-anchor="middle" class="text-xs font-semibold fill-slate-300" 
+                                          style="font-family: 'Inter', sans-serif;">
+                                        📋 ${optimal.totalBoxes} kotak • 🎯 ${optimal.efficiency}%
+                                    </text>
+                                ` : `
+                                    <!-- Desktop/Tablet: Three columns -->
+                                    <text x="0" y="0" class="${isTablet ? 'text-xs' : 'text-sm'} font-semibold fill-slate-300" 
+                                          style="font-family: 'Inter', sans-serif;">
+                                        📋 ${showAllLayers ? `${optimal.totalBoxes} kotak (${optimal.boxesPerLayer} per sap)` : `${optimal.boxesPerLayer} kotak di sap ini`}
+                                    </text>
+                                    
+                                    <text x="${(svgWidth - 80) / 3}" y="0" class="${isTablet ? 'text-xs' : 'text-sm'} font-semibold fill-slate-300" 
+                                          style="font-family: 'Inter', sans-serif;">
+                                        🎯 ${optimal.efficiency}% efisiensi
+                                    </text>
+                                    
+                                    <text x="${2 * (svgWidth - 80) / 3}" y="0" class="${isTablet ? 'text-xs' : 'text-sm'} font-semibold fill-slate-300" 
+                                          style="font-family: 'Inter', sans-serif;">
+                                        📏 ${showAllLayers ? `0-${optimal.layers * boxDimensions.length} cm` : `${(currentLayer * boxDimensions.length)}-${((currentLayer + 1) * boxDimensions.length)} cm`}
+                                    </text>
+                                `}
+                            </g>
+                        </g>
+                        
+
+                    </svg>
+                    
+                    <!-- Professional control panel -->
+                    <div class="mt-6 flex flex-col lg:flex-row justify-between items-center gap-4 p-4 bg-slate-800 rounded-xl">
+                        <div class="flex items-center gap-4">
+                            <div class="text-white font-semibold">🎮 Kontrol Visualisasi:</div>
+                            <button onclick="create2DVisualization()" 
+                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all">
+                                🔄 Refresh
+                            </button>
+                        </div>
+                        
+                        ${showAllLayers ? `
+                        <div class="flex items-center gap-4 text-slate-300 text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded opacity-100"></div>
+                                <span>Sap 1 (Depan)</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded opacity-70"></div>
+                                <span>Sap 2-3</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 bg-blue-500 rounded opacity-40"></div>
+                                <span>Sap ${optimal.layers} (Belakang)</span>
+                            </div>
+                        </div>
+                        ` : `
+                        <div class="flex items-center gap-2 text-slate-300 text-sm">
+                            <span>💡 Tips: Hover kotak untuk detail, gunakan layer controls untuk navigasi</span>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function setupLayerControls() {
+            if (!calculationResults) return;
+            
+            const { optimal } = calculationResults;
+            
+            // Show layer controls
+            document.getElementById('layerControls').classList.remove('hidden');
+            document.getElementById('layerControls').classList.add('jiffy-elastic');
+            
+            // Setup layer slider
+            const layerSlider = document.getElementById('layerSlider');
+            const layerDisplay = document.getElementById('layerDisplay');
+            layerSlider.max = optimal.layers;
+            layerDisplay.textContent = `1 / ${optimal.layers}`;
+            
+            // Create layer tabs
+            const layerTabs = document.getElementById('layerTabs');
+            layerTabs.innerHTML = '';
+            
+            for (let i = 1; i <= optimal.layers; i++) {
+                const tab = document.createElement('button');
+                tab.className = `layer-tab px-4 py-2 text-sm font-semibold border-2 border-gray-200 ${i === 1 ? 'active' : ''} jiffy-hover-lift`;
+                tab.textContent = `Sap ${i}`;
+                tab.onclick = () => selectLayer(i);
+                layerTabs.appendChild(tab);
+            }
+        }
+
+        function selectLayer(layerNum) {
+            if (!calculationResults || !calculationResults.optimal) return;
+            
+            const layerSlider = document.getElementById('layerSlider');
+            const layerDisplay = document.getElementById('layerDisplay');
+            
+            if (!layerSlider || !layerDisplay) return;
+            
+            // Update slider
+            layerSlider.value = layerNum;
+            layerDisplay.textContent = `${layerNum} / ${calculationResults.optimal.layers}`;
+            
+            // Update active tab
+            document.querySelectorAll('.layer-tab').forEach((tab, index) => {
+                if (index + 1 === layerNum) {
+                    tab.classList.add('active');
+                    tab.classList.add('jiffy-bounce');
+                    setTimeout(() => tab.classList.remove('jiffy-bounce'), 600);
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            
+            // Update visualization based on current mode
+            try {
+                if (currentVisualizationMode === '3d' && scene && renderer && camera) {
+                    createBoxes3D();
+                } else {
+                    create2DVisualization();
+                }
+            } catch (error) {
+                console.error('Layer selection error:', error);
+                // Fallback to 2D if 3D fails
+                if (currentVisualizationMode === '3d') {
+                    currentVisualizationMode = '2d';
+                    document.getElementById('toggle3DMode').textContent = '🎮 Mode 3D';
+                    document.getElementById('threeDControls').classList.add('hidden');
+                    cleanup3D();
+                    create2DVisualization();
+                    showJiffyAlert('Switched to 2D mode due to error', 'warning');
+                } else {
+                    showJiffyAlert('Error updating visualization', 'error');
+                }
+            }
+        }
+
+        function showSpecificLayer(layerNum) {
+            document.getElementById('layerDisplay').textContent = `${layerNum} / ${calculationResults.optimal.layers}`;
+            selectLayer(parseInt(layerNum));
+        }
+
+        function toggleLayerMode() {
+            const showAll = document.getElementById('showAllLayers').checked;
+            
+            if (showAll) {
+                document.getElementById('layerSlider').disabled = true;
+                document.querySelectorAll('.layer-tab').forEach(tab => {
+                    tab.disabled = true;
+                    tab.classList.add('opacity-50');
+                });
+                
+                // Auto-open doors when showing all layers in 3D mode
+                if (currentVisualizationMode === '3d' && containerMesh && containerMesh.userData.leftDoor) {
+                    const isOpen = containerMesh.userData.leftDoor.userData.isOpen;
+                    if (!isOpen) {
+                        // Automatically open doors
+                        setTimeout(() => {
+                            toggleContainerDoors();
+                        }, 500);
+                    }
+                }
+            } else {
+                document.getElementById('layerSlider').disabled = false;
+                document.querySelectorAll('.layer-tab').forEach(tab => {
+                    tab.disabled = false;
+                    tab.classList.remove('opacity-50');
+                });
+            }
+            
+            // Update visualization based on current mode
+            try {
+                if (currentVisualizationMode === '3d' && scene && renderer && camera) {
+                    createBoxes3D();
+                } else {
+                    create2DVisualization();
+                }
+            } catch (error) {
+                console.error('Toggle layer mode error:', error);
+                // Fallback to 2D if 3D fails
+                if (currentVisualizationMode === '3d') {
+                    currentVisualizationMode = '2d';
+                    document.getElementById('toggle3DMode').textContent = '🎮 Mode 3D';
+                    document.getElementById('threeDControls').classList.add('hidden');
+                    cleanup3D();
+                    create2DVisualization();
+                    showJiffyAlert('Switched to 2D mode due to error', 'warning');
+                } else {
+                    showJiffyAlert('Error updating visualization', 'error');
+                }
+            }
+        }
+
+        function resetCamera() {
+            if (camera && controls) {
+                camera.position.set(50, 50, 50);
+                controls.reset();
+                
+                // Add animation feedback
+                const button = event.target;
+                button.classList.add('jiffy-bounce');
+                setTimeout(() => button.classList.remove('jiffy-bounce'), 600);
+                
+                showJiffyAlert('Kamera direset ke posisi default', 'info');
+            }
+        }
+
+        function toggleWireframe() {
+            const wireframe = document.getElementById('wireframeMode').checked;
+            
+            boxMeshes.forEach(mesh => {
+                mesh.material.wireframe = wireframe;
+            });
+            
+            showJiffyAlert(wireframe ? 'Mode wireframe aktif' : 'Mode solid aktif', 'info');
+        }
+
+        function updateOpacity(value) {
+            document.getElementById('opacityValue').textContent = value;
+            
+            boxMeshes.forEach(mesh => {
+                mesh.material.opacity = parseFloat(value);
+            });
+        }
+
+        function toggleContainerDoors() {
+            if (!containerMesh || !containerMesh.userData.leftDoor || !containerMesh.userData.rightDoor) {
+                showJiffyAlert('Container doors not available', 'warning');
+                return;
+            }
+            
+            const leftDoor = containerMesh.userData.leftDoor;
+            const rightDoor = containerMesh.userData.rightDoor;
+            const button = document.getElementById('doorToggleBtn');
+            
+            if (!button) return;
+            
+            const isOpen = leftDoor.userData.isOpen;
+            const targetAngle = isOpen ? 0 : Math.PI * 0.6; // 108 degrees
+            
+            // Simple door animation
+            const animateDoors = () => {
+                const duration = 1000; // 1 second
+                const startTime = Date.now();
+                const startAngleLeft = leftDoor.rotation.y;
+                const startAngleRight = rightDoor.rotation.y;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeInOut = progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+                    
+                    if (isOpen) {
+                        leftDoor.rotation.y = startAngleLeft * (1 - easeInOut);
+                        rightDoor.rotation.y = startAngleRight * (1 - easeInOut);
+                    } else {
+                        leftDoor.rotation.y = -targetAngle * easeInOut;
+                        rightDoor.rotation.y = targetAngle * easeInOut;
+                    }
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        leftDoor.userData.isOpen = !isOpen;
+                        rightDoor.userData.isOpen = !isOpen;
+                        button.textContent = isOpen ? '🚪 Buka Pintu' : '🚪 Tutup Pintu';
+                        button.disabled = false;
+                        
+                        // Update door transparency
+                        updateBoxVisibilityForDoors(!isOpen);
+                        
+                        showJiffyAlert(isOpen ? 'Pintu ditutup' : 'Pintu dibuka', 'success');
+                    }
+                };
+                
+                animate();
+            };
+            
+            button.disabled = true;
+            button.textContent = isOpen ? '⏳ Menutup...' : '⏳ Membuka...';
+            animateDoors();
+        }
+
+        function updateBoxVisibilityForDoors(doorsOpen) {
+            if (!boxMeshes.length || !calculationResults) return;
+            
+            const showAllLayersElement = document.getElementById('showAllLayers');
+            if (!showAllLayersElement) return;
+            
+            const showAllLayers = showAllLayersElement.checked;
+            
+            // Boxes remain solid and visible at all times
+            boxMeshes.forEach(mesh => {
+                mesh.material.opacity = showAllLayers ? Math.max(0.8, 1 - (Math.floor(mesh.position.x / (calculationResults.boxDimensions.length / 10)) * 0.08)) : 1.0;
+                mesh.material.transparent = showAllLayers;
+                
+                if (doorsOpen && showAllLayers) {
+                    // Add subtle glow effect for depth perception
+                    const boxLayerIndex = Math.floor(mesh.position.x / (calculationResults.boxDimensions.length / 10));
+                    const totalLayers = calculationResults.optimal.layers;
+                    
+                    if (boxLayerIndex >= totalLayers - 2) {
+                        if (mesh.material.emissive) {
+                            mesh.material.emissive.setHex(0x003366);
+                            mesh.material.emissiveIntensity = 0.2;
+                        }
+                    } else if (boxLayerIndex >= totalLayers - 4) {
+                        if (mesh.material.emissive) {
+                            mesh.material.emissive.setHex(0x001122);
+                            mesh.material.emissiveIntensity = 0.1;
+                        }
+                    }
+                } else if (doorsOpen) {
+                    if (mesh.material.emissive) {
+                        mesh.material.emissive.setHex(0x002244);
+                        mesh.material.emissiveIntensity = 0.15;
+                    }
+                } else {
+                    if (mesh.material.emissive) {
+                        mesh.material.emissive.setHex(0x000000);
+                        mesh.material.emissiveIntensity = 0;
+                    }
+                }
+            });
+            
+            // Handle container walls - only back wall becomes transparent when doors opened
+            if (containerMesh) {
+                containerMesh.children.forEach(child => {
+                    if (child.material && child.material.opacity !== undefined) {
+                        const containerLength = calculationResults.containerDimensions.length / 10;
+                        
+                        if (doorsOpen) {
+                            // Check if this is the back wall (opposite to doors)
+                            if (child.position.x <= 2 && child.position.z > 5) {
+                                // Make back wall 100% transparent for clear view inside
+                                child.material.opacity = 0.0;
+                                child.material.transparent = true;
+                                child.visible = false;
+                            }
+                            // Doors remain visible but opened
+                            // All other walls (sides, floor, ceiling) remain solid
+                        } else {
+                            // Doors closed - restore all elements to original opacity
+                            child.material.opacity = child.material.map ? 0.9 : 1.0;
+                            child.material.transparent = child.material.map ? true : false;
+                            child.visible = true;
+                        }
+                    }
+                });
+            }
+        }
+
+
+
+        // Window resize handler with debouncing
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                try {
+                    if (renderer && camera && currentVisualizationMode === '3d') {
+                        const threejsContainer = document.getElementById('threejs-container');
+                        if (threejsContainer && threejsContainer.clientWidth > 0) {
+                            camera.aspect = threejsContainer.clientWidth / 600;
+                            camera.updateProjectionMatrix();
+                            renderer.setSize(threejsContainer.clientWidth, 600);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Resize error:', error);
+                }
+            }, 250);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96d82331c50d4ab7',t:'MTc1NDkxOTU1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
