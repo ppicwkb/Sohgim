@@ -1081,9 +1081,9 @@
                         </div>
                         <div>
                             <h1 class="text-4xl font-black text-white mb-1 tracking-tight">
-                                InventoryPro
+                                Stok GIM
                             </h1>
-                            <p class="text-white/80 text-lg font-medium">Advanced Warehouse Management</p>
+                            <p class="text-white/80 text-lg font-medium">Warehouse Management</p>
                         </div>
                     </div>
                     
@@ -1091,7 +1091,7 @@
                     <div class="flex items-center space-x-6 text-sm">
                         <div class="flex items-center space-x-2 bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm">
                             <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                            <span class="text-white font-semibold">LIVE DATA</span>
+                            <span class="text-white font-semibold">live</span>
                         </div>
                         <div class="flex items-center space-x-2 text-white/70">
                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -1140,7 +1140,7 @@
                 <div class="relative z-10">
                     <div class="card-title">Total Inventory</div>
                     <div class="card-value" id="mobileTotalQty">0</div>
-                    <div class="card-unit">units</div>
+                    <div class="card-unit">MC</div>
                 </div>
             </div>
 
@@ -1155,7 +1155,7 @@
                 <div class="relative z-10">
                     <div class="card-title">Base Quantity</div>
                     <div class="card-value" id="mobileTotalBaseQty">0</div>
-                    <div class="card-unit">base</div>
+                    <div class="card-unit">Kg</div>
                 </div>
             </div>
 
@@ -1402,10 +1402,10 @@
         <!-- Control Panel -->
         <div class="bg-white rounded-xl shadow-lg border border-neutral-200 p-8 mb-8">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-neutral-800">Control Panel</h2>
+                <h2 class="text-xl font-bold text-neutral-800">Smart Search</h2>
                 <div class="flex items-center space-x-2 text-sm text-neutral-500">
                     <div class="w-2 h-2 bg-success-500 rounded-full"></div>
-                    <span>Live Feed</span>
+                    <span> </span>
                 </div>
             </div>
             <div class="controls-mobile flex flex-col lg:flex-row gap-6 items-center justify-between">
@@ -1549,7 +1549,7 @@
 
         // API Configuration
         const API_KEY = 'AIzaSyCfnSym_wpPtzWL0P3-kslY1Y14B7nD-34';
-        const SPREADSHEET_ID = '17OkeTOaqGcx-2BZe7POwXizqDq3AUu6fjPc38izGv2w';
+        const SPREADSHEET_ID = '1pQQoIcrQxM38AW01r9l6T8JZBtwmUVQBZH-eU3iWpaw';
         const RANGE = 'A:N'; // Will try multiple sheet names
 
         // Initialize application
@@ -2490,7 +2490,7 @@
             const doc = new jsPDF('l', 'mm', 'a4'); // landscape orientation
             
             doc.setFontSize(16);
-            doc.text('Inventory Monitoring Report', 14, 15);
+            doc.text('Stok GIM', 14, 15);
             doc.setFontSize(10);
             doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 25);
             
@@ -2521,7 +2521,7 @@
                 }
             });
             
-            doc.save(`inventory_report_${new Date().toISOString().split('T')[0]}.pdf`);
+            doc.save(`Stok_GIM_${new Date().toISOString().split('T')[0]}.pdf`);
         }
 
         function toggleTopItems() {
