@@ -535,7 +535,7 @@
                                 <p class="text-lg font-bold text-blue-700">${qty}</p>
                             </div>
                             <div class="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-                                <p class="text-xs text-green-600 mb-1 font-bold uppercase tracking-wider">Base</p>
+                                <p class="text-xs text-green-600 mb-1 font-bold uppercase tracking-wider">KG</p>
                                 <p class="text-lg font-bold text-green-700">${baseQty}</p>
                             </div>
                         </div>
